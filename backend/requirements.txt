@@ -1,0 +1,22 @@
+# =============================================
+# MyBrain - Phase 0 PoC
+# Dependencias del proyecto
+# =============================================
+
+# SDK de OpenAI para embeddings y chat completion
+openai>=1.30.0
+
+# Base de datos vectorial para almacenar y buscar embeddings
+chromadb>=0.5.0
+
+# Carga de variables de entorno desde archivos .env
+python-dotenv>=1.0.0
+
+# Parser de archivos PDF
+pypdf>=4.0.0
+
+# Utilidad para dividir texto en chunks (solo el splitter, NO langchain completo)
+langchain-text-splitters>=0.2.0
+
+# Salida de consola con formato enriquecido
+rich>=13.7.0
