@@ -1,0 +1,77 @@
+[
+  {
+    "question": "What is Deep Agents?",
+    "ground_truth": "Deep Agents is an agent harness designed to build agents that can plan, use subagents, and leverage virtual filesystems for complex, multi-step tasks. It is built on top of LangChain and uses the LangGraph runtime.",
+    "source_doc": "deep-agents.md"
+  },
+  {
+    "question": "What framework and runtime does Deep Agents build upon?",
+    "ground_truth": "Deep Agents is built on top of LangChain's core building blocks and uses the LangGraph runtime for durable execution, streaming, and persistence.",
+    "source_doc": "deep-agents.md"
+  },
+  {
+    "question": "What is the purpose of the write_todos tool in Deep Agents?",
+    "ground_truth": "The built-in write_todos tool allows deep agents to break down complex tasks into discrete steps, track their progress, and adapt their plans dynamically as new information arises.",
+    "source_doc": "deep-agents.md"
+  },
+  {
+    "question": "What is the default filesystem backend for deep agents, and how does it store files?",
+    "ground_truth": "By default, deep agents use StateBackend, which is a thread-scoped filesystem backend stored in the LangGraph state. Files persist across turns within a thread but are not shared across different threads.",
+    "source_doc": "deep-agents.md"
+  },
+  {
+    "question": "Which parameter in create_deep_agent is used to control path-level access to the filesystem?",
+    "ground_truth": "The permissions parameter is used to control path-level read and write access to the filesystem by declaring filesystem permission rules.",
+    "source_doc": "deep-agents.md"
+  },
+  {
+    "question": "How can deep agents run JavaScript code programmatically without a full shell environment?",
+    "ground_truth": "Deep agents can run JavaScript programmatically using an in-memory interpreter, such as the QuickJS interpreter (which can be configured via CodeInterpreterMiddleware). This allows agents to compose tools and transform data within a lightweight, secure sandbox.",
+    "source_doc": "deep-agents.md"
+  },
+  {
+    "question": "What are deep agents and what advantages do they have over traditional LLM agents?",
+    "ground_truth": "Deep agents are specialized LLM agents built using a dedicated harness (the Deep Agents SDK). Their main advantages are built-in planning and task decomposition (using a todo list), context management (using compression and summarization to offload large results to a virtual filesystem), subagent spawning for isolated execution, shell and code interpreters, and human-in-the-loop support for sensitive operations.",
+    "source_doc": "deep-agents.md"
+  },
+  {
+    "question": "How do deep agents handle huge files and outputs without hitting the LLM context window limit?",
+    "ground_truth": "Deep agents use context management capabilities, specifically context compression. This offloads large tool inputs and results to a virtual filesystem and summarizes older messages, keeping the context window small and efficient.",
+    "source_doc": "deep-agents.md"
+  },
+  {
+    "question": "Why should I use subagents in my project instead of having one single agent do everything?",
+    "ground_truth": "Subagents allow you to delegate complex subtasks to separate agents running in isolated context windows. This isolates detailed context, prevents the main agent's context window from bloating, allows concurrent or async execution of tasks, and makes overall agent behavior more reliable and easier to debug.",
+    "source_doc": "deep-agents.md"
+  },
+  {
+    "question": "How do you implement a basic Google Gemini deep agent in Python with a weather tool?",
+    "ground_truth": "You import create_deep_agent from deepagents, define the tool function with type hints and a docstring, and call create_deep_agent passing the model as 'google_genai:gemini-3.5-flash', the tools list, and a system prompt. You then run it by calling agent.invoke() with a dictionary containing the messages list. For example:\n\n```python\nfrom deepagents import create_deep_agent\n\ndef get_weather(city: str) -> str:\n    \"\"\"Get weather for a given city.\"\"\"\n    return f\"It's always sunny in {city}!\"\n\nagent = create_deep_agent(\n    model=\"google_genai:gemini-3.5-flash\",\n    tools=[get_weather],\n    system_prompt=\"You are a helpful assistant\",\n)\nagent.invoke({\"messages\": [{\"role\": \"user\", \"content\": \"what is the weather in sf\"}]})\n```",
+    "source_doc": "deep-agents.md"
+  },
+  {
+    "question": "How do you define a research subagent and add it to a main agent in code?",
+    "ground_truth": "To implement subagents, define the subagent configuration as a dictionary containing keys like 'name', 'description', 'system_prompt', 'tools', and optionally 'model'. Then, pass a list of these subagent configurations to the subagents parameter in create_deep_agent. For example:\n\n```python\nresearch_subagent = {\n    \"name\": \"research-agent\",\n    \"description\": \"Used to research more in depth questions\",\n    \"system_prompt\": \"You are a great researcher\",\n    \"tools\": [internet_search],\n}\n\nagent = create_deep_agent(\n    model=\"google_genai:gemini-3.5-flash\",\n    subagents=[research_subagent],\n)\n```",
+    "source_doc": "deep-agents.md"
+  },
+  {
+    "question": "How do you seed virtual files like AGENTS.md for the agent's memory when invoking it with StateBackend?",
+    "ground_truth": "You define your memory paths when creating the agent using the memory parameter (e.g., memory=[\"/AGENTS.md\"]). Then, when calling invoke(), you pass a 'files' dictionary containing virtual file paths mapped to file data created via create_file_data(). For example:\n\n```python\nfrom deepagents.backends.utils import create_file_data\n\nagent = create_deep_agent(\n    model=\"google_genai:gemini-3.5-flash\",\n    memory=[\"/AGENTS.md\"],\n)\n\nagent.invoke({\n    \"messages\": [{\"role\": \"user\", \"content\": \"What's in your memory?\"}],\n    \"files\": {\"/AGENTS.md\": create_file_data(agents_md_content)}\n})\n```",
+    "source_doc": "deep-agents.md"
+  },
+  {
+    "question": "How much does it cost to run a deep agent using OpenAI's gpt-5.4 model?",
+    "ground_truth": "This information is not provided in the document. The text mentions the provider:model format for model selection (such as openai:gpt-5.4) but does not contain pricing, token costs, or billing information for OpenAI or any other LLM provider.",
+    "source_doc": "deep-agents.md"
+  },
+  {
+    "question": "How do you deploy a deep agent as a REST API using FastAPI?",
+    "ground_truth": "This information is not provided in the document. The text focuses on the core SDK capabilities, configuration, and running agents locally using Python. It does not contain deployment guidelines or code examples for exposing deep agents via web frameworks like FastAPI.",
+    "source_doc": "deep-agents.md"
+  },
+  {
+    "question": "What is the maximum number of concurrent subagents that can be run under one deep agent?",
+    "ground_truth": "This information is not provided in the document. While the document mentions spawning subagents and using async subagents for parallel execution, it does not specify any technical limits, configuration options, or maximum numbers for concurrent subagents.",
+    "source_doc": "deep-agents.md"
+  }
+]

@@ -47,6 +47,11 @@ class Settings:
         default_factory=lambda: int(os.getenv("CHUNK_OVERLAP", "200"))
     )
 
+    # --- Estrategia de chunking ('basic' o 'smart') ---
+    chunking_strategy: str = field(
+        default_factory=lambda: os.getenv("CHUNKING_STRATEGY", "smart")
+    )
+
     # --- Directorio de documentos ---
     documents_dir: str = field(
         default_factory=lambda: os.getenv("DOCUMENTS_DIR", "./documents")

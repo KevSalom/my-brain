@@ -3,9 +3,9 @@ Módulo de ingestión de documentos de MyBrain.
 
 Se encarga de:
 - Leer archivos .txt y .pdf
-- Dividirlos en chunks usando RecursiveCharacterTextSplitter
+- Dividirlos en chunks usando la estrategia configurada (basic/smart)
 - Generar embeddings con la API de OpenAI
-- Almacenarlos en ChromaDB con metadatos relevantes
+- Almacenarlos en ChromaDB con metadatos enriquecidos
 """
 
 import os
@@ -16,19 +16,19 @@ from typing import Optional
 import chromadb
 from openai import OpenAI
 from pypdf import PdfReader
-from langchain_text_splitters import RecursiveCharacterTextSplitter
 from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn, TaskProgressColumn
 from rich.panel import Panel
 from rich.table import Table
 
 from config import settings
+from chunking import get_chunking_strategy, ChunkResult
 
 # Consola de rich para salida formateada
 console = Console()
 
 # Extensiones de archivo soportadas
-SUPPORTED_EXTENSIONS = {".txt", ".pdf"}
+SUPPORTED_EXTENSIONS = {".txt", ".pdf", ".md"}
 
 
 def _get_openai_client() -> OpenAI:
@@ -102,7 +102,7 @@ def _read_file(file_path: Path) -> str:
 
     suffix = file_path.suffix.lower()
 
-    if suffix == ".txt":
+    if suffix == ".txt" or suffix == ".md":
         return _read_txt_file(file_path)
     elif suffix == ".pdf":
         return _read_pdf_file(file_path)
@@ -113,22 +113,23 @@ def _read_file(file_path: Path) -> str:
         )
 
 
-def _chunk_text(text: str) -> list[str]:
-    """Divide el texto en chunks usando RecursiveCharacterTextSplitter.
+def _chunk_text(text: str, file_type: str = "txt") -> list[ChunkResult]:
+    """Divide el texto en chunks usando la estrategia configurada.
+
+    La estrategia se selecciona desde settings.chunking_strategy:
+    - 'basic': separadores genéricos (párrafos, líneas, oraciones)
+    - 'smart': separadores conscientes de código + metadata enriquecida
 
     Args:
         text: Texto completo a dividir.
+        file_type: Tipo de archivo ('txt', 'pdf', 'md') para que la
+                   estrategia smart pueda extraer headings de Markdown.
 
     Returns:
-        Lista de chunks de texto.
+        Lista de ChunkResult con texto y metadata por chunk.
     """
-    splitter = RecursiveCharacterTextSplitter(
-        chunk_size=settings.chunk_size,
-        chunk_overlap=settings.chunk_overlap,
-        length_function=len,
-        separators=["\n\n", "\n", ". ", " ", ""],
-    )
-    return splitter.split_text(text)
+    strategy = get_chunking_strategy()
+    return strategy.chunk(text, file_type=file_type)
 
 
 def _generate_embeddings(texts: list[str], client: OpenAI) -> list[list[float]]:
@@ -182,7 +183,12 @@ def ingest_file(file_path: str) -> int:
     source_name = path.name
     file_type = path.suffix.lower().lstrip(".")
 
-    console.print(f"\n📄 Procesando: [bold cyan]{source_name}[/bold cyan]")
+    # Obtener la estrategia de chunking activa
+    strategy = get_chunking_strategy()
+    console.print(
+        f"\n📄 Procesando: [bold cyan]{source_name}[/bold cyan] "
+        f"[dim](chunking: {strategy.name})[/dim]"
+    )
 
     # Paso 1: Leer el archivo
     with console.status("[bold green]Leyendo archivo..."):
@@ -194,45 +200,57 @@ def ingest_file(file_path: str) -> int:
 
     console.print(f"  ✅ Leído: {len(text):,} caracteres")
 
-    # Paso 2: Dividir en chunks
+    # Paso 2: Dividir en chunks (usa la estrategia configurada)
     with console.status("[bold green]Dividiendo en chunks..."):
-        chunks = _chunk_text(text)
+        chunk_results = _chunk_text(text, file_type=file_type)
 
-    console.print(f"  ✅ Chunks generados: {len(chunks)}")
+    # Extraer los textos para embedding y almacenamiento
+    chunk_texts = [cr.text for cr in chunk_results]
+
+    console.print(f"  ✅ Chunks generados: {len(chunk_texts)}")
 
     # Paso 3: Generar embeddings
     openai_client = _get_openai_client()
 
     with console.status("[bold green]Generando embeddings con OpenAI..."):
-        embeddings = _generate_embeddings(chunks, openai_client)
+        embeddings = _generate_embeddings(chunk_texts, openai_client)
 
     console.print(f"  ✅ Embeddings generados: {len(embeddings)}")
 
     # Paso 4: Preparar metadatos e IDs
-    ids = [_generate_chunk_id(source_name, i) for i in range(len(chunks))]
-    metadatas = [
-        {
+    # Combinar metadata base del archivo con metadata enriquecida de cada chunk
+    ids = [_generate_chunk_id(source_name, i) for i in range(len(chunk_results))]
+    metadatas = []
+    for i, cr in enumerate(chunk_results):
+        # Metadata base (siempre presente)
+        meta = {
             "source": source_name,
             "chunk_index": i,
             "file_type": file_type,
-            "total_chunks": len(chunks),
+            "total_chunks": len(chunk_results),
         }
-        for i in range(len(chunks))
-    ]
+        # Fusionar metadata enriquecida del chunking strategy (section_heading,
+        # has_code, code_languages, chunking_strategy, etc.)
+        meta.update(cr.metadata)
+        metadatas.append(meta)
 
     # Paso 5: Almacenar en ChromaDB (upsert para permitir re-ingestión)
     with console.status("[bold green]Almacenando en ChromaDB..."):
         collection = _get_chroma_collection()
         collection.upsert(
             ids=ids,
-            documents=chunks,
+            documents=chunk_texts,
             embeddings=embeddings,
             metadatas=metadatas,
         )
 
     console.print(f"  ✅ Almacenado en colección '[bold]{settings.collection_name}[/bold]'")
 
-    return len(chunks)
+    # Mostrar resumen de metadata enriquecida si estamos usando smart chunking
+    if strategy.name == "smart":
+        _print_smart_chunking_summary(chunk_results)
+
+    return len(chunk_texts)
 
 
 def ingest_directory(dir_path: Optional[str] = None) -> dict[str, int]:
@@ -299,6 +317,40 @@ def ingest_directory(dir_path: Optional[str] = None) -> dict[str, int]:
     _print_ingest_summary(results, total_chunks)
 
     return results
+
+
+def _print_smart_chunking_summary(chunk_results: list[ChunkResult]) -> None:
+    """Muestra un resumen de la metadata enriquecida generada por smart chunking.
+
+    Incluye: secciones detectadas, chunks con código, y lenguajes encontrados.
+
+    Args:
+        chunk_results: Lista de ChunkResult con metadata enriquecida.
+    """
+    sections: set[str] = set()
+    chunks_with_code = 0
+    languages: set[str] = set()
+
+    for cr in chunk_results:
+        heading = cr.metadata.get("section_heading")
+        if heading:
+            sections.add(heading)
+        if cr.metadata.get("has_code"):
+            chunks_with_code += 1
+        langs = cr.metadata.get("code_languages", "")
+        if langs:
+            for lang in langs.split(", "):
+                languages.add(lang)
+
+    # Mostrar resumen compacto
+    summary_parts = []
+    if sections:
+        summary_parts.append(f"📑 Secciones: {len(sections)}")
+    summary_parts.append(f"💻 Chunks con código: {chunks_with_code}/{len(chunk_results)}")
+    if languages:
+        summary_parts.append(f"🔤 Lenguajes: {', '.join(sorted(languages))}")
+
+    console.print(f"  [dim]{'  |  '.join(summary_parts)}[/dim]")
 
 
 def _print_ingest_summary(results: dict[str, int], total_chunks: int) -> None:
