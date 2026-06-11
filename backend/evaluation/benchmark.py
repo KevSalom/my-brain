@@ -35,72 +35,21 @@ from rich.panel import Panel
 
 from config import settings
 from retriever import get_retrieval_strategy, VectorOnlyStrategy, HybridStrategy
-from query import _get_openai_client, _build_context_prompt, SYSTEM_PROMPT
+from query import _get_openai_client, _build_context_prompt
+from prompts import (
+    SYSTEM_PROMPT,
+    CONTEXT_RELEVANCE_PROMPT,
+    ANSWER_CORRECTNESS_PROMPT,
+    FAITHFULNESS_PROMPT,
+)
+
+
 
 # --- Consola global de Rich ---
 console = Console()
 
 # --- Modelo usado para las evaluaciones LLM-as-judge ---
 JUDGE_MODEL = "gpt-4o-mini"
-
-# --- Prompts para las métricas de evaluación ---
-CONTEXT_RELEVANCE_PROMPT = """You are an expert evaluator for RAG (Retrieval-Augmented Generation) systems.
-
-Given the following question and retrieved context chunks, rate from 0.0 to 1.0 how relevant the retrieved context is to answering the question.
-
-Scoring guide:
-- 1.0: The context contains all the information needed to fully answer the question.
-- 0.7-0.9: The context contains most of the relevant information.
-- 0.4-0.6: The context contains some relevant information but is missing key details.
-- 0.1-0.3: The context is mostly irrelevant with only tangential connections.
-- 0.0: The context is completely irrelevant to the question.
-
-**Question:** {question}
-
-**Retrieved Context:**
-{context}
-
-Return ONLY a JSON object: {{"score": 0.85, "reasoning": "..."}}"""
-
-ANSWER_CORRECTNESS_PROMPT = """You are an expert evaluator for RAG (Retrieval-Augmented Generation) systems.
-
-Given the question, the expected answer (ground truth), and the generated answer, rate from 0.0 to 1.0 how correct the generated answer is.
-
-Scoring guide:
-- 1.0: The generated answer is fully correct and covers all key points from the ground truth.
-- 0.7-0.9: The generated answer is mostly correct with minor omissions or inaccuracies.
-- 0.4-0.6: The generated answer is partially correct but missing significant information.
-- 0.1-0.3: The generated answer has some correct elements but is largely inaccurate.
-- 0.0: The generated answer is completely wrong or unrelated.
-
-**Question:** {question}
-
-**Expected Answer (Ground Truth):**
-{ground_truth}
-
-**Generated Answer:**
-{answer}
-
-Return ONLY a JSON object: {{"score": 0.9, "reasoning": "..."}}"""
-
-FAITHFULNESS_PROMPT = """You are an expert evaluator for RAG (Retrieval-Augmented Generation) systems.
-
-Given these context chunks and this answer, rate from 0.0 to 1.0 whether the answer contains ONLY information present in the context (1.0 = fully faithful, 0.0 = completely hallucinated).
-
-Scoring guide:
-- 1.0: Every claim in the answer is directly supported by the context.
-- 0.7-0.9: Most claims are supported, with minor extrapolations that are reasonable.
-- 0.4-0.6: Some claims are supported but the answer adds significant unsupported information.
-- 0.1-0.3: Most of the answer contains information not found in the context.
-- 0.0: The answer is entirely fabricated with no basis in the context.
-
-**Context Chunks:**
-{context}
-
-**Answer:**
-{answer}
-
-Return ONLY a JSON object: {{"score": 0.95, "reasoning": "..."}}"""
 
 
 def load_test_set(path: str) -> list[dict]:

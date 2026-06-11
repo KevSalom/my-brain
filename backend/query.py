@@ -17,6 +17,7 @@ from openai import OpenAI
 
 from config import settings
 from retriever import get_retrieval_strategy, RetrievalResult
+from prompts import SYSTEM_PROMPT
 
 
 @dataclass
@@ -32,22 +33,6 @@ class QueryResult:
     answer: str = ""
     sources: list[dict] = field(default_factory=list)
     context_chunks: list[str] = field(default_factory=list)
-
-
-# Prompt del sistema — instruye al LLM a responder solo con base en el contexto
-SYSTEM_PROMPT = """Eres un asistente de conocimiento personal llamado MyBrain. Tu trabajo es responder preguntas basándote ÚNICAMENTE en el contexto proporcionado.
-
-Reglas estrictas:
-1. Responde SOLO con información presente en el contexto proporcionado.
-2. Si el contexto no contiene suficiente información para responder, di claramente: "No tengo suficiente información en mis documentos para responder esa pregunta."
-3. Cita las fuentes al final de tu respuesta indicando el nombre del archivo de donde proviene la información.
-4. Sé conciso pero completo en tus respuestas.
-5. Si la pregunta es ambigua, menciona las posibles interpretaciones basándote en el contexto.
-6. Responde en el mismo idioma en que se hizo la pregunta.
-
-Formato de citación:
-- Al final de la respuesta, agrega una sección "📚 Fuentes:" listando los archivos utilizados.
-"""
 
 
 def _get_openai_client() -> OpenAI:

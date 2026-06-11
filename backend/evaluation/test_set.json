@@ -73,5 +73,55 @@
     "question": "What is the maximum number of concurrent subagents that can be run under one deep agent?",
     "ground_truth": "This information is not provided in the document. While the document mentions spawning subagents and using async subagents for parallel execution, it does not specify any technical limits, configuration options, or maximum numbers for concurrent subagents.",
     "source_doc": "deep-agents.md"
+  },
+  {
+    "question": "Which tool in Deep Agents SDK allows the agent to decompose a complex task?",
+    "ground_truth": "The built-in write_todos tool is used for task decomposition and planning by breaking down complex tasks into discrete steps, tracking progress, and adapting plans.",
+    "source_doc": "deep-agents.md"
+  },
+  {
+    "question": "Does Deep Agents support the Model Context Protocol (MCP)?",
+    "ground_truth": "Yes, Deep Agents fully supports the Model Context Protocol (MCP), allowing developers to connect agents to databases, APIs, and file systems through a standard interface.",
+    "source_doc": "deep-agents.md"
+  },
+  {
+    "question": "What environment variables or credentials do you need to configure to use Baseten as a model provider in the Quickstart?",
+    "ground_truth": "To configure Baseten as a model provider, you need to set the BASETEN_API_KEY environment variable. You also need the TAVILY_API_KEY environment variable for the search provider.",
+    "source_doc": "deep-agents.md"
+  },
+  {
+    "question": "What is the purpose of the execute tool in shell-capable backends?",
+    "ground_truth": "The execute tool is added by shell-capable backends to execute tests, builds, git operations, and system tasks.",
+    "source_doc": "deep-agents.md"
+  },
+  {
+    "question": "Which library is used to trace requests, debug agent behavior, and evaluate outputs as mentioned in the Core capabilities note?",
+    "ground_truth": "LangSmith is used to trace requests, debug agent behavior, and evaluate outputs, with setup instructions in the observability quickstart.",
+    "source_doc": "deep-agents.md"
+  },
+  {
+    "question": "How do you configure a composite routing virtual filesystem backend in Deep Agents?",
+    "ground_truth": "This information is not provided in the document. While the document lists composite routing as an option for pluggable filesystem backends, it does not provide configuration instructions or code examples for it.",
+    "source_doc": "deep-agents.md"
+  },
+  {
+    "question": "What is the default port used by the LangChain Docs MCP server when connecting to VSCode?",
+    "ground_truth": "This information is not provided in the document. The text mentions connecting the docs to VSCode via MCP but does not specify any port numbers.",
+    "source_doc": "deep-agents.md"
+  },
+  {
+    "question": "How do you write a custom Skill for a Deep Agent in Python?",
+    "ground_truth": "This information is not provided in the document. The text mentions that agents can be extended with reusable skills providing specialized workflows and custom instructions, but does not give code examples or details on how to write them.",
+    "source_doc": "deep-agents.md"
+  },
+  {
+    "question": "Which Python version is required to run the Deep Agents SDK?",
+    "ground_truth": "This information is not provided in the document. The text details installation commands via pip or uv but does not specify Python version requirements.",
+    "source_doc": "deep-agents.md"
+  },
+  {
+    "question": "What is the default token limit for context compression in the Deep Agents SDK?",
+    "ground_truth": "This information is not provided in the document. Although it mentions context compression offloads large tool inputs and summaries of older messages, it does not specify any default token limits or configurations.",
+    "source_doc": "deep-agents.md"
   }
 ]
