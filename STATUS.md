@@ -45,7 +45,8 @@ my-brain/
 │   ├── retriever.py           # Abstracción de retrieval con 2 estrategias intercambiables:
 │   │                          #   - VectorOnlyStrategy (embeddings + cosine similarity)
 │   │                          #   - HybridStrategy (BM25 + Vector con RRF ponderado)
-│   ├── query.py               # Pipeline de consulta: retrieval → prompt → LLM → respuesta
+│   ├── query.py               # Pipeline de consulta (importa prompts de prompts.py)
+│   ├── prompts.py             # Módulo centralizado de prompts (sistema y LLM-as-judge)
 │   ├── requirements.txt       # Dependencias Python
 │   ├── .env / .env.example    # Variables de entorno (OPENAI_API_KEY, modelos, estrategias)
 │   ├── documents/             # Carpeta de documentos fuente
@@ -53,10 +54,9 @@ my-brain/
 │   │   └── cv.pdf             # PDF de prueba (3 chunks)
 │   ├── chroma_db/             # Base de datos vectorial persistente (auto-generado)
 │   └── evaluation/
-│       ├── test_set.json      # 15 preguntas de evaluación con ground truth
+│       ├── test_set.json      # 25 preguntas de evaluación (incluye preguntas de abstención)
 │       ├── benchmark.py       # Framework de benchmark con LLM-as-judge (GPT-4o-mini)
 │       └── reports/           # Reportes Markdown generados automáticamente
-│           └── benchmark_20260611_080853.md
 ├── guia-estrategica.md        # Guía completa de fases, decisiones técnicas y roadmap
 ├── retrievers-langchain.md    # Investigación sobre técnicas de retrieval
 ├── README.md                  # Documentación principal del proyecto
@@ -86,13 +86,14 @@ my-brain/
 
 ### 3. Consulta (`query.py`)
 - Delega retrieval a la estrategia configurada
-- Construye prompt con contexto numerado y fuentes
+- Importa `SYSTEM_PROMPT` de `prompts.py` y construye el contexto
 - Llama al LLM con system prompt estricto (responder SOLO con contexto)
 - Soporta modo normal y streaming (generator)
 - Muestra fuentes con scores de relevancia
 
 ### 4. Evaluación (`evaluation/benchmark.py`)
 - **NO usa RAGAS** — implementa evaluación custom con patrón LLM-as-judge
+- Importa prompts de evaluación optimizados desde `prompts.py` para evitar falsos negativos en respuestas de abstención ("No sé")
 - Métricas evaluadas por GPT-4o-mini (temperature=0):
   - Context Relevance (¿los chunks recuperados son relevantes?)
   - Answer Correctness (¿la respuesta coincide con el ground truth?)
@@ -116,19 +117,12 @@ CHUNK_OVERLAP=200
 
 ---
 
-## Resultado del Último Benchmark
+## Historial y Reportes de Benchmarks
 
-Ejecutado con 15 preguntas sobre `deep-agents.md` (141 chunks, smart chunking):
+Los reportes detallados del benchmark de evaluación se generan de forma dinámica y automática después de cada corrida. 
 
-| Estrategia | Context Relevance | Answer Correctness | Faithfulness | Latencia |
-|---|:---:|:---:|:---:|:---:|
-| `vector_only` | 0.77 | 0.84 | 0.70 | 987ms |
-| `hybrid_30_70` | 0.74 | 0.84 | 0.70 | 1744ms |
-| `hybrid_40_60` | **0.80** | **0.85** | 0.67 | **885ms** |
-| 🏆 `hybrid_50_50` | 0.71 | **0.85** | **0.89** | 993ms |
-
-**Ganador por score combinado:** `hybrid_50_50` (0.82)
-**Mejor en Context Relevance + Latencia:** `hybrid_40_60`
+Para ver y comparar los últimos reportes detallados (incluyendo scores por pregunta, ganador, latencias y análisis de deltas), accede directamente al directorio:
+👉 [backend/evaluation/reports/](file:///c:/Users/PC1/Documents/Kevin/Dev/my-brain/backend/evaluation/reports/)
 
 ---
 
