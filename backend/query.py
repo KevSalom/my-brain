@@ -3,8 +3,7 @@ Módulo de consulta y recuperación de MyBrain.
 
 Se encarga de:
 - Recibir una pregunta del usuario
-- Generar el embedding de la pregunta
-- Buscar los chunks más relevantes en ChromaDB
+- Delegar el retrieval a la estrategia configurada (vector_only/hybrid)
 - Construir el prompt con el contexto recuperado
 - Llamar a la API de OpenAI para generar la respuesta
 - Soportar streaming de la respuesta
@@ -17,6 +16,7 @@ import chromadb
 from openai import OpenAI
 
 from config import settings
+from retriever import get_retrieval_strategy, RetrievalResult
 
 
 @dataclass
@@ -75,62 +75,6 @@ def _get_chroma_collection() -> chromadb.Collection:
     return collection
 
 
-def _generate_query_embedding(question: str, client: OpenAI) -> list[float]:
-    """Genera el embedding para la pregunta del usuario.
-
-    Args:
-        question: Pregunta del usuario.
-        client: Cliente de OpenAI.
-
-    Returns:
-        Vector de embedding de la pregunta.
-    """
-    response = client.embeddings.create(
-        input=[question],
-        model=settings.embedding_model,
-    )
-    return response.data[0].embedding
-
-
-def _retrieve_context(
-    question_embedding: list[float], top_k: int = 5
-) -> tuple[list[str], list[dict]]:
-    """Busca los chunks más relevantes en ChromaDB.
-
-    Args:
-        question_embedding: Embedding de la pregunta del usuario.
-        top_k: Número máximo de chunks a recuperar.
-
-    Returns:
-        Tupla con (lista de textos de chunks, lista de metadatos).
-    """
-    collection = _get_chroma_collection()
-
-    results = collection.query(
-        query_embeddings=[question_embedding],
-        n_results=top_k,
-        include=["documents", "metadatas", "distances"],
-    )
-
-    # Extraer documentos y metadatos de los resultados
-    documents = results["documents"][0] if results["documents"] else []
-    metadatas = results["metadatas"][0] if results["metadatas"] else []
-    distances = results["distances"][0] if results["distances"] else []
-
-    # Enriquecer metadatos con la distancia (relevancia)
-    sources = []
-    for meta, dist in zip(metadatas, distances):
-        source_info = {
-            "source": meta.get("source", "desconocido"),
-            "chunk_index": meta.get("chunk_index", -1),
-            "file_type": meta.get("file_type", ""),
-            "relevance_score": round(1 - dist, 4),  # Convertir distancia coseno a similitud
-        }
-        sources.append(source_info)
-
-    return documents, sources
-
-
 def _build_context_prompt(context_chunks: list[str], sources: list[dict]) -> str:
     """Construye el bloque de contexto para incluir en el prompt.
 
@@ -156,23 +100,51 @@ def _build_context_prompt(context_chunks: list[str], sources: list[dict]) -> str
     return "\n\n".join(context_parts)
 
 
-def query(question: str, top_k: int = 5) -> QueryResult:
+def _retrieve_and_build_sources(
+    question: str, top_k: int = 5, strategy_name: Optional[str] = None
+) -> tuple[list[str], list[dict]]:
+    """Ejecuta el retrieval usando la estrategia configurada y formatea las fuentes.
+
+    Args:
+        question: Pregunta del usuario.
+        top_k: Número de chunks a recuperar.
+        strategy_name: Nombre de la estrategia a usar. Si es None, usa la configurada.
+
+    Returns:
+        Tupla con (lista de textos de chunks, lista de metadatos formateados).
+    """
+    strategy = get_retrieval_strategy(strategy_name)
+    result = strategy.retrieve(question, top_k=top_k)
+
+    # Formatear las fuentes con scores de relevancia
+    sources = []
+    for meta, score in zip(result.metadatas, result.scores):
+        source_info = {
+            "source": meta.get("source", "desconocido"),
+            "chunk_index": meta.get("chunk_index", -1),
+            "file_type": meta.get("file_type", ""),
+            "relevance_score": round(score, 4),
+        }
+        sources.append(source_info)
+
+    return result.documents, sources
+
+
+def query(question: str, top_k: int = 5, strategy_name: Optional[str] = None) -> QueryResult:
     """Realiza una consulta completa al sistema RAG (sin streaming).
 
     Args:
         question: Pregunta del usuario.
         top_k: Número de chunks a recuperar para el contexto.
+        strategy_name: Nombre de estrategia de retrieval. None = usa la configurada.
 
     Returns:
         Objeto QueryResult con la respuesta, fuentes y chunks de contexto.
     """
     openai_client = _get_openai_client()
 
-    # Paso 1: Generar embedding de la pregunta
-    question_embedding = _generate_query_embedding(question, openai_client)
-
-    # Paso 2: Recuperar contexto relevante
-    context_chunks, sources = _retrieve_context(question_embedding, top_k)
+    # Paso 1-2: Retrieval usando la estrategia configurada
+    context_chunks, sources = _retrieve_and_build_sources(question, top_k, strategy_name)
 
     # Paso 3: Construir el prompt completo
     context_text = _build_context_prompt(context_chunks, sources)
@@ -219,11 +191,8 @@ def query_stream(
     """
     openai_client = _get_openai_client()
 
-    # Paso 1: Generar embedding de la pregunta
-    question_embedding = _generate_query_embedding(question, openai_client)
-
-    # Paso 2: Recuperar contexto relevante
-    context_chunks, sources = _retrieve_context(question_embedding, top_k)
+    # Paso 1-2: Retrieval usando la estrategia configurada
+    context_chunks, sources = _retrieve_and_build_sources(question, top_k)
 
     # Paso 3: Construir el prompt completo
     context_text = _build_context_prompt(context_chunks, sources)

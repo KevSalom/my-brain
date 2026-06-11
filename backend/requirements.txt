@@ -20,3 +20,13 @@ langchain-text-splitters>=0.2.0
 
 # Salida de consola con formato enriquecido
 rich>=13.7.0
+
+# --- Retrieval Híbrido ---
+# Algoritmo BM25 para búsqueda por keywords (parte de la estrategia híbrida)
+rank-bm25>=0.2.2
+
+# --- Evaluación de RAG ---
+# Framework de evaluación de pipelines RAG (métricas: precision, recall, faithfulness, etc.)
+ragas>=0.2.0
+# Datasets de HuggingFace (dependencia de ragas)
+datasets>=2.14.0

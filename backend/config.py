@@ -52,6 +52,15 @@ class Settings:
         default_factory=lambda: os.getenv("CHUNKING_STRATEGY", "smart")
     )
 
+    # --- Estrategia de retrieval ('vector_only' o 'hybrid') ---
+    retrieval_strategy: str = field(
+        default_factory=lambda: os.getenv("RETRIEVAL_STRATEGY", "hybrid")
+    )
+    # Peso de BM25 en la estrategia híbrida (0.0 a 1.0). El peso del vector es 1 - este valor.
+    retrieval_bm25_weight: float = field(
+        default_factory=lambda: float(os.getenv("RETRIEVAL_BM25_WEIGHT", "0.4"))
+    )
+
     # --- Directorio de documentos ---
     documents_dir: str = field(
         default_factory=lambda: os.getenv("DOCUMENTS_DIR", "./documents")
