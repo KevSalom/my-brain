@@ -1,22 +1,23 @@
 # 🧠 MyBrain — Estado Actual del Proyecto
 
-> **Última actualización:** 2026-06-11
-> **Fase actual:** Fase 0 (PoC) — COMPLETADA ✅
-> **Próxima fase:** Fase 1 (MVP Backend con FastAPI)
+> **Última actualización:** 2026-06-12
+> **Fase actual:** Fase 1 (MVP Backend con FastAPI) — COMPLETADA ✅
+> **Próxima fase:** Fase 2 (MVP Frontend con React)
 
 ---
 
 ## TL;DR para LLMs
 
-MyBrain es un sistema RAG personal para desarrolladores. El **backend CLI en Python** está funcional con:
-- Ingesta de documentos (TXT, PDF, MD) con **Smart Chunking** (consciente de código)
-- **Recuperación híbrida** (BM25 léxico + Embeddings semántico con Reciprocal Rank Fusion)
-- Chat interactivo por terminal con streaming
-- Framework de **evaluación automatizada** (LLM-as-judge, NO RAGAS)
-- Base vectorial: ChromaDB local
-- LLM: OpenAI (gpt-4o-mini) | Embeddings: text-embedding-3-small
+MyBrain es un sistema RAG personal para desarrolladores. El **backend en Python** está funcional tanto como CLI como a través de una API REST con FastAPI:
+- **API REST con FastAPI**: Endpoints para estado (`/api/status`), ingesta de archivos individuales (`/api/ingest/file`), ingesta de directorio (`/api/ingest/directory`), consultas síncronas (`/api/chat`) y streaming vía SSE (`/api/chat/stream`).
+- Ingesta de documentos (TXT, PDF, MD) con **Smart Chunking** (consciente de código).
+- **Recuperación híbrida** (BM25 léxico + Embeddings semántico con Reciprocal Rank Fusion).
+- Chat interactivo por terminal y vía API con streaming en tiempo real.
+- Framework de **evaluación automatizada** (LLM-as-judge, NO RAGAS).
+- Base vectorial: ChromaDB local.
+- LLM: OpenAI (gpt-4o-mini) | Embeddings: text-embedding-3-small.
 
-**No existe aún:** Frontend, API REST, multi-usuario, autenticación, web scraping.
+**No existe aún:** Frontend React, multi-usuario, autenticación avanzada, web scraping.
 
 ---
 
@@ -25,8 +26,8 @@ MyBrain es un sistema RAG personal para desarrolladores. El **backend CLI en Pyt
 | Fase | Estado | Descripción |
 |------|--------|-------------|
 | **Fase 0: PoC CLI** | ✅ Completada | RAG funcional por terminal |
-| **Fase 1: MVP Backend** | 🔜 Siguiente | FastAPI + API REST + SSE streaming |
-| Fase 2: MVP Frontend | ⬜ Pendiente | React + Vite, Chat UI, Upload |
+| **Fase 1: MVP Backend** | ✅ Completada | FastAPI + API REST + SSE streaming |
+| **Fase 2: MVP Frontend** | 🔜 Siguiente | React + Vite, Chat UI, Upload |
 | Fase 3: Multi-Cerebro | ⬜ Pendiente | Namespaces, CRUD de secciones |
 | Fase 4: Features Avanzadas | ⬜ Pendiente | Web scraping, artefactos de código |
 | Fase 5: Producción | ⬜ Pendiente | Auth, PostgreSQL, deployment |
@@ -38,6 +39,12 @@ MyBrain es un sistema RAG personal para desarrolladores. El **backend CLI en Pyt
 ```
 my-brain/
 ├── backend/
+│   ├── api/                   # 🧠 NUEVO: Paquete de la API REST (FastAPI)
+│   │   ├── routes/            # 🛣️ Rutas de la API (status, ingest, chat)
+│   │   ├── app.py             # ⚙️ Configuración global de FastAPI y CORS
+│   │   ├── schemas.py         # 📋 Modelos de Pydantic (request/response)
+│   │   └── dependencies.py    # 🛠️ Dependencias compartidas
+│   ├── run_api.py             # ⚡ Script de arranque de la API REST
 │   ├── config.py              # Configuración centralizada (Settings dataclass, .env)
 │   ├── main.py                # CLI entry point (ingest / chat / status)
 │   ├── ingest.py              # Pipeline: leer archivo → chunk → embed → almacenar en ChromaDB
@@ -60,7 +67,7 @@ my-brain/
 ├── guia-estrategica.md        # Guía completa de fases, decisiones técnicas y roadmap
 ├── retrievers-langchain.md    # Investigación sobre técnicas de retrieval
 ├── README.md                  # Documentación principal del proyecto
-└── STATUS.md                  # ← Este archivo
+├── STATUS.md                  # ← Este archivo
 ```
 
 ---
@@ -147,14 +154,13 @@ python -m evaluation.benchmark
 
 ---
 
-## Para Continuar: Fase 1 (MVP Backend)
+## Para Continuar: Fase 2 (MVP Frontend)
 
-La siguiente fase consiste en migrar el pipeline CLI a un **backend con FastAPI**:
+La siguiente fase consiste en construir la interfaz de usuario web utilizando **React + Vite + TypeScript**:
 
-1. **Endpoints REST**: `POST /ingest`, `POST /query`, `GET /query-stream` (SSE), `GET /status`
-2. **Caché de índice BM25** en memoria del servidor (reconstruir solo tras nueva ingesta)
-3. **CORS** para permitir conexiones desde el frontend
-4. **Manejo de errores** robusto con códigos HTTP apropiados
-5. **Upload de archivos** via multipart/form-data
+1. **Estructura del Frontend**: Inicializar proyecto en la carpeta `frontend/`.
+2. **Interfaz de Chat**: Un diseño responsivo y moderno con burbujas de chat y soporte para respuestas en streaming en tiempo real (consumiendo `/api/chat/stream`).
+3. **Sección de Ingesta**: UI interactiva con drag & drop para subir archivos PDF, TXT y MD directamente al backend (consumiendo `/api/ingest/file`).
+4. **Visor de Estado**: Componente para monitorear el estado actual del sistema (documentos ingestados, configuración del modelo, tamaño de chunks, etc., consumiendo `/api/status`).
 
-Ver [guia-estrategica.md](guia-estrategica.md) sección "Fase 1: MVP Funcional" para el contexto completo.
+Ver [guia-estrategica.md](guia-estrategica.md) sección "Fase 2: MVP Frontend" para el contexto completo.

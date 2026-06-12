@@ -23,7 +23,7 @@ MyBrain es una herramienta diseñada **principalmente para desarrolladores** que
 
 ## 🗺️ Roadmap del Proyecto
 
-### 🟢 Fase 0: Proof of Concept (PoC) — CLI + RAG Básico ← **ESTAMOS AQUÍ**
+### 🟢 Fase 0: Proof of Concept (PoC) — CLI + RAG Básico — COMPLETADA ✅
 
 > El objetivo es validar el flujo completo de RAG con la menor complejidad posible.
 
@@ -38,20 +38,20 @@ MyBrain es una herramienta diseñada **principalmente para desarrolladores** que
 
 ---
 
-### 🔵 Fase 1: MVP Backend (API REST)
+### 🔵 Fase 1: MVP Backend (API REST) — COMPLETADA ✅
 
-> Migrar la lógica del PoC a una API robusta y extensible.
+> Migrar la lógica del PoC a una API robusta y extensible con FastAPI.
 
-- [ ] Migrar de CLI a **FastAPI**
-- [ ] API endpoints: upload de documentos, chat, gestión de colecciones
-- [ ] **Streaming de respuestas** con Server-Sent Events (SSE)
-- [ ] Soporte para archivos **Markdown (.md)**
-- [ ] Mejor estrategia de chunking (overlap, tamaño adaptativo)
-- [ ] Validación y manejo de errores robusto
+- [x] Migrar de CLI a **FastAPI**
+- [x] API endpoints: upload de documentos, chat, gestión de colecciones
+- [x] **Streaming de respuestas** con Server-Sent Events (SSE)
+- [x] Soporte para archivos **Markdown (.md)**
+- [x] Mejor estrategia de chunking (overlap, tamaño adaptativo con smart chunking)
+- [x] Validación y manejo de errores robusto
 
 ---
 
-### 🟣 Fase 2: MVP Frontend
+### 🟣 Fase 2: MVP Frontend ← **ESTAMOS AQUÍ**
 
 > Crear una interfaz web moderna para interactuar con MyBrain.
 
@@ -114,7 +114,7 @@ MyBrain es una herramienta diseñada **principalmente para desarrolladores** que
 
 ---
 
-## 🚀 Inicio Rápido (Fase 0)
+## 🚀 Inicio Rápido (CLI y API REST)
 
 ### Pre-requisitos
 
@@ -145,10 +145,20 @@ pip install -r requirements.txt
 
 # 6. Configurar variables de entorno
 copy .env.example .env
-# Editar .env y agregar tu OPENAI_API_KEY
+# Editar .env y agregar tu OPENAI_API_KEY y la configuración de API
 ```
 
 ### Uso
+
+#### Ejecución del Servidor API (Recomendado)
+
+```bash
+# 🧠 Iniciar el servidor API REST (FastAPI)
+python run_api.py
+```
+El servidor se iniciará en `http://127.0.0.1:8000` con documentación interactiva Swagger disponible en `http://127.0.0.1:8000/docs`.
+
+#### Ejecución del CLI Original
 
 ```bash
 # 📥 Ingestar documentos (cargar al vector store)
@@ -179,12 +189,18 @@ MyBrain: Según tus documentos cargados, las mejores prácticas incluyen...
 ```
 my-brain/
 ├── backend/
+│   ├── api/                # 🧠 Paquete de la API REST (FastAPI)
+│   │   ├── routes/         # 🛣️ Rutas de la API (status, ingest, chat)
+│   │   ├── app.py          # ⚙️ Configuración global de FastAPI y CORS
+│   │   ├── schemas.py      # 📋 Modelos de Pydantic (request/response)
+│   │   └── dependencies.py # 🛠️ Dependencias compartidas
 │   ├── documents/          # 📄 Documentos para ingestar
 │   ├── chroma_db/          # 🗄️ Base de datos vectorial (auto-generado)
 │   ├── config.py           # ⚙️ Configuración y variables de entorno
 │   ├── ingest.py           # 📥 Pipeline de ingesta de documentos
 │   ├── query.py            # 🔍 Motor de consultas RAG
 │   ├── main.py             # 🚀 CLI entry point
+│   ├── run_api.py          # ⚡ Script de arranque de la API REST
 │   ├── requirements.txt    # 📦 Dependencias Python
 │   ├── .env.example        # 📋 Template de variables de entorno
 │   └── .env                # 🔐 Variables de entorno (no versionado)
