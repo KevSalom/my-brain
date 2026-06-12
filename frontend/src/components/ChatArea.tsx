@@ -140,7 +140,9 @@ const AssistantMessage: React.FC<AssistantMessageProps> = ({ sources }) => {
           <div className="rounded-2xl rounded-tl-none bg-slate-900/30 border border-slate-800/40 text-slate-200 px-4 py-3 text-sm shadow-sm leading-relaxed w-full">
             {/* Using MarkdownTextPrimitive component from @assistant-ui/react-markdown */}
             <div className="prose prose-invert max-w-none text-slate-200 text-sm leading-relaxed prose-p:my-2 prose-pre:bg-slate-950/70 prose-pre:border prose-pre:border-slate-850 prose-code:text-violet-300 prose-code:bg-slate-900/50 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:before:content-none prose-code:after:content-none">
-              <MarkdownTextPrimitive remarkPlugins={[remarkGfm]} />
+              <MessagePrimitive.Parts>
+                {({ part }) => part.type === "text" ? <MarkdownTextPrimitive remarkPlugins={[remarkGfm]} /> : null}
+              </MessagePrimitive.Parts>
             </div>
 
             {/* RAG Sources Rendering */}
