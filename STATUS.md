@@ -1,23 +1,17 @@
 # 🧠 MyBrain — Estado Actual del Proyecto
 
 > **Última actualización:** 2026-06-12
-> **Fase actual:** Fase 1 (MVP Backend con FastAPI) — COMPLETADA ✅
-> **Próxima fase:** Fase 2 (MVP Frontend con React)
+> **Fase actual:** Fase 2 (MVP Frontend con React + Tailwind + assistant-ui) — COMPLETADA ✅
+> **Próxima fase:** Fase 3 (Multi-Cerebro)
 
 ---
 
 ## TL;DR para LLMs
 
-MyBrain es un sistema RAG personal para desarrolladores. El **backend en Python** está funcional tanto como CLI como a través de una API REST con FastAPI:
-- **API REST con FastAPI**: Endpoints para estado (`/api/status`), ingesta de archivos individuales (`/api/ingest/file`), ingesta de directorio (`/api/ingest/directory`), consultas síncronas (`/api/chat`) y streaming vía SSE (`/api/chat/stream`).
-- Ingesta de documentos (TXT, PDF, MD) con **Smart Chunking** (consciente de código).
-- **Recuperación híbrida** (BM25 léxico + Embeddings semántico con Reciprocal Rank Fusion).
-- Chat interactivo por terminal y vía API con streaming en tiempo real.
-- Framework de **evaluación automatizada** (LLM-as-judge, NO RAGAS).
-- Base vectorial: ChromaDB local.
-- LLM: OpenAI (gpt-4o-mini) | Embeddings: text-embedding-3-small.
-
-**No existe aún:** Frontend React, multi-usuario, autenticación avanzada, web scraping.
+MyBrain es un sistema RAG personal para desarrolladores.
+- **Backend (Python + FastAPI)**: API funcional con endpoints para estado (`/api/status`), ingesta de archivos (`/api/ingest/file`), directorios (`/api/ingest/directory`), y chat síncrono/stream RAG por SSE. Usa ChromaDB local y fusiona embeddings de OpenAI (`text-embedding-3-small`) con BM25 léxico mediante RRF.
+- **Frontend (React + Vite + TypeScript)**: SPA funcional conectada al backend local en `http://localhost:8000`. Usa Tailwind CSS v4 para diseño oscuro premium, la librería headless `assistant-ui` con un custom parser SSE para renderizar las respuestas token por token, e integra referencias/fuentes con porcentajes de relevancia y carga Drag & Drop.
+- **No existe aún**: CRUD multi-usuario, autenticación avanzada, namespaces (multi-cerebro), web scraping.
 
 ---
 
@@ -27,140 +21,70 @@ MyBrain es un sistema RAG personal para desarrolladores. El **backend en Python*
 |------|--------|-------------|
 | **Fase 0: PoC CLI** | ✅ Completada | RAG funcional por terminal |
 | **Fase 1: MVP Backend** | ✅ Completada | FastAPI + API REST + SSE streaming |
-| **Fase 2: MVP Frontend** | 🔜 Siguiente | React + Vite, Chat UI, Upload |
-| Fase 3: Multi-Cerebro | ⬜ Pendiente | Namespaces, CRUD de secciones |
-| Fase 4: Features Avanzadas | ⬜ Pendiente | Web scraping, artefactos de código |
-| Fase 5: Producción | ⬜ Pendiente | Auth, PostgreSQL, deployment |
+| **Fase 2: MVP Frontend** | ✅ Completada | React + Vite + Tailwind CSS v4, Chat UI, Upload, Referencias |
+| **Fase 3: Multi-Cerebro** | 🔜 Siguiente | CRUD de cerebros, namespaces en vector DB |
+| Fase 4: Features Avanzadas | ⬜ Pendiente | Web scraping, artefactos de código, sandboxed preview |
+| Fase 5: Producción | ⬜ Pendiente | Auth (JWT), PostgreSQL, cloud deployment |
 
 ---
 
-## Qué Existe Hoy (Estructura de Archivos)
+## Estructura de Archivos del Proyecto
 
 ```
 my-brain/
-├── backend/
-│   ├── api/                   # 🧠 NUEVO: Paquete de la API REST (FastAPI)
-│   │   ├── routes/            # 🛣️ Rutas de la API (status, ingest, chat)
-│   │   ├── app.py             # ⚙️ Configuración global de FastAPI y CORS
-│   │   ├── schemas.py         # 📋 Modelos de Pydantic (request/response)
-│   │   └── dependencies.py    # 🛠️ Dependencias compartidas
-│   ├── run_api.py             # ⚡ Script de arranque de la API REST
-│   ├── config.py              # Configuración centralizada (Settings dataclass, .env)
-│   ├── main.py                # CLI entry point (ingest / chat / status)
-│   ├── ingest.py              # Pipeline: leer archivo → chunk → embed → almacenar en ChromaDB
-│   ├── chunking.py            # 2 estrategias: BasicChunking y SmartChunking (detecta código, headings)
-│   ├── retriever.py           # Abstracción de retrieval con 2 estrategias intercambiables:
-│   │                          #   - VectorOnlyStrategy (embeddings + cosine similarity)
-│   │                          #   - HybridStrategy (BM25 + Vector con RRF ponderado)
-│   ├── query.py               # Pipeline de consulta (importa prompts de prompts.py)
-│   ├── prompts.py             # Módulo centralizado de prompts (sistema y LLM-as-judge)
-│   ├── requirements.txt       # Dependencias Python
-│   ├── .env / .env.example    # Variables de entorno (OPENAI_API_KEY, modelos, estrategias)
-│   ├── documents/             # Carpeta de documentos fuente
-│   │   ├── deep-agents.md     # Documentación técnica de prueba (165K chars, 141 chunks)
-│   │   └── cv.pdf             # PDF de prueba (3 chunks)
-│   ├── chroma_db/             # Base de datos vectorial persistente (auto-generado)
-│   └── evaluation/
-│       ├── test_set.json      # 25 preguntas de evaluación (incluye preguntas de abstención)
-│       ├── benchmark.py       # Framework de benchmark con LLM-as-judge (GPT-4o-mini)
-│       └── reports/           # Reportes Markdown generados automáticamente
-├── guia-estrategica.md        # Guía completa de fases, decisiones técnicas y roadmap
-├── retrievers-langchain.md    # Investigación sobre técnicas de retrieval
-├── README.md                  # Documentación principal del proyecto
-├── STATUS.md                  # ← Este archivo
+├── backend/                   # Backend API REST (FastAPI)
+│   ├── api/                   # Rutas de la API (status, ingest, chat), app y esquemas
+│   ├── run_api.py             # Script de arranque
+│   ├── config.py              # Variables de entorno y configuración
+│   ├── main.py                # CLI entrypoint original
+│   ├── ingest.py              # Pipeline de ingesta (TXT, PDF, MD)
+│   ├── chunking.py            # Estrategias Basic y Smart Chunking
+│   ├── retriever.py           # Búsqueda híbrida (BM25 + Vector) con RRF
+│   ├── query.py               # Lógica RAG y generador de stream
+│   ├── prompts.py             # Prompts del sistema y de evaluación
+│   └── evaluation/            # Benchmarks de evaluación automatizada (LLM-as-judge)
+├── frontend/                  # [NUEVO] Frontend SPA (React + TS + Vite)
+│   ├── src/
+│   │   ├── components/        # ChatArea (primitives), Sidebar, UploadZone y StatusPanel
+│   │   ├── api.ts             # Cliente fetch de la API
+│   │   ├── types.ts           # Tipos TypeScript de API
+│   │   ├── App.tsx            # Setup de useLocalRuntime y layout principal
+│   │   └── index.css          # Tailwind CSS v4 + estilos personalizados
+│   ├── package.json           # Dependencias y scripts (typecheck: tsc -b)
+│   └── vite.config.ts         # Integración de Tailwind v4 en Vite
+├── guia-estrategica.md        # Planificación y decisiones tecnológicas
+├── README.md                  # Documentación principal
+└── STATUS.md                  # ← Este archivo
 ```
 
 ---
 
 ## Componentes Implementados en Detalle
 
-### 1. Ingesta (`ingest.py`)
-- Lee archivos `.txt`, `.md`, `.pdf` (con `pypdf`)
-- Divide en chunks usando la estrategia configurada (`CHUNKING_STRATEGY`):
-  - `basic`: Separadores genéricos (párrafos, líneas)
-  - `smart` (default): Separadores conscientes de código (```), detecta lenguajes, extrae section headings de Markdown, metadata enriquecida por chunk
-- Genera embeddings con OpenAI `text-embedding-3-small`
-- Almacena en ChromaDB con upsert (re-ingesta segura por hash determinístico)
+### 1. Ingesta y Recuperación (Backend)
+- Lee TXT, MD y PDFs (con parser consciente de sintaxis de código en MD).
+- Recuperación Híbrida: RRF que pondera búsqueda léxica (BM25) y semántica (embeddings de OpenAI).
 
-### 2. Retrieval (`retriever.py`)
-- **Patrón Strategy** con clase abstracta `RetrieverStrategy` y factoría `get_retrieval_strategy()`
-- **VectorOnlyStrategy**: Embedding de la query → ChromaDB query por similitud coseno
-- **HybridStrategy**: Fusión de BM25 (léxico) + Vector (semántico)
-  - BM25 con tokenizador personalizado que preserva identificadores de código
-  - Reciprocal Rank Fusion (RRF) con pesos configurables (`RETRIEVAL_BM25_WEIGHT`)
-  - El nombre de la estrategia incluye sus pesos (ej: `hybrid_40_60`)
-- Configurable vía `.env`: `RETRIEVAL_STRATEGY=hybrid`, `RETRIEVAL_BM25_WEIGHT=0.4`
-
-### 3. Consulta (`query.py`)
-- Delega retrieval a la estrategia configurada
-- Importa `SYSTEM_PROMPT` de `prompts.py` y construye el contexto
-- Llama al LLM con system prompt estricto (responder SOLO con contexto)
-- Soporta modo normal y streaming (generator)
-- Muestra fuentes con scores de relevancia
-
-### 4. Evaluación (`evaluation/benchmark.py`)
-- **NO usa RAGAS** — implementa evaluación custom con patrón LLM-as-judge
-- Importa prompts de evaluación optimizados desde `prompts.py` para evitar falsos negativos en respuestas de abstención ("No sé")
-- Métricas evaluadas por GPT-4o-mini (temperature=0):
-  - Context Relevance (¿los chunks recuperados son relevantes?)
-  - Answer Correctness (¿la respuesta coincide con el ground truth?)
-  - Faithfulness (¿la respuesta se basa solo en el contexto, sin alucinar?)
-  - Latencia (medida directa en ms)
-- Genera reporte Markdown con tabla comparativa, ganador, deltas vs baseline, y detalle por pregunta
-- CLI con `--test-set` para test sets personalizados
-
-### 5. Configuración (`config.py`)
-Variables de entorno relevantes:
-```env
-OPENAI_API_KEY=sk-...
-EMBEDDING_MODEL=text-embedding-3-small
-LLM_MODEL=gpt-4o-mini
-CHUNKING_STRATEGY=smart          # basic | smart
-RETRIEVAL_STRATEGY=hybrid        # vector_only | hybrid
-RETRIEVAL_BM25_WEIGHT=0.4        # 0.0 a 1.0 (peso de BM25 en híbrido)
-CHUNK_SIZE=1000
-CHUNK_OVERLAP=200
-```
+### 2. Cliente y Streaming (Frontend)
+- Drag & Drop para subir archivos con visualización de estado y chunks creados.
+- Chat con auto-scroll inteligente y flujo SSE usando `useLocalRuntime` de `assistant-ui`.
+- Visualización interactiva de fuentes de ChromaDB con nivel de confianza.
+- Dashboard oscuro premium con efecto glassmorphism.
 
 ---
 
-## Historial y Reportes de Benchmarks
+## Cómo Ejecutar todo el Proyecto
 
-Los reportes detallados del benchmark de evaluación se generan de forma dinámica y automática después de cada corrida. 
-
-Para ver y comparar los últimos reportes detallados (incluyendo scores por pregunta, ganador, latencias y análisis de deltas), accede directamente al directorio:
-👉 [backend/evaluation/reports/](file:///c:/Users/PC1/Documents/Kevin/Dev/my-brain/backend/evaluation/reports/)
-
----
-
-## Cómo Ejecutar
-
-```bash
-cd backend
-.venv\Scripts\activate        # Activar entorno virtual
-
-# Ingestar documentos
-python main.py ingest documents
-
-# Chat interactivo
-python main.py chat
-
-# Ver estadísticas
-python main.py status
-
-# Ejecutar benchmark
-python -m evaluation.benchmark
-```
-
----
-
-## Para Continuar: Fase 2 (MVP Frontend)
-
-La siguiente fase consiste en construir la interfaz de usuario web utilizando **React + Vite + TypeScript**:
-
-1. **Estructura del Frontend**: Inicializar proyecto en la carpeta `frontend/`.
-2. **Interfaz de Chat**: Un diseño responsivo y moderno con burbujas de chat y soporte para respuestas en streaming en tiempo real (consumiendo `/api/chat/stream`).
-3. **Sección de Ingesta**: UI interactiva con drag & drop para subir archivos PDF, TXT y MD directamente al backend (consumiendo `/api/ingest/file`).
-4. **Visor de Estado**: Componente para monitorear el estado actual del sistema (documentos ingestados, configuración del modelo, tamaño de chunks, etc., consumiendo `/api/status`).
-
-Ver [guia-estrategica.md](guia-estrategica.md) sección "Fase 2: MVP Frontend" para el contexto completo.
+1. **Backend**:
+   ```bash
+   cd backend
+   .venv\Scripts\activate
+   python run_api.py
+   ```
+2. **Frontend**:
+   ```bash
+   cd frontend
+   pnpm install
+   pnpm run dev
+   ```
+   *(Frontend disponible en http://localhost:5173 e interactuando con el backend)*

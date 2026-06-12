@@ -51,15 +51,15 @@ MyBrain es una herramienta diseñada **principalmente para desarrolladores** que
 
 ---
 
-### 🟣 Fase 2: MVP Frontend ← **ESTAMOS AQUÍ**
+### 🟣 Fase 2: MVP Frontend — COMPLETADA ✅
 
 > Crear una interfaz web moderna para interactuar con MyBrain.
 
-- [ ] **React + Vite + TypeScript**
-- [ ] Chat UI con streaming en tiempo real
-- [ ] Upload de documentos con drag & drop
-- [ ] Conectar con backend API (REST)
-- [ ] Indicadores de fuentes/referencias en las respuestas
+- [x] **React + Vite + TypeScript**
+- [x] Chat UI con streaming en tiempo real
+- [x] Upload de documentos con drag & drop
+- [x] Conectar con backend API (REST)
+- [x] Indicadores de fuentes/referencias en las respuestas
 
 ---
 
