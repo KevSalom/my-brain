@@ -154,6 +154,10 @@ def cmd_chat(args: argparse.Namespace) -> None:
         )
         return
 
+    # Inicializar el logger de sesión de chat
+    from logger import ChatSessionLogger
+    session_logger = ChatSessionLogger()
+
     # Mensaje de bienvenida
     welcome_text = (
         f"🧠 [bold]Bienvenido a MyBrain[/bold]\n\n"
@@ -173,6 +177,9 @@ def cmd_chat(args: argparse.Namespace) -> None:
             padding=(1, 2),
         )
     )
+    console.print(
+        f"📝 [dim]Historial de sesión guardado en:[/dim] [cyan]{session_logger.md_log_path}[/cyan]\n"
+    )
 
     # Bucle principal del chat
     while True:
@@ -184,7 +191,7 @@ def cmd_chat(args: argparse.Namespace) -> None:
             if not question:
                 continue
 
-            if question.lower() in ("exit", "quit", "salir"):
+            if question.lower() in ("exit", "quit", "salir", "adiós", "hasta luego", "bye"):
                 console.print("\n👋 [bold]¡Hasta luego![/bold]\n")
                 break
 
@@ -219,6 +226,15 @@ def cmd_chat(args: argparse.Namespace) -> None:
                 # Mostrar las fuentes utilizadas
                 if result and result.sources:
                     _print_sources(result.sources)
+
+                # Registrar el turno en el archivo de logs
+                if result:
+                    session_logger.log_turn(
+                        question=question,
+                        answer=result.answer,
+                        sources=result.sources,
+                        context_chunks=result.context_chunks
+                    )
 
             except ValueError as e:
                 console.print(f"\n⚠️  [yellow]{e}[/yellow]")
