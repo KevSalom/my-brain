@@ -58,7 +58,7 @@ class Settings:
     )
     # Peso de BM25 en la estrategia híbrida (0.0 a 1.0). El peso del vector es 1 - este valor.
     retrieval_bm25_weight: float = field(
-        default_factory=lambda: float(os.getenv("RETRIEVAL_BM25_WEIGHT", "0.5"))
+        default_factory=lambda: float(os.getenv("RETRIEVAL_BM25_WEIGHT", "0.3"))
     )
 
     # --- Directorio de documentos ---
