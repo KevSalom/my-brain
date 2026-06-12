@@ -69,6 +69,14 @@ class Settings:
     # --- Nombre de la colección de ChromaDB ---
     collection_name: str = "mybrain_default"
 
+    # --- API REST (Fase 1) ---
+    api_host: str = field(
+        default_factory=lambda: os.getenv("API_HOST", "127.0.0.1")
+    )
+    api_port: int = field(
+        default_factory=lambda: int(os.getenv("API_PORT", "8000"))
+    )
+
     def __post_init__(self) -> None:
         """Validación post-inicialización.
 

@@ -30,3 +30,13 @@ rank-bm25>=0.2.2
 ragas>=0.2.0
 # Datasets de HuggingFace (dependencia de ragas)
 datasets>=2.14.0
+
+# --- API REST (Fase 1) ---
+# Framework web async para la API REST
+fastapi>=0.115.0
+
+# Servidor ASGI para ejecutar FastAPI
+uvicorn[standard]>=0.30.0
+
+# Soporte para subida de archivos multipart/form-data
+python-multipart>=0.0.9

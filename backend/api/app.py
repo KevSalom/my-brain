@@ -1,0 +1,67 @@
+"""
+Aplicación FastAPI de MyBrain.
+
+Punto de entrada de la API REST. Configura CORS, registra routers
+y define metadata de la documentación OpenAPI.
+"""
+
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
+from api.routes import status, ingest, chat
+
+# =====================================================================
+# Crear la aplicación FastAPI
+# =====================================================================
+
+app = FastAPI(
+    title="MyBrain API",
+    description=(
+        "🧠 API REST de MyBrain — Tu segundo cerebro potenciado por IA.\n\n"
+        "Permite ingestar documentos, consultarlos via RAG con streaming, "
+        "y verificar el estado del sistema."
+    ),
+    version="1.0.0",
+    docs_url="/docs",       # Swagger UI
+    redoc_url="/redoc",     # ReDoc
+)
+
+# =====================================================================
+# CORS — Permitir conexiones desde el frontend (Fase 2)
+# =====================================================================
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:5173",    # Vite dev server (default)
+        "http://localhost:3000",    # Alternativa común
+        "http://127.0.0.1:5173",
+        "http://127.0.0.1:3000",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# =====================================================================
+# Registrar Routers
+# =====================================================================
+
+app.include_router(status.router)
+app.include_router(ingest.router)
+app.include_router(chat.router)
+
+
+# =====================================================================
+# Root endpoint (health check)
+# =====================================================================
+
+@app.get("/", tags=["Root"])
+async def root():
+    """Health check básico."""
+    return {
+        "app": "MyBrain API",
+        "version": "1.0.0",
+        "status": "running",
+        "docs": "/docs",
+    }
