@@ -1,12 +1,13 @@
 import React, { useState, useRef } from 'react';
 import { Upload, CheckCircle2, Loader2 } from 'lucide-react';
-import { ingestFile } from '../api';
+import { ingestFileToArea } from '../api';
 
 interface UploadZoneProps {
+  areaId: number | null;
   onUploadSuccess?: () => void;
 }
 
-export const UploadZone: React.FC<UploadZoneProps> = ({ onUploadSuccess }) => {
+export const UploadZone: React.FC<UploadZoneProps> = ({ areaId, onUploadSuccess }) => {
   const [isDragActive, setIsDragActive] = useState(false);
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState<{ type: 'success' | 'error' | null; message: string }>({
@@ -51,7 +52,15 @@ export const UploadZone: React.FC<UploadZoneProps> = ({ onUploadSuccess }) => {
     setStatus({ type: null, message: '' });
 
     try {
-      const res = await ingestFile(file);
+      if (!areaId) {
+        setStatus({
+          type: 'error',
+          message: 'Selecciona o crea un Área primero.',
+        });
+        setLoading(false);
+        return;
+      }
+      const res = await ingestFileToArea(areaId, file);
       setStatus({
         type: 'success',
         message: `¡Ingestado! ${res.filename} (${res.chunks} chunks creados)`,

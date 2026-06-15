@@ -42,3 +42,39 @@ export interface ChatMessage {
   content: string;
   sources?: SourceInfo[];
 }
+
+export interface AreaResponse {
+  id: number;
+  name: string;
+  description: string | null;
+  color: string | null;
+  created_at: string;
+  document_count: number;
+  conversation_count: number;
+}
+
+export interface DocumentResponse {
+  id: number;
+  filename: string;
+  file_path: string;
+  file_size: number;
+  area_id: number;
+  created_at: string;
+}
+
+export interface ConversationResponse {
+  id: number;
+  title: string;
+  area_id: number;
+  created_at: string;
+}
+
+export interface MessageResponse {
+  id: number;
+  role: 'user' | 'assistant';
+  content: string;
+  sources_json: string | null;
+  conversation_id: number;
+  created_at: string;
+}
+
