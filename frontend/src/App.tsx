@@ -151,7 +151,7 @@ function MainApp() {
   // Operaciones / Handlers
   // =====================================================================
 
-  const handleCreateArea = async (name: string, description?: string, color?: string) => {
+  const handleCreateArea = useCallback(async (name: string, description?: string, color?: string) => {
     if (!name.trim()) return;
     try {
       const created = await createArea(
@@ -167,7 +167,7 @@ function MainApp() {
     } catch (err: any) {
       alert(err.message || "Error al crear área");
     }
-  };
+  }, [refreshAreas, navigate]);
 
   const handleDeleteArea = async (id: string) => {
     try {

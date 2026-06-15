@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { UploadZone } from './UploadZone';
 import type { AreaResponse, DocumentResponse, ConversationResponse } from '../types';
@@ -49,6 +49,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onBrainStatusClick
 }) => {
   const navigate = useNavigate();
+  const [hoveredAreaId, setHoveredAreaId] = useState<string | null>(null);
   const activeArea = areas.find(a => a.id === selectedAreaId);
 
   // Helper to format file size
@@ -73,28 +74,39 @@ export const Sidebar: React.FC<SidebarProps> = ({
           {areas.map(area => {
             const initial = area.name.substring(0, 2).toUpperCase();
             const isSelected = area.id === selectedAreaId;
+            const isHovered = hoveredAreaId === area.id;
             const areaColor = area.color || '#f59e0b';
+            
+            let bg = `${areaColor}15`;
+            let border = `${areaColor}30`;
+            let text = '#a1a1aa'; // text-zinc-400
+            
+            if (isSelected) {
+              bg = areaColor;
+              border = areaColor;
+              text = '#ffffff';
+            } else if (isHovered) {
+              bg = `${areaColor}35`;
+              border = `${areaColor}70`;
+              text = '#f4f4f5'; // text-zinc-100
+            }
             
             return (
               <button
                 key={area.id}
                 onClick={() => navigate(`/areas/${area.id}`)}
+                onMouseEnter={() => setHoveredAreaId(area.id)}
+                onMouseLeave={() => setHoveredAreaId(null)}
                 title={area.name}
-                style={{ borderColor: isSelected ? areaColor : 'transparent' }}
-                className={`group relative w-11 h-11 rounded-full border-2 flex items-center justify-center font-bold text-xs transition-all duration-300 hover:rounded-2xl cursor-pointer ${
-                  isSelected 
-                    ? 'bg-zinc-800 text-zinc-100 shadow-[0_0_10px_rgba(0,0,0,0.5)]'
-                    : 'bg-zinc-900/60 text-zinc-400 hover:bg-zinc-850 hover:text-zinc-100'
-                }`}
+                style={{ 
+                  backgroundColor: bg,
+                  borderColor: border,
+                  color: text,
+                  boxShadow: isSelected ? `0 0 14px ${areaColor}50` : isHovered ? `0 0 8px ${areaColor}25` : 'none'
+                }}
+                className={`group relative w-11 h-11 rounded-full border-2 flex items-center justify-center font-bold text-xs transition-all duration-300 hover:rounded-2xl cursor-pointer`}
               >
                 <span className="relative z-10 leading-none">{initial}</span>
-                {/* Visual indicator (pill) on left hover/select */}
-                <div 
-                  className={`absolute left-0 w-1 rounded-r transition-all duration-300 ${
-                    isSelected ? 'h-6 -left-1' : 'h-0 -left-2 group-hover:h-3 group-hover:-left-1'
-                  }`}
-                  style={{ backgroundColor: areaColor }}
-                />
               </button>
             );
           })}
