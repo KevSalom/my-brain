@@ -1,8 +1,8 @@
 # 🧠 My Brain LM — Estado Actual del Proyecto
 
-> **Última actualización:** 2026-06-12
-> **Fase actual:** Fase 2 (MVP Frontend con React + Tailwind + assistant-ui) — COMPLETADA ✅
-> **Próxima fase:** Fase 3 (Multi-Cerebro)
+> **Última actualización:** 2026-06-15
+> **Fase actual:** Fase 3 (Multi-Cerebro / Áreas) — COMPLETADA ✅
+> **Próxima fase:** Fase 4 (Features Avanzadas)
 
 ---
 
@@ -22,8 +22,8 @@ My Brain LM es un sistema RAG personal para desarrolladores.
 | **Fase 0: PoC CLI** | ✅ Completada | RAG funcional por terminal |
 | **Fase 1: MVP Backend** | ✅ Completada | FastAPI + API REST + SSE streaming |
 | **Fase 2: MVP Frontend** | ✅ Completada | React + Vite + Tailwind CSS v4, Chat UI, Upload, Referencias |
-| **Fase 3: Multi-Cerebro** | 🔜 Siguiente | CRUD de cerebros, namespaces en vector DB |
-| Fase 4: Features Avanzadas | ⬜ Pendiente | Web scraping, artefactos de código, sandboxed preview |
+| **Fase 3: Multi-Cerebro** | ✅ Completada | CRUD de áreas, namespaces en vector DB, historial de chat |
+| **Fase 4: Features Avanzadas** | 🔜 Siguiente | Web scraping, artefactos de código, sandboxed preview |
 | Fase 5: Producción | ⬜ Pendiente | Auth (JWT), PostgreSQL, cloud deployment |
 
 ---

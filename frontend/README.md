@@ -1,73 +1,57 @@
-# React + TypeScript + Vite
+# 🧠 My Brain LM — Frontend SPA
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Esta carpeta contiene la interfaz web (Single Page Application) para interactuar con **My Brain LM** utilizando React, TypeScript y Vite.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## 🗺️ Estado del Proyecto y Fases del Frontend
 
-## React Compiler
+A continuación se detalla la lista de fases de desarrollo implementadas y pendientes en el cliente frontend:
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- [x] **Fase 2: MVP Frontend — COMPLETADA ✅**
+  - [x] Interfaz de chat interactiva con streaming SSE
+  - [x] Carga de documentos local con Drag & Drop
+  - [x] Integración de referencias de fuentes con score de relevancia RAG
+  - [x] Dashboard oscuro premium con diseño responsivo
 
-## Expanding the ESLint configuration
+- [x] **Fase 3: Multi-Áreas (Multi-Cerebro) — COMPLETADA ✅**
+  - [x] Soporte para múltiples áreas temáticas independientes (namespaces de ChromaDB)
+  - [x] Creación de áreas con nombre, descripción y selección de colores personalizados
+  - [x] Historial de conversaciones persistente por área
+  - [x] Gestión de estado en URL con `react-router-dom` para navegación persistente (F5, Atrás/Adelante)
+  - [x] Modal premium flotante "Brain Status" para estadísticas RAG globales, aislado para máximo rendimiento
+  - [x] Identificadores UUIDv4 string profesionales en bases de datos y llamadas de API
+  - [x] Burbujas de área dinámicas con relleno de color, hover suave y efecto de resplandor
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- [ ] **Fase 4: Features Avanzadas — PENDIENTE 🔜**
+  - [ ] Web scraping para generación de documentos desde URLs
+  - [ ] Visualización avanzada de artefactos de código y previews HTML interactivos
+  - [ ] Historial de versiones y carga asistida por IA
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+---
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## 🚀 Cómo Iniciar el Frontend
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### Pre-requisitos
+* Tener instalado [Node.js](https://nodejs.org/) (versión 18+)
+* Tener instalado el gestor de paquetes [pnpm](https://pnpm.io/)
+
+### Configuración e Instalación
+```bash
+# 1. Instalar dependencias
+pnpm install
+
+# 2. Iniciar el servidor de desarrollo de Vite
+pnpm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+El servidor web estará disponible en `http://localhost:5173`. Asegúrate de tener el backend corriendo en `http://localhost:8000`.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+---
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+## 🛠️ Tecnologías y Dependencias
+* **Core:** React 19, Vite, TypeScript.
+* **Manejo de Rutas (State):** React Router DOM.
+* **Componentes RAG Headless:** `@assistant-ui/react` y `@assistant-ui/react-markdown`.
+* **Iconografía:** `lucide-react`.
+* **Estilos:** Tailwind CSS v4.
