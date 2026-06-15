@@ -25,7 +25,7 @@ router = APIRouter(prefix="/api/areas", tags=["Áreas"])
 STORAGE_BASE_DIR = Path(__file__).resolve().parent.parent.parent.parent / "storage"
 
 
-def get_area_storage_dir(area_id: int) -> Path:
+def get_area_storage_dir(area_id: str) -> Path:
     """Retorna la ruta física donde se guardan los documentos de un área."""
     path = STORAGE_BASE_DIR / f"area_{area_id}" / "documents"
     path.mkdir(parents=True, exist_ok=True)
@@ -81,7 +81,7 @@ def list_areas(session: Session = Depends(get_session)):
 
 
 @router.get("/{area_id}", response_model=AreaResponse)
-def get_area(area_id: int, session: Session = Depends(get_session)):
+def get_area(area_id: str, session: Session = Depends(get_session)):
     """Obtiene los detalles de un Área específica."""
     area = session.get(Area, area_id)
     if not area:
@@ -99,7 +99,7 @@ def get_area(area_id: int, session: Session = Depends(get_session)):
 
 
 @router.delete("/{area_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_area(area_id: int, session: Session = Depends(get_session)):
+def delete_area(area_id: str, session: Session = Depends(get_session)):
     """Elimina un Área completa: SQLite, archivos del disco y ChromaDB."""
     area = session.get(Area, area_id)
     if not area:
@@ -135,7 +135,7 @@ def delete_area(area_id: int, session: Session = Depends(get_session)):
 
 @router.post("/{area_id}/ingest/file", response_model=IngestFileResponse)
 async def ingest_file_to_area(
-    area_id: int,
+    area_id: str,
     file: UploadFile = File(...),
     session: Session = Depends(get_session)
 ):
@@ -215,7 +215,7 @@ async def ingest_file_to_area(
 
 
 @router.get("/{area_id}/documents", response_model=List[DocumentResponse])
-def list_area_documents(area_id: int, session: Session = Depends(get_session)):
+def list_area_documents(area_id: str, session: Session = Depends(get_session)):
     """Lista todos los documentos cargados en un Área específica."""
     area = session.get(Area, area_id)
     if not area:
@@ -226,7 +226,7 @@ def list_area_documents(area_id: int, session: Session = Depends(get_session)):
 
 @router.delete("/{area_id}/documents/{document_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_area_document(
-    area_id: int,
+    area_id: str,
     document_id: int,
     session: Session = Depends(get_session)
 ):

@@ -9,6 +9,7 @@ import {
 import { type ThreadMessageLike } from '@assistant-ui/react';
 import { Sidebar } from './components/Sidebar';
 import { ChatContainer } from './components/ChatContainer';
+import { StatusPanel } from './components/StatusPanel';
 import { 
   getStatus, 
   getAreas, 
@@ -34,13 +35,14 @@ function MainApp() {
   const { areaId, chatId } = useParams<{ areaId?: string; chatId?: string }>();
   const navigate = useNavigate();
 
-  const selectedAreaId = areaId ? parseInt(areaId, 10) : null;
-  const selectedConversationId = chatId ? parseInt(chatId, 10) : null;
+  const selectedAreaId = areaId || null;
+  const selectedConversationId = chatId || null;
 
   // --- Estados del Sistema ---
   const [status, setStatus] = useState<StatusResponse | null>(null);
   const [loadingStatus, setLoadingStatus] = useState(false);
   const [statusError, setStatusError] = useState<string | null>(null);
+  const [isViewingBrainStatus, setIsViewingBrainStatus] = useState(false);
 
   // --- Estados de Áreas ---
   const [areas, setAreas] = useState<AreaResponse[]>([]);
@@ -172,7 +174,7 @@ function MainApp() {
     }
   };
 
-  const handleDeleteArea = async (id: number) => {
+  const handleDeleteArea = async (id: string) => {
     try {
       await deleteArea(id);
       if (selectedAreaId === id) {
@@ -199,7 +201,7 @@ function MainApp() {
     }
   };
 
-  const handleDeleteConversation = async (id: number) => {
+  const handleDeleteConversation = async (id: string) => {
     try {
       await deleteConversation(id);
       if (selectedConversationId === id) {
@@ -257,10 +259,7 @@ function MainApp() {
         documents={documents}
         onDeleteDocument={handleDeleteDocument}
         onUploadSuccess={refreshAreaResources}
-        status={status}
-        loadingStatus={loadingStatus}
-        statusError={statusError}
-        refreshStatus={refreshStatus}
+        onBrainStatusClick={() => setIsViewingBrainStatus(true)}
       />
 
       {/* Main Container */}
@@ -394,6 +393,33 @@ function MainApp() {
               >
                 Crear Área
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Estado del Cerebro */}
+      {isViewingBrainStatus && (
+        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-md flex items-center justify-center p-4 animate-fade-in animate-duration-300">
+          <div className="relative bg-zinc-900/90 border border-brand-border rounded-2xl w-full max-w-lg p-6 shadow-2xl flex flex-col max-h-[90vh] overflow-hidden">
+            {/* Botón de cerrar */}
+            <button
+              onClick={() => setIsViewingBrainStatus(false)}
+              className="absolute top-4 right-4 text-zinc-500 hover:text-zinc-200 transition-colors p-1.5 rounded-lg hover:bg-zinc-800 cursor-pointer"
+              title="Cerrar modal"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+            
+            <div className="overflow-y-auto pr-1 flex-1 scrollbar-thin">
+              <StatusPanel
+                status={status}
+                loading={loadingStatus}
+                error={statusError}
+                onRefresh={refreshStatus}
+              />
             </div>
           </div>
         </div>

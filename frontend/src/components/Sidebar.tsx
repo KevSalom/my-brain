@@ -1,8 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { UploadZone } from './UploadZone';
-import { StatusPanel } from './StatusPanel';
-import type { StatusResponse, AreaResponse, DocumentResponse, ConversationResponse } from '../types';
+import type { AreaResponse, DocumentResponse, ConversationResponse } from '../types';
 import { 
   BrainCircuit, 
   MessageSquare, 
@@ -16,26 +15,23 @@ import {
 interface SidebarProps {
   // Areas
   areas: AreaResponse[];
-  selectedAreaId: number | null;
+  selectedAreaId: string | null;
   onCreateAreaClick: () => void;
-  onDeleteArea: (id: number) => void;
+  onDeleteArea: (id: string) => void;
 
   // Conversations
   conversations: ConversationResponse[];
-  selectedConversationId: number | null;
+  selectedConversationId: string | null;
   onCreateConversation: () => void;
-  onDeleteConversation: (id: number) => void;
+  onDeleteConversation: (id: string) => void;
 
   // Documents
   documents: DocumentResponse[];
   onDeleteDocument: (docId: number) => void;
   onUploadSuccess: () => void;
 
-  // System status
-  status: StatusResponse | null;
-  loadingStatus: boolean;
-  statusError: string | null;
-  refreshStatus: () => void;
+  // Brain status modal trigger
+  onBrainStatusClick: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -50,10 +46,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   documents,
   onDeleteDocument,
   onUploadSuccess,
-  status,
-  loadingStatus,
-  statusError,
-  refreshStatus
+  onBrainStatusClick
 }) => {
   const navigate = useNavigate();
   const activeArea = areas.find(a => a.id === selectedAreaId);
@@ -75,6 +68,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <BrainCircuit className="h-5 w-5 text-brand-primary animate-pulse" />
         </div>
         
+        {/* Areas list */}
         <div className="flex-1 w-full overflow-y-auto flex flex-col items-center gap-3 scrollbar-none px-2">
           {areas.map(area => {
             const initial = area.name.substring(0, 2).toUpperCase();
@@ -114,9 +108,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </button>
         </div>
         
-        <div className="text-[10px] text-zinc-700 font-mono select-none uppercase tracking-wider scale-90">
-          Brain
-        </div>
+        {/* Brain status trigger at bottom left */}
+        <button
+          onClick={onBrainStatusClick}
+          title="Estado del Cerebro (Stats)"
+          className="w-11 h-11 rounded-full bg-zinc-900/40 border border-zinc-850 flex items-center justify-center text-zinc-500 hover:text-brand-primary hover:bg-brand-primary/10 hover:border-brand-primary/25 hover:rounded-2xl transition-all duration-300 cursor-pointer mt-auto"
+        >
+          <BrainCircuit className="h-4 w-4 text-zinc-400" />
+        </button>
       </aside>
 
       {/* 2. Sub-Sidebar: Navigation & Management for the active Area */}
@@ -203,7 +202,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     })}
                   </div>
                 ) : (
-                  <p className="text-[11px] text-zinc-600 italic py-2 pl-2">
+                  <p className="text-[11px] text-zinc-650 italic py-2 pl-2">
                     No hay chats iniciados.
                   </p>
                 )}
@@ -257,16 +256,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     </p>
                   </div>
                 )}
-              </div>
-
-              {/* System Stats Panel */}
-              <div className="mt-auto pt-4 border-t border-zinc-900">
-                <StatusPanel
-                  status={status}
-                  loading={loadingStatus}
-                  error={statusError}
-                  onRefresh={refreshStatus}
-                />
               </div>
             </div>
           </>

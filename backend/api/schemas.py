@@ -109,7 +109,7 @@ class AreaCreate(BaseModel):
 
 class AreaResponse(BaseModel):
     """Modelo de respuesta al listar/detallar un Área."""
-    id: int
+    id: str
     name: str
     description: Optional[str]
     color: Optional[str]
@@ -126,7 +126,7 @@ class DocumentResponse(BaseModel):
     id: int
     filename: str
     file_size: int
-    area_id: int
+    area_id: str
     created_at: datetime
 
     class Config:
@@ -135,9 +135,9 @@ class DocumentResponse(BaseModel):
 
 class ConversationResponse(BaseModel):
     """Modelo de respuesta para una Conversación."""
-    id: int
+    id: str
     title: str
-    area_id: int
+    area_id: str
     created_at: datetime
 
     class Config:
@@ -150,7 +150,7 @@ class MessageResponse(BaseModel):
     role: str
     content: str
     sources_json: Optional[str]
-    conversation_id: int
+    conversation_id: str
     created_at: datetime
 
     class Config:

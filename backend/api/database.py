@@ -10,7 +10,7 @@ from sqlmodel import create_engine, SQLModel, Session
 
 # Definir la ruta de la base de datos en el directorio backend
 BACKEND_DIR = Path(__file__).resolve().parent.parent
-DB_FILE = BACKEND_DIR / "mybrain.db"
+DB_FILE = BACKEND_DIR / "mybrain_v3.db"
 DATABASE_URL = f"sqlite:///{DB_FILE}"
 
 # Configurar el motor de la base de datos (con check_same_thread=False para FastAPI async)

@@ -3,7 +3,7 @@ import { Upload, CheckCircle2, Loader2 } from 'lucide-react';
 import { ingestFileToArea } from '../api';
 
 interface UploadZoneProps {
-  areaId: number | null;
+  areaId: string | null;
   onUploadSuccess?: () => void;
 }
 

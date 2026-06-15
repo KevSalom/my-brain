@@ -30,7 +30,7 @@ class ConversationCreate(BaseModel):
 # =====================================================================
 
 @router.get("/areas/{area_id}/conversations", response_model=List[ConversationResponse])
-def list_area_conversations(area_id: int, session: Session = Depends(get_session)):
+def list_area_conversations(area_id: str, session: Session = Depends(get_session)):
     """Obtiene todas las conversaciones asociadas a un Área."""
     # Verificar que el área existe
     area = session.get(Area, area_id)
@@ -42,7 +42,7 @@ def list_area_conversations(area_id: int, session: Session = Depends(get_session
 
 @router.post("/areas/{area_id}/conversations", response_model=ConversationResponse, status_code=status.HTTP_201_CREATED)
 def create_conversation(
-    area_id: int,
+    area_id: str,
     payload: ConversationCreate,
     session: Session = Depends(get_session)
 ):
@@ -66,7 +66,7 @@ def create_conversation(
 
 
 @router.delete("/conversations/{conversation_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_conversation(conversation_id: int, session: Session = Depends(get_session)):
+def delete_conversation(conversation_id: str, session: Session = Depends(get_session)):
     """Elimina una conversación y todo su historial de mensajes (en cascada)."""
     conv = session.get(Conversation, conversation_id)
     if not conv:
@@ -82,7 +82,7 @@ def delete_conversation(conversation_id: int, session: Session = Depends(get_ses
 # =====================================================================
 
 @router.get("/conversations/{conversation_id}/messages", response_model=List[MessageResponse])
-def list_conversation_messages(conversation_id: int, session: Session = Depends(get_session)):
+def list_conversation_messages(conversation_id: str, session: Session = Depends(get_session)):
     """Recupera el historial cronológico de mensajes de una conversación."""
     conv = session.get(Conversation, conversation_id)
     if not conv:
@@ -95,7 +95,7 @@ def list_conversation_messages(conversation_id: int, session: Session = Depends(
 
 @router.post("/conversations/{conversation_id}/stream")
 async def chat_stream(
-    conversation_id: int,
+    conversation_id: str,
     request: ChatRequest,
     session: Session = Depends(get_session)
 ):

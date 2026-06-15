@@ -1,9 +1,11 @@
 """
 Modelos de datos SQLModel para My Brain LM.
 
-Define la estructura de tablas para Áreas, Documentos, Conversaciones y Mensajes.
+Define la estructura de tablas para Áreas, Documentos, Conversaciones y Mensajes
+utilizando identificadores UUIDv4 profesionales (strings) para Áreas y Conversaciones.
 """
 
+import uuid
 from datetime import datetime
 from typing import Optional, List
 from sqlmodel import SQLModel, Field, Relationship
@@ -16,7 +18,11 @@ class AreaBase(SQLModel):
 
 
 class Area(AreaBase, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
+    id: str = Field(
+        default_factory=lambda: str(uuid.uuid4()),
+        primary_key=True,
+        description="ID único del área (UUIDv4)"
+    )
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
     # Relaciones con borrado en cascada
@@ -34,7 +40,7 @@ class DocumentBase(SQLModel):
     filename: str = Field(description="Nombre del archivo original")
     file_path: str = Field(description="Ruta física donde se almacena el archivo")
     file_size: int = Field(description="Tamaño del archivo en bytes")
-    area_id: int = Field(foreign_key="area.id", index=True, description="ID del área a la que pertenece")
+    area_id: str = Field(foreign_key="area.id", index=True, description="ID del área a la que pertenece (UUIDv4)")
 
 
 class Document(DocumentBase, table=True):
@@ -47,11 +53,15 @@ class Document(DocumentBase, table=True):
 
 class ConversationBase(SQLModel):
     title: str = Field(description="Título o asunto de la conversación")
-    area_id: int = Field(foreign_key="area.id", index=True, description="ID del área de la conversación")
+    area_id: str = Field(foreign_key="area.id", index=True, description="ID del área de la conversación (UUIDv4)")
 
 
 class Conversation(ConversationBase, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
+    id: str = Field(
+        default_factory=lambda: str(uuid.uuid4()),
+        primary_key=True,
+        description="ID único de la conversación (UUIDv4)"
+    )
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
     # Relaciones
@@ -69,10 +79,10 @@ class MessageBase(SQLModel):
         default=None,
         description="JSON serializado con las fuentes RAG utilizadas (para respuestas del asistente)"
     )
-    conversation_id: int = Field(
+    conversation_id: str = Field(
         foreign_key="conversation.id",
         index=True,
-        description="ID de la conversación a la que pertenece"
+        description="ID de la conversación a la que pertenece (UUIDv4)"
     )
 
 

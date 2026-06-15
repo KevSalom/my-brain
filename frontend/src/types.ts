@@ -44,7 +44,7 @@ export interface ChatMessage {
 }
 
 export interface AreaResponse {
-  id: number;
+  id: string;
   name: string;
   description: string | null;
   color: string | null;
@@ -58,14 +58,14 @@ export interface DocumentResponse {
   filename: string;
   file_path: string;
   file_size: number;
-  area_id: number;
+  area_id: string;
   created_at: string;
 }
 
 export interface ConversationResponse {
-  id: number;
+  id: string;
   title: string;
-  area_id: number;
+  area_id: string;
   created_at: string;
 }
 
@@ -74,7 +74,7 @@ export interface MessageResponse {
   role: 'user' | 'assistant';
   content: string;
   sources_json: string | null;
-  conversation_id: number;
+  conversation_id: string;
   created_at: string;
 }
 

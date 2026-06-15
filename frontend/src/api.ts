@@ -58,7 +58,7 @@ export async function createArea(name: string, description?: string, color?: str
   return response.json();
 }
 
-export async function deleteArea(areaId: number): Promise<void> {
+export async function deleteArea(areaId: string): Promise<void> {
   const response = await fetch(`${API_BASE_URL}/api/areas/${areaId}`, {
     method: 'DELETE',
   });
@@ -72,7 +72,7 @@ export async function deleteArea(areaId: number): Promise<void> {
 // Documents (Documentos por Área)
 // =====================================================================
 
-export async function getAreaDocuments(areaId: number): Promise<DocumentResponse[]> {
+export async function getAreaDocuments(areaId: string): Promise<DocumentResponse[]> {
   const response = await fetch(`${API_BASE_URL}/api/areas/${areaId}/documents`);
   if (!response.ok) {
     throw new Error(`Error al cargar documentos del área: ${response.statusText}`);
@@ -80,7 +80,7 @@ export async function getAreaDocuments(areaId: number): Promise<DocumentResponse
   return response.json();
 }
 
-export async function ingestFileToArea(areaId: number, file: File): Promise<IngestFileResponse> {
+export async function ingestFileToArea(areaId: string, file: File): Promise<IngestFileResponse> {
   const formData = new FormData();
   formData.append('file', file);
 
@@ -95,7 +95,7 @@ export async function ingestFileToArea(areaId: number, file: File): Promise<Inge
   return response.json();
 }
 
-export async function deleteAreaDocument(areaId: number, docId: number): Promise<void> {
+export async function deleteAreaDocument(areaId: string, docId: number): Promise<void> {
   const response = await fetch(`${API_BASE_URL}/api/areas/${areaId}/documents/${docId}`, {
     method: 'DELETE',
   });
@@ -109,7 +109,7 @@ export async function deleteAreaDocument(areaId: number, docId: number): Promise
 // Conversations (Conversaciones por Área)
 // =====================================================================
 
-export async function getAreaConversations(areaId: number): Promise<ConversationResponse[]> {
+export async function getAreaConversations(areaId: string): Promise<ConversationResponse[]> {
   const response = await fetch(`${API_BASE_URL}/api/chat/areas/${areaId}/conversations`);
   if (!response.ok) {
     throw new Error(`Error al listar conversaciones: ${response.statusText}`);
@@ -117,7 +117,7 @@ export async function getAreaConversations(areaId: number): Promise<Conversation
   return response.json();
 }
 
-export async function createConversation(areaId: number, title?: string): Promise<ConversationResponse> {
+export async function createConversation(areaId: string, title?: string): Promise<ConversationResponse> {
   const response = await fetch(`${API_BASE_URL}/api/chat/areas/${areaId}/conversations`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -130,7 +130,7 @@ export async function createConversation(areaId: number, title?: string): Promis
   return response.json();
 }
 
-export async function deleteConversation(convId: number): Promise<void> {
+export async function deleteConversation(convId: string): Promise<void> {
   const response = await fetch(`${API_BASE_URL}/api/chat/conversations/${convId}`, {
     method: 'DELETE',
   });
@@ -140,7 +140,7 @@ export async function deleteConversation(convId: number): Promise<void> {
   }
 }
 
-export async function getConversationMessages(convId: number): Promise<MessageResponse[]> {
+export async function getConversationMessages(convId: string): Promise<MessageResponse[]> {
   const response = await fetch(`${API_BASE_URL}/api/chat/conversations/${convId}/messages`);
   if (!response.ok) {
     throw new Error(`Error al cargar mensajes: ${response.statusText}`);
