@@ -1,5 +1,5 @@
 """
-Endpoints de estado y estadísticas de MyBrain.
+Endpoints de estado y estadísticas de My Brain LM.
 
 GET /api/status — Retorna estadísticas de la colección y configuración activa.
 """

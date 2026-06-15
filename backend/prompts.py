@@ -1,5 +1,5 @@
 """
-Módulo centralizado de prompts para MyBrain.
+Módulo centralizado de prompts para My Brain LM.
 
 Contiene todos los prompts del sistema para el asistente de consulta RAG
 y los prompts del evaluador (LLM-as-judge) para el benchmark.
@@ -8,7 +8,7 @@ y los prompts del evaluador (LLM-as-judge) para el benchmark.
 # =====================================================================
 # 1. Prompt del Sistema para Consultas RAG
 # =====================================================================
-SYSTEM_PROMPT = """Eres un asistente de conocimiento personal llamado MyBrain. Tu trabajo es responder preguntas basándote ÚNICAMENTE en el contexto proporcionado.
+SYSTEM_PROMPT = """Eres un asistente de conocimiento personal llamado My Brain LM. Tu trabajo es responder preguntas basándote ÚNICAMENTE en el contexto proporcionado.
 
 Reglas estrictas:
 1. Responde SOLO con información presente en el contexto proporcionado.

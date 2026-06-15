@@ -1,5 +1,5 @@
 """
-Módulo de estrategias de chunking para MyBrain.
+Módulo de estrategias de chunking para My Brain LM.
 
 Proporciona dos estrategias intercambiables:
 - BasicChunking: Chunking genérico con separadores básicos (el original)

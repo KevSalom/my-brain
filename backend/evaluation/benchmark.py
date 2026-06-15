@@ -1,5 +1,5 @@
 """
-Script de benchmark para evaluar estrategias de retrieval en MyBrain.
+Script de benchmark para evaluar estrategias de retrieval en My Brain LM.
 
 Ejecuta diferentes estrategias de recuperación contra un conjunto de preguntas
 de prueba, mide métricas de calidad (usando LLM-as-judge) y latencia, y genera
@@ -454,7 +454,7 @@ def generate_report(results: dict, output_dir: str) -> str:
     lines: list[str] = []
 
     # Encabezado
-    lines.append("# MyBrain Benchmark Report\n")
+    lines.append("# My Brain LM Benchmark Report\n")
     lines.append(f"**Fecha:** {timestamp.strftime('%Y-%m-%d %H:%M:%S')}  ")
     lines.append(f"**Test set:** {num_questions} preguntas  ")
     lines.append(
@@ -579,7 +579,7 @@ def generate_report(results: dict, output_dir: str) -> str:
     # --- Footer ---
     lines.append("---\n")
     lines.append(
-        f"*Reporte generado automáticamente por MyBrain Benchmark — "
+        f"*Reporte generado automáticamente por My Brain LM Benchmark — "
         f"{timestamp.strftime('%Y-%m-%d %H:%M:%S')}*"
     )
 
@@ -616,7 +616,7 @@ def main() -> None:
     """
     # --- Parseo de argumentos ---
     parser = argparse.ArgumentParser(
-        description="🧠 MyBrain Benchmark — Evaluación de estrategias de retrieval",
+        description="🧠 My Brain LM Benchmark — Evaluación de estrategias de retrieval",
     )
     parser.add_argument(
         "--test-set",
@@ -628,7 +628,7 @@ def main() -> None:
 
     # --- Banner de bienvenida ---
     banner = (
-        "🧪 [bold cyan]MyBrain Benchmark[/bold cyan]\n\n"
+        "🧪 [bold cyan]My Brain LM Benchmark[/bold cyan]\n\n"
         "Evaluación automatizada de estrategias de retrieval\n"
         "usando LLM-as-judge (GPT-4o-mini) para métricas de calidad.\n\n"
         f"[dim]Modelo LLM:[/dim] {settings.llm_model}\n"
@@ -638,7 +638,7 @@ def main() -> None:
     console.print(
         Panel(
             banner,
-            title="[bold blue]MyBrain Benchmark v0.1[/bold blue]",
+            title="[bold blue]My Brain LM Benchmark v0.1[/bold blue]",
             border_style="blue",
             padding=(1, 2),
         )

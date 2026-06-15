@@ -1,5 +1,5 @@
 """
-Script de arranque del servidor API de MyBrain.
+Script de arranque del servidor API de My Brain LM.
 
 Ejecutar con:
     python run_api.py
@@ -14,7 +14,7 @@ from config import settings
 
 def main():
     """Arranca el servidor uvicorn con la configuración de settings."""
-    print(f"\n🧠 MyBrain API iniciando en http://{settings.api_host}:{settings.api_port}")
+    print(f"\n🧠 My Brain LM API iniciando en http://{settings.api_host}:{settings.api_port}")
     print(f"📖 Documentación en http://{settings.api_host}:{settings.api_port}/docs\n")
     
     uvicorn.run(

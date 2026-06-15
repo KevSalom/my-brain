@@ -1,5 +1,5 @@
 # =============================================
-# MyBrain - Phase 0 PoC
+# My Brain LM - Phase 0 PoC
 # Dependencias del proyecto
 # =============================================
 

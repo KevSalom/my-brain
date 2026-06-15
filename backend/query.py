@@ -1,5 +1,5 @@
 """
-Módulo de consulta y recuperación de MyBrain.
+Módulo de consulta y recuperación de My Brain LM.
 
 Se encarga de:
 - Recibir una pregunta del usuario

@@ -1,5 +1,5 @@
 """
-Módulo de configuración de MyBrain.
+Módulo de configuración de My Brain LM.
 
 Carga las variables de entorno desde el archivo .env y expone
 una instancia singleton `settings` con todos los parámetros del sistema.

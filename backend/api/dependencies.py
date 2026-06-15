@@ -1,5 +1,5 @@
 """
-Dependencias compartidas para la API REST de MyBrain.
+Dependencias compartidas para la API REST de My Brain LM.
 
 Centraliza la inicialización de clientes y recursos que se
 reutilizan en múltiples endpoints.

@@ -1,4 +1,4 @@
-# 🧠 MyBrain — Estado Actual del Proyecto
+# 🧠 My Brain LM — Estado Actual del Proyecto
 
 > **Última actualización:** 2026-06-12
 > **Fase actual:** Fase 2 (MVP Frontend con React + Tailwind + assistant-ui) — COMPLETADA ✅
@@ -8,7 +8,7 @@
 
 ## TL;DR para LLMs
 
-MyBrain es un sistema RAG personal para desarrolladores.
+My Brain LM es un sistema RAG personal para desarrolladores.
 - **Backend (Python + FastAPI)**: API funcional con endpoints para estado (`/api/status`), ingesta de archivos (`/api/ingest/file`), directorios (`/api/ingest/directory`), y chat síncrono/stream RAG por SSE. Usa ChromaDB local y fusiona embeddings de OpenAI (`text-embedding-3-small`) con BM25 léxico mediante RRF.
 - **Frontend (React + Vite + TypeScript)**: SPA funcional conectada al backend local en `http://localhost:8000`. Usa Tailwind CSS v4 para diseño oscuro premium, la librería headless `assistant-ui` con un custom parser SSE para renderizar las respuestas token por token, e integra referencias/fuentes con porcentajes de relevancia y carga Drag & Drop.
 - **No existe aún**: CRUD multi-usuario, autenticación avanzada, namespaces (multi-cerebro), web scraping.

@@ -1,5 +1,5 @@
 """
-Endpoints de ingesta de documentos de MyBrain.
+Endpoints de ingesta de documentos de My Brain LM.
 
 POST /api/ingest/file      — Sube e ingesta un archivo individual.
 POST /api/ingest/directory  — Ingesta todos los archivos del directorio configurado.

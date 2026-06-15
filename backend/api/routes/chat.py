@@ -1,5 +1,5 @@
 """
-Endpoints de chat/consulta RAG de MyBrain.
+Endpoints de chat/consulta RAG de My Brain LM.
 
 POST /api/chat         — Consulta completa (respuesta JSON de una vez).
 POST /api/chat/stream  — Consulta con streaming via Server-Sent Events (SSE).
@@ -20,7 +20,7 @@ router = APIRouter(prefix="/api/chat", tags=["Chat"])
 @router.post(
     "",
     response_model=ChatResponse,
-    summary="Chat con MyBrain",
+    summary="Chat con My Brain LM",
     description="Envía una pregunta y recibe la respuesta completa del RAG.",
 )
 async def chat_query(request: ChatRequest):

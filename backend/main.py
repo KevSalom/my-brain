@@ -1,7 +1,7 @@
 
 
 """
-Punto de entrada CLI de MyBrain.
+Punto de entrada CLI de My Brain LM.
 
 Proporciona tres subcomandos:
 - ingest: Ingesta archivos o directorios en ChromaDB
@@ -26,11 +26,11 @@ console = Console()
 
 # Banner ASCII del proyecto
 BANNER = r"""
-  __  __       ____            _
- |  \/  |_   _| __ ) _ __ __ _(_)_ __
- | |\/| | | | |  _ \| '__/ _` | | '_ \
- | |  | | |_| | |_) | | | (_| | | | | |
- |_|  |_|\__, |____/|_|  \__,_|_|_| |_|
+  __  __       ____            _             _     __  __ 
+ |  \/  |_   _| __ ) _ __ __ _(_)_ __       | |   |  \/  |
+ | |\/| | | | |  _ \| '__/ _` | | '_ \      | |   | |\/| |
+ | |  | | |_| | |_) | | | (_| | | | | |     | |___| |  | |
+ |_|  |_|\__, |____/|_|  \__,_|_|_| |_|     |_____|_|  |_|
          |___/
 """
 
@@ -90,7 +90,7 @@ def cmd_status(args: argparse.Namespace) -> None:
 
     # Tabla de estadísticas
     table = Table(
-        title="📊 Estado de MyBrain",
+        title="📊 Estado de My Brain LM",
         show_header=True,
         header_style="bold magenta",
         border_style="blue",
@@ -148,7 +148,7 @@ def cmd_chat(args: argparse.Namespace) -> None:
                 "  [bold cyan]python main.py ingest <ruta>[/bold cyan]\n\n"
                 "Ejemplo:\n"
                 "  [dim]python main.py ingest ./documents[/dim]",
-                title="[bold yellow]MyBrain - Sin Documentos[/bold yellow]",
+                title="[bold yellow]My Brain LM - Sin Documentos[/bold yellow]",
                 border_style="yellow",
             )
         )
@@ -160,7 +160,7 @@ def cmd_chat(args: argparse.Namespace) -> None:
 
     # Mensaje de bienvenida
     welcome_text = (
-        f"🧠 [bold]Bienvenido a MyBrain[/bold]\n\n"
+        f"🧠 [bold]Bienvenido a My Brain LM[/bold]\n\n"
         f"Tienes [bold cyan]{stats['total_chunks']}[/bold cyan] chunks "
         f"de [bold cyan]{len(stats['sources'])}[/bold cyan] documento(s) cargados.\n\n"
         f"[dim]Comandos disponibles:[/dim]\n"
@@ -172,7 +172,7 @@ def cmd_chat(args: argparse.Namespace) -> None:
     console.print(
         Panel(
             welcome_text,
-            title="[bold blue]MyBrain Chat[/bold blue]",
+            title="[bold blue]My Brain LM Chat[/bold blue]",
             border_style="blue",
             padding=(1, 2),
         )
@@ -199,7 +199,7 @@ def cmd_chat(args: argparse.Namespace) -> None:
                 console.clear()
                 console.print(
                     Panel(
-                        "🧠 [bold]MyBrain Chat[/bold] — Pantalla limpiada",
+                        "🧠 [bold]My Brain LM Chat[/bold] — Pantalla limpiada",
                         border_style="blue",
                     )
                 )
@@ -210,7 +210,7 @@ def cmd_chat(args: argparse.Namespace) -> None:
                 continue
 
             # Realizar la consulta con streaming
-            console.print("\n[bold blue]🤖 MyBrain:[/bold blue] ", end="")
+            console.print("\n[bold blue]🤖 My Brain LM:[/bold blue] ", end="")
 
             result = None
             try:
@@ -275,7 +275,7 @@ def _print_sources(sources: list[dict]) -> None:
 def main() -> None:
     """Función principal — configura argparse y despacha al subcomando."""
     parser = argparse.ArgumentParser(
-        description="🧠 MyBrain — Tu segundo cerebro con RAG",
+        description="🧠 My Brain LM — your docs, your local intelligence",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=(
             "Ejemplos de uso:\n"
@@ -320,7 +320,7 @@ def main() -> None:
         console.print(
             Panel(
                 BANNER,
-                title="[bold blue]MyBrain v0.1 — Proof of Concept[/bold blue]",
+                title="[bold blue]My Brain LM v0.1 — Proof of Concept[/bold blue]",
                 border_style="blue",
                 padding=(0, 2),
             )

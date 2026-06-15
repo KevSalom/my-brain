@@ -1,6 +1,6 @@
-# 🚀 Guía de Optimizaciones y Mejoras Futuras para MyBrain RAG
+# 🚀 Guía de Optimizaciones y Mejoras Futuras para My Brain LM RAG
 
-Este documento recopila las estrategias avanzadas de optimización para nuestro sistema RAG (Retrieval-Augmented Generation), ordenadas por complejidad y área de impacto. Está pensado como una hoja de ruta técnica a considerar a medida que el proyecto MyBrain transicione de una PoC a un sistema de nivel de producción.
+Este documento recopila las estrategias avanzadas de optimización para nuestro sistema RAG (Retrieval-Augmented Generation), ordenadas por complejidad y área de impacto. Está pensado como una hoja de ruta técnica a considerar a medida que el proyecto My Brain LM transicione de una PoC a un sistema de nivel de producción.
 
 ---
 

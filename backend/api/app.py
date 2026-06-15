@@ -1,5 +1,5 @@
 """
-Aplicación FastAPI de MyBrain.
+Aplicación FastAPI de My Brain LM.
 
 Punto de entrada de la API REST. Configura CORS, registra routers
 y define metadata de la documentación OpenAPI.
@@ -15,9 +15,9 @@ from api.routes import status, ingest, chat
 # =====================================================================
 
 app = FastAPI(
-    title="MyBrain API",
+    title="My Brain LM API",
     description=(
-        "🧠 API REST de MyBrain — Tu segundo cerebro potenciado por IA.\n\n"
+        "🧠 API REST de My Brain LM — your docs, your local intelligence.\n\n"
         "Permite ingestar documentos, consultarlos via RAG con streaming, "
         "y verificar el estado del sistema."
     ),
@@ -60,7 +60,7 @@ app.include_router(chat.router)
 async def root():
     """Health check básico."""
     return {
-        "app": "MyBrain API",
+        "app": "My Brain LM API",
         "version": "1.0.0",
         "status": "running",
         "docs": "/docs",

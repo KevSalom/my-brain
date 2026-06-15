@@ -1,4 +1,4 @@
-# 🧠 MyBrain — Guía Estratégica de Proyecto
+# 🧠 My Brain LM — Guía Estratégica de Proyecto
 
 ## 1. Análisis de Viabilidad: ¿Es posible?
 
@@ -133,7 +133,7 @@ En vez de construir todas las capas (DB, API, UI) por separado y luego conectarl
 | **Para este proyecto** | Overkill a menos que uses Vercel AI SDK | ✅ Ideal |
 
 > [!TIP]
-> **Mi recomendación: React + Vite.** MyBrain es una app privada (no necesita SEO). Un SPA puro es más simple, más rápido de desarrollar, y te permite separar claramente frontend y backend. Si en el futuro quieres migrar a Next.js, tu código React se reutiliza fácilmente.
+> **Mi recomendación: React + Vite.** My Brain LM es una app privada (no necesita SEO). Un SPA puro es más simple, más rápido de desarrollar, y te permite separar claramente frontend y backend. Si en el futuro quieres migrar a Next.js, tu código React se reutiliza fácilmente.
 >
 > **Excepción**: Si decides usar Vercel AI SDK como orquestador principal, Next.js tiene mejor integración nativa.
 

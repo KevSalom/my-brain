@@ -1,5 +1,5 @@
 """
-Módulo de registro (logging) de consultas para MyBrain.
+Módulo de registro (logging) de consultas para My Brain LM.
 
 Permite registrar el historial de chat de manera estructurada y eficiente.
 Genera dos archivos por sesión de chat:
@@ -42,7 +42,7 @@ class ChatSessionLogger:
         from config import settings
 
         # Cabecera para el log Markdown (.md)
-        header_md = f"""# 🧠 Registro de Sesión de Chat — MyBrain
+        header_md = f"""# 🧠 Registro de Sesión de Chat — My Brain LM
 - **Fecha de Inicio**: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
 - **Estrategia RAG**: `{settings.retrieval_strategy}` (BM25 Weight: `{settings.retrieval_bm25_weight}`)
 - **Modelo LLM**: `{settings.llm_model}`
@@ -92,7 +92,7 @@ class ChatSessionLogger:
 ### 🧑 Usuario
 > {question}
 
-### 🤖 Asistente (MyBrain)
+### 🤖 Asistente (My Brain LM)
 {answer}
 
 ### 🔍 Contexto Recuperado ({len(context_chunks)} fragmentos)

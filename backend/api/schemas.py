@@ -1,5 +1,5 @@
 """
-Esquemas Pydantic para la API REST de MyBrain.
+Esquemas Pydantic para la API REST de My Brain LM.
 
 Define los modelos de request y response para todos los endpoints.
 """

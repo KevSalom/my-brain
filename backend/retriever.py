@@ -1,5 +1,5 @@
 """
-Módulo de estrategias de recuperación (retrieval) para MyBrain RAG.
+Módulo de estrategias de recuperación (retrieval) para My Brain LM RAG.
 
 Implementa dos estrategias intercambiables:
 - VectorOnlyStrategy: búsqueda puramente semántica vía embeddings.

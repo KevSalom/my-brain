@@ -1,6 +1,6 @@
-# 🧠 MyBrain
+# 🧠 My Brain LM
 
-**Tu segundo cerebro potenciado por IA** — Una aplicación multi-tema que te permite consultar y tomar decisiones basándote en tus propios documentos, utilizando RAG (Retrieval Augmented Generation).
+**your docs, your local intelligence** — Una aplicación multi-tema que te permite consultar y tomar decisiones basándote en tus propios documentos, utilizando RAG (Retrieval Augmented Generation).
 
 > Carga documentos en "secciones de cerebro", chatea con un LLM que prioriza la información de esos documentos, y obtén respuestas precisas y contextualizadas.
 
@@ -8,9 +8,9 @@
 
 ## 📋 Descripción
 
-MyBrain es una herramienta diseñada **principalmente para desarrolladores** que necesitan consultar documentación técnica, tomar decisiones arquitectónicas o simplemente tener un asistente que "conozca" sus documentos.
+My Brain LM es una herramienta diseñada **principalmente para desarrolladores** que necesitan consultar documentación técnica, tomar decisiones arquitectónicas o simplemente tener un asistente que "conozca" sus documentos.
 
-### ¿Qué hace MyBrain?
+### ¿Qué hace My Brain LM?
 
 - 🗂️ **Carga documentos** en "secciones de cerebro" o proyectos independientes
 - 💬 **Chat con LLM** que prioriza y referencia la información de tus documentos cargados
@@ -53,7 +53,7 @@ MyBrain es una herramienta diseñada **principalmente para desarrolladores** que
 
 ### 🟣 Fase 2: MVP Frontend — COMPLETADA ✅
 
-> Crear una interfaz web moderna para interactuar con MyBrain.
+> Crear una interfaz web moderna para interactuar con My Brain LM.
 
 - [x] **React + Vite + TypeScript**
 - [x] Chat UI con streaming en tiempo real
@@ -77,7 +77,7 @@ MyBrain es una herramienta diseñada **principalmente para desarrolladores** que
 
 ### 🟠 Fase 4: Features Avanzadas
 
-> Funcionalidades que elevan MyBrain a una herramienta profesional.
+> Funcionalidades que elevan My Brain LM a una herramienta profesional.
 
 - [ ] **Web scraping** → generación automática de documentos desde URLs
 - [ ] Artefactos de código en chat (syntax highlighting)
@@ -90,7 +90,7 @@ MyBrain es una herramienta diseñada **principalmente para desarrolladores** que
 
 ### 🔴 Fase 5: Producción
 
-> Preparar MyBrain para uso en producción con múltiples usuarios.
+> Preparar My Brain LM para uso en producción con múltiples usuarios.
 
 - [ ] **Autenticación de usuarios** (JWT / OAuth)
 - [ ] PostgreSQL para metadata y gestión de usuarios
@@ -174,12 +174,12 @@ python main.py status
 ### Ejemplo de Chat
 
 ```
-🧠 MyBrain Chat (escribe 'salir' para terminar)
+🧠 My Brain LM Chat (escribe 'salir' para terminar)
 ──────────────────────────────────────────────
 
 Tú: ¿Cuáles son las mejores prácticas para autenticación en APIs REST?
 
-MyBrain: Según tus documentos cargados, las mejores prácticas incluyen...
+My Brain LM: Según tus documentos cargados, las mejores prácticas incluyen...
 ```
 
 ---
@@ -224,5 +224,5 @@ Este proyecto está bajo la licencia **MIT**. Consulta el archivo [LICENSE](LICE
 ---
 
 <p align="center">
-  Hecho con ❤️ y mucho ☕ por un dev que quería un segundo cerebro
+  Hecho con ❤️ y mucho ☕ por un dev que quería su propio cerebro local de documentos
 </p>

@@ -1,5 +1,5 @@
 """
-Módulo de ingestión de documentos de MyBrain.
+Módulo de ingestión de documentos de My Brain LM.
 
 Se encarga de:
 - Leer archivos .txt y .pdf
