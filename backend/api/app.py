@@ -8,7 +8,8 @@ y define metadata de la documentación OpenAPI.
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from api.routes import status, ingest, chat
+from api.routes import status, ingest, chat, areas
+from api.database import create_db_and_tables
 
 # =====================================================================
 # Crear la aplicación FastAPI
@@ -25,6 +26,11 @@ app = FastAPI(
     docs_url="/docs",       # Swagger UI
     redoc_url="/redoc",     # ReDoc
 )
+
+@app.on_event("startup")
+def on_startup():
+    """Inicializar las tablas de la base de datos SQLite en el arranque."""
+    create_db_and_tables()
 
 # =====================================================================
 # CORS — Permitir conexiones desde el frontend (Fase 2)
@@ -50,6 +56,8 @@ app.add_middleware(
 app.include_router(status.router)
 app.include_router(ingest.router)
 app.include_router(chat.router)
+app.include_router(areas.router)
+
 
 
 # =====================================================================

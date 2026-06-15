@@ -36,14 +36,15 @@ def _get_openai_client() -> OpenAI:
     return OpenAI(api_key=settings.openai_api_key)
 
 
-def _get_chroma_collection() -> chromadb.Collection:
-    """Crea o recupera la colección de ChromaDB.
+def _get_chroma_collection(collection_name: Optional[str] = None) -> chromadb.Collection:
+    """Crea o recupera la colección de ChromaDB específica o por defecto.
 
     Utiliza persistencia en disco para mantener los datos entre ejecuciones.
     """
     client = chromadb.PersistentClient(path=str(settings.chroma_persist_path))
+    name = collection_name or settings.collection_name
     collection = client.get_or_create_collection(
-        name=settings.collection_name,
+        name=name,
         metadata={"hnsw:space": "cosine"},  # Usar distancia coseno
     )
     return collection
@@ -167,7 +168,7 @@ def _generate_chunk_id(source: str, chunk_index: int) -> str:
     return hashlib.md5(content.encode()).hexdigest()
 
 
-def ingest_file(file_path: str) -> int:
+def ingest_file(file_path: str, collection_name: Optional[str] = None) -> int:
     """Ingesta un solo archivo en ChromaDB.
 
     Lee el archivo, lo divide en chunks, genera embeddings y los almacena
@@ -175,6 +176,7 @@ def ingest_file(file_path: str) -> int:
 
     Args:
         file_path: Ruta al archivo a ingestar.
+        collection_name: Nombre de la colección de ChromaDB donde guardar los chunks.
 
     Returns:
         Número de chunks ingestados.
@@ -236,7 +238,7 @@ def ingest_file(file_path: str) -> int:
 
     # Paso 5: Almacenar en ChromaDB (upsert para permitir re-ingestión)
     with console.status("[bold green]Almacenando en ChromaDB..."):
-        collection = _get_chroma_collection()
+        collection = _get_chroma_collection(collection_name)
         collection.upsert(
             ids=ids,
             documents=chunk_texts,
@@ -244,7 +246,7 @@ def ingest_file(file_path: str) -> int:
             metadatas=metadatas,
         )
 
-    console.print(f"  ✅ Almacenado en colección '[bold]{settings.collection_name}[/bold]'")
+    console.print(f"  ✅ Almacenado en colección '[bold]{collection.name}[/bold]'")
 
     # Mostrar resumen de metadata enriquecida si estamos usando smart chunking
     if strategy.name == "smart":
@@ -253,7 +255,10 @@ def ingest_file(file_path: str) -> int:
     return len(chunk_texts)
 
 
-def ingest_directory(dir_path: Optional[str] = None) -> dict[str, int]:
+def ingest_directory(
+    dir_path: Optional[str] = None,
+    collection_name: Optional[str] = None
+) -> dict[str, int]:
     """Ingesta todos los archivos soportados de un directorio.
 
     Recorre el directorio buscando archivos .txt y .pdf, y los ingesta
@@ -262,6 +267,7 @@ def ingest_directory(dir_path: Optional[str] = None) -> dict[str, int]:
     Args:
         dir_path: Ruta al directorio a procesar. Si es None, usa el
                   directorio de documentos configurado.
+        collection_name: Nombre de la colección ChromaDB de destino.
 
     Returns:
         Diccionario con {nombre_archivo: número_de_chunks} para cada
@@ -306,7 +312,7 @@ def ingest_directory(dir_path: Optional[str] = None) -> dict[str, int]:
 
     for file_path in files:
         try:
-            chunks = ingest_file(str(file_path))
+            chunks = ingest_file(str(file_path), collection_name=collection_name)
             results[file_path.name] = chunks
             total_chunks += chunks
         except Exception as e:

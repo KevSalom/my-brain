@@ -40,3 +40,8 @@ uvicorn[standard]>=0.30.0
 
 # Soporte para subida de archivos multipart/form-data
 python-multipart>=0.0.9
+
+# --- Persistencia Base de Datos (Fase 3) ---
+# ORM que combina SQLAlchemy y Pydantic
+sqlmodel>=0.0.22
+

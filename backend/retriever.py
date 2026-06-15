@@ -15,6 +15,7 @@ Uso:
 import re
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
+from typing import Optional
 
 import chromadb
 from openai import OpenAI
@@ -56,12 +57,18 @@ class RetrieverStrategy(ABC):
         ...
 
     @abstractmethod
-    def retrieve(self, query: str, top_k: int = 5) -> RetrievalResult:
+    def retrieve(
+        self,
+        query: str,
+        top_k: int = 5,
+        collection_name: Optional[str] = None
+    ) -> RetrievalResult:
         """Recupera los chunks más relevantes para la consulta dada.
 
         Args:
             query: Pregunta o texto de búsqueda del usuario.
             top_k: Cantidad máxima de resultados a devolver.
+            collection_name: Nombre de la colección ChromaDB a consultar.
 
         Returns:
             RetrievalResult con los documentos, metadatos y scores.
@@ -78,8 +85,8 @@ def _get_openai_client() -> OpenAI:
     return OpenAI(api_key=settings.openai_api_key)
 
 
-def _get_chroma_collection() -> chromadb.Collection:
-    """Obtiene la colección de ChromaDB configurada.
+def _get_chroma_collection(collection_name: Optional[str] = None) -> chromadb.Collection:
+    """Obtiene la colección de ChromaDB configurada o una específica por nombre.
 
     Returns:
         Colección de ChromaDB lista para consultas.
@@ -88,12 +95,13 @@ def _get_chroma_collection() -> chromadb.Collection:
         ValueError: Si la colección no existe (no se han ingestado documentos).
     """
     client = chromadb.PersistentClient(path=str(settings.chroma_persist_path))
+    name = collection_name or settings.collection_name
     try:
-        collection = client.get_collection(name=settings.collection_name)
+        collection = client.get_collection(name=name)
     except Exception:
         raise ValueError(
-            "No se encontró la colección de documentos. "
-            "Primero ingesta documentos usando: python main.py ingest <ruta>"
+            f"No se encontró la colección de documentos '{name}'. "
+            "Primero ingesta documentos en esta área."
         )
     return collection
 
@@ -198,18 +206,24 @@ class VectorOnlyStrategy(RetrieverStrategy):
         """Nombre identificador de la estrategia."""
         return "vector_only"
 
-    def retrieve(self, query: str, top_k: int = 5) -> RetrievalResult:
+    def retrieve(
+        self,
+        query: str,
+        top_k: int = 5,
+        collection_name: Optional[str] = None
+    ) -> RetrievalResult:
         """Recupera chunks por similitud semántica con embeddings.
 
         Args:
             query: Pregunta del usuario.
             top_k: Número de chunks a devolver.
+            collection_name: Nombre de la colección ChromaDB a consultar.
 
         Returns:
             RetrievalResult con los chunks más similares semánticamente.
         """
         client = _get_openai_client()
-        collection = _get_chroma_collection()
+        collection = _get_chroma_collection(collection_name)
         return _vector_search(query, top_k, client, collection)
 
 
@@ -241,7 +255,12 @@ class HybridStrategy(RetrieverStrategy):
         w_vector = 100 - w_bm25
         return f"hybrid_{w_bm25}_{w_vector}"
 
-    def retrieve(self, query: str, top_k: int = 5) -> RetrievalResult:
+    def retrieve(
+        self,
+        query: str,
+        top_k: int = 5,
+        collection_name: Optional[str] = None
+    ) -> RetrievalResult:
         """Recupera chunks fusionando resultados de BM25 y búsqueda vectorial.
 
         Ejecuta ambas búsquedas en paralelo (conceptualmente), luego combina
@@ -250,12 +269,13 @@ class HybridStrategy(RetrieverStrategy):
         Args:
             query: Pregunta del usuario.
             top_k: Número de chunks a devolver tras la fusión.
+            collection_name: Nombre de la colección ChromaDB a consultar.
 
         Returns:
             RetrievalResult con los chunks mejor rankeados por RRF ponderado.
         """
         client = _get_openai_client()
-        collection = _get_chroma_collection()
+        collection = _get_chroma_collection(collection_name)
 
         # --- Parte BM25: búsqueda léxica ---
         bm25_results = self._bm25_search(query, top_k, collection)

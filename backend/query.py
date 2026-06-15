@@ -86,7 +86,10 @@ def _build_context_prompt(context_chunks: list[str], sources: list[dict]) -> str
 
 
 def _retrieve_and_build_sources(
-    question: str, top_k: int = 5, strategy_name: Optional[str] = None
+    question: str,
+    top_k: int = 5,
+    strategy_name: Optional[str] = None,
+    collection_name: Optional[str] = None
 ) -> tuple[list[str], list[dict]]:
     """Ejecuta el retrieval usando la estrategia configurada y formatea las fuentes.
 
@@ -94,12 +97,13 @@ def _retrieve_and_build_sources(
         question: Pregunta del usuario.
         top_k: Número de chunks a recuperar.
         strategy_name: Nombre de la estrategia a usar. Si es None, usa la configurada.
+        collection_name: Nombre de la colección ChromaDB a consultar.
 
     Returns:
         Tupla con (lista de textos de chunks, lista de metadatos formateados).
     """
     strategy = get_retrieval_strategy(strategy_name)
-    result = strategy.retrieve(question, top_k=top_k)
+    result = strategy.retrieve(question, top_k=top_k, collection_name=collection_name)
 
     # Formatear las fuentes con scores de relevancia
     sources = []
@@ -115,13 +119,19 @@ def _retrieve_and_build_sources(
     return result.documents, sources
 
 
-def query(question: str, top_k: int = 5, strategy_name: Optional[str] = None) -> QueryResult:
+def query(
+    question: str,
+    top_k: int = 5,
+    strategy_name: Optional[str] = None,
+    collection_name: Optional[str] = None
+) -> QueryResult:
     """Realiza una consulta completa al sistema RAG (sin streaming).
 
     Args:
         question: Pregunta del usuario.
         top_k: Número de chunks a recuperar para el contexto.
         strategy_name: Nombre de estrategia de retrieval. None = usa la configurada.
+        collection_name: Nombre de la colección ChromaDB a consultar.
 
     Returns:
         Objeto QueryResult con la respuesta, fuentes y chunks de contexto.
@@ -129,7 +139,9 @@ def query(question: str, top_k: int = 5, strategy_name: Optional[str] = None) ->
     openai_client = _get_openai_client()
 
     # Paso 1-2: Retrieval usando la estrategia configurada
-    context_chunks, sources = _retrieve_and_build_sources(question, top_k, strategy_name)
+    context_chunks, sources = _retrieve_and_build_sources(
+        question, top_k, strategy_name, collection_name=collection_name
+    )
 
     # Paso 3: Construir el prompt completo
     context_text = _build_context_prompt(context_chunks, sources)
@@ -159,7 +171,10 @@ def query(question: str, top_k: int = 5, strategy_name: Optional[str] = None) ->
 
 
 def query_stream(
-    question: str, top_k: int = 5
+    question: str,
+    top_k: int = 5,
+    strategy_name: Optional[str] = None,
+    collection_name: Optional[str] = None
 ) -> Generator[tuple[str, Optional[QueryResult]], None, None]:
     """Realiza una consulta con streaming de la respuesta.
 
@@ -169,6 +184,8 @@ def query_stream(
     Args:
         question: Pregunta del usuario.
         top_k: Número de chunks a recuperar para el contexto.
+        strategy_name: Nombre de la estrategia a usar.
+        collection_name: Nombre de la colección ChromaDB a consultar.
 
     Yields:
         Tuplas de (token, result) donde result es None hasta el último
@@ -177,7 +194,9 @@ def query_stream(
     openai_client = _get_openai_client()
 
     # Paso 1-2: Retrieval usando la estrategia configurada
-    context_chunks, sources = _retrieve_and_build_sources(question, top_k)
+    context_chunks, sources = _retrieve_and_build_sources(
+        question, top_k, strategy_name, collection_name=collection_name
+    )
 
     # Paso 3: Construir el prompt completo
     context_text = _build_context_prompt(context_chunks, sources)
@@ -217,8 +236,11 @@ def query_stream(
     yield "", result
 
 
-def get_collection_stats() -> dict:
+def get_collection_stats(collection_name: Optional[str] = None) -> dict:
     """Obtiene estadísticas de la colección de ChromaDB.
+
+    Args:
+        collection_name: Nombre de la colección a consultar.
 
     Returns:
         Diccionario con:
@@ -226,9 +248,10 @@ def get_collection_stats() -> dict:
         - sources: conjunto de fuentes únicas
         - collection_name: nombre de la colección
     """
+    name = collection_name or settings.collection_name
     try:
         client = chromadb.PersistentClient(path=str(settings.chroma_persist_path))
-        collection = client.get_collection(name=settings.collection_name)
+        collection = client.get_collection(name=name)
         count = collection.count()
 
         # Obtener fuentes únicas (si hay documentos)
@@ -245,11 +268,11 @@ def get_collection_stats() -> dict:
         return {
             "total_chunks": count,
             "sources": sorted(unique_sources),
-            "collection_name": settings.collection_name,
+            "collection_name": name,
         }
     except Exception:
         return {
             "total_chunks": 0,
             "sources": [],
-            "collection_name": settings.collection_name,
+            "collection_name": name,
         }

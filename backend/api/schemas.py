@@ -92,3 +92,67 @@ class StatusResponse(BaseModel):
 class ErrorResponse(BaseModel):
     """Respuesta de error estándar."""
     detail: str = Field(..., description="Descripción del error")
+
+
+# =====================================================================
+# Schemas de la Fase 3 (Áreas, Documentos, Conversaciones)
+# =====================================================================
+from datetime import datetime
+from typing import Optional
+
+class AreaCreate(BaseModel):
+    """Modelo para crear una nueva Área."""
+    name: str = Field(..., min_length=1, max_length=100, description="Nombre del área")
+    description: Optional[str] = Field(default=None, max_length=500, description="Descripción corta")
+    color: Optional[str] = Field(default="#3B82F6", description="Color en HEX (ej. #FF5733)")
+
+
+class AreaResponse(BaseModel):
+    """Modelo de respuesta al listar/detallar un Área."""
+    id: int
+    name: str
+    description: Optional[str]
+    color: Optional[str]
+    created_at: datetime
+    document_count: int = 0
+    conversation_count: int = 0
+
+    class Config:
+        from_attributes = True
+
+
+class DocumentResponse(BaseModel):
+    """Modelo de respuesta para un documento de un Área."""
+    id: int
+    filename: str
+    file_size: int
+    area_id: int
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class ConversationResponse(BaseModel):
+    """Modelo de respuesta para una Conversación."""
+    id: int
+    title: str
+    area_id: int
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class MessageResponse(BaseModel):
+    """Modelo de respuesta para un Mensaje del historial."""
+    id: int
+    role: str
+    content: str
+    sources_json: Optional[str]
+    conversation_id: int
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
