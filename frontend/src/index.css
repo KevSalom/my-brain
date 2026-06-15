@@ -74,7 +74,7 @@ body, html, #root {
 }
 
 /* Glassmorphism custom borders */
-.border-slate-850 {
+.border-zinc-850 {
   border-color: var(--color-brand-border);
 }
 
