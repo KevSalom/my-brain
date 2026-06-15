@@ -33,7 +33,7 @@ export const StatusPanel: React.FC<StatusPanelProps> = ({ status, loading, error
       {/* Header */}
       <div className="flex items-center justify-between border-b border-slate-800 pb-3">
         <div className="flex items-center gap-2">
-          <Database className="h-5 w-5 text-violet-400" />
+          <Database className="h-5 w-5 text-brand-primary transition-colors duration-300" />
           <h2 className="font-semibold text-slate-100">Estado del Cerebro</h2>
         </div>
         <button
@@ -130,9 +130,9 @@ export const StatusPanel: React.FC<StatusPanelProps> = ({ status, loading, error
           className="w-full py-2.5 px-4 rounded-xl border border-slate-700 bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium text-xs flex items-center justify-center gap-2 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed hover:border-slate-600"
         >
           {ingestDirLoading ? (
-            <Loader2 className="h-4 w-4 animate-spin text-violet-400" />
+            <Loader2 className="h-4 w-4 animate-spin text-brand-primary transition-colors duration-300" />
           ) : (
-            <FolderInput className="h-4 w-4 text-violet-400" />
+            <FolderInput className="h-4 w-4 text-brand-primary transition-colors duration-300" />
           )}
           <span>Cargar Directorio Local (/documents)</span>
         </button>

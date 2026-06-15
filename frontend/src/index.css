@@ -1,5 +1,15 @@
 @import "tailwindcss";
 
+@theme {
+  --color-brand-bg: #000000;
+  --color-brand-bg-sidebar: rgba(10, 10, 12, 0.85);
+  --color-brand-border: rgba(255, 255, 255, 0.08);
+  --color-brand-primary: #f59e0b;
+  --color-brand-primary-hover: #ff9800;
+  --color-brand-secondary: #94a3b8;
+  --color-brand-text: #f8fafc;
+  --color-brand-shadow: rgba(245, 158, 11, 0.15);
+}
 /* Scrollbar Styles */
 .scrollbar-thin::-webkit-scrollbar {
   width: 5px;
@@ -58,13 +68,14 @@ body, html, #root {
   width: 100%;
   height: 100%;
   overflow: hidden;
-  background-color: #0a0e17;
+  background-color: var(--color-brand-bg);
   color-scheme: dark;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* Glassmorphism custom borders */
 .border-slate-850 {
-  border-color: rgba(255, 255, 255, 0.06);
+  border-color: var(--color-brand-border);
 }
 
 /* Custom Chat Prose Styles (overriding Tailwind Preflight Resets) */

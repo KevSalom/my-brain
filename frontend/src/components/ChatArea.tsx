@@ -12,7 +12,7 @@ import type { SourceInfo } from '../types';
 
 export const ChatArea: React.FC = () => {
   return (
-    <div className="flex-1 h-full bg-[#0d121f] flex flex-col min-w-0 relative">
+    <div className="flex-1 h-full bg-brand-bg flex flex-col min-w-0 relative">
       <ThreadPrimitive.Root className="flex flex-col h-full w-full">
         {/* Scrollable Viewport */}
         <ThreadPrimitive.Viewport
@@ -22,29 +22,32 @@ export const ChatArea: React.FC = () => {
           {/* Empty State / Welcome Screen */}
           <AuiIf condition={(s) => s.thread.isEmpty}>
             <div className="h-full flex flex-col items-center justify-center text-center max-w-lg mx-auto py-12 select-none animate-fade-in">
-              <div className="p-3.5 rounded-2xl bg-violet-600/10 border border-violet-500/20 shadow-[0_0_20px_rgba(139,92,246,0.15)] mb-5">
-                <Bot className="h-10 w-10 text-violet-400 animate-pulse" />
+              <div className="p-3.5 rounded-2xl bg-brand-primary/10 border border-brand-primary/20 shadow-[0_0_20px_var(--brand-shadow)] mb-5">
+                <Bot className="h-10 w-10 text-brand-primary animate-pulse" />
               </div>
-              <h2 className="text-xl font-semibold text-slate-100 tracking-tight">
-                ¡Hola! Soy tu asistente MyBrain
+              <h2 className="text-2xl font-bold text-slate-100 tracking-tight flex items-center gap-2">
+                My Brain <span className="text-brand-primary font-mono text-sm uppercase bg-brand-primary/10 px-2 py-0.5 rounded border border-brand-primary/30">LM</span>
               </h2>
-              <p className="text-sm text-slate-400 mt-2 max-w-sm">
-                Hazme cualquier pregunta sobre los documentos que has cargado en tu cerebro. Priorizaré esa información.
+              <p className="text-sm font-medium text-brand-primary/80 mt-1.5 italic tracking-wide">
+                "your docs, your local intelligence"
               </p>
-              
+              <p className="text-xs text-slate-400 mt-3 max-w-sm leading-relaxed">
+                Hazme cualquier pregunta sobre los documentos que has cargado en tu cerebro. Analizaré la información localmente.
+              </p>
+
               <div className="grid grid-cols-2 gap-3 mt-8 w-full text-left">
-                <div className="bg-slate-900/30 border border-slate-800/60 p-4 rounded-xl hover:border-slate-700/80 transition-colors">
+                <div className="bg-slate-900/10 border border-brand-border p-4 rounded-xl hover:border-brand-primary/30 transition-all duration-300">
                   <h4 className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-                    <Sparkles className="h-3.5 w-3.5 text-violet-400" />
+                    <Sparkles className="h-3.5 w-3.5 text-brand-primary" />
                     Búsqueda Híbrida
                   </h4>
                   <p className="text-[11px] text-slate-500 mt-1">
                     Combino similitud semántica y palabras clave para darte respuestas exactas.
                   </p>
                 </div>
-                <div className="bg-slate-900/30 border border-slate-800/60 p-4 rounded-xl hover:border-slate-700/80 transition-colors">
+                <div className="bg-slate-900/10 border border-brand-border p-4 rounded-xl hover:border-brand-primary/30 transition-all duration-300">
                   <h4 className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-                    <FileText className="h-3.5 w-3.5 text-violet-400" />
+                    <FileText className="h-3.5 w-3.5 text-brand-primary" />
                     Referencias Claras
                   </h4>
                   <p className="text-[11px] text-slate-500 mt-1">
@@ -54,7 +57,7 @@ export const ChatArea: React.FC = () => {
               </div>
             </div>
           </AuiIf>
-
+ 
           {/* Messages List */}
           <ThreadPrimitive.Messages>
             {({ message }) => {
@@ -68,14 +71,14 @@ export const ChatArea: React.FC = () => {
               return <AssistantMessage sources={sources} />;
             }}
           </ThreadPrimitive.Messages>
-
+ 
           {/* Spacer to guarantee scroll bottom space */}
           <div className="h-2" />
         </ThreadPrimitive.Viewport>
-
+ 
         {/* Viewport Footer with Composer */}
-        <ThreadPrimitive.ViewportFooter className="px-4 pb-6 md:px-8 bg-gradient-to-t from-[#0d121f] via-[#0d121f]/90 to-transparent pt-4">
-          <ComposerPrimitive.Root className="max-w-3xl mx-auto flex items-end gap-3 bg-slate-950/40 backdrop-blur border border-slate-850 focus-within:border-slate-700 rounded-2xl p-2.5 transition-all shadow-lg">
+        <ThreadPrimitive.ViewportFooter className="px-4 pb-6 md:px-8 bg-gradient-to-t from-brand-bg via-brand-bg/90 to-transparent pt-4">
+          <ComposerPrimitive.Root className="max-w-3xl mx-auto flex items-end gap-3 bg-slate-950/40 backdrop-blur border border-brand-border focus-within:border-brand-primary rounded-2xl p-2.5 transition-all shadow-lg">
             <ComposerPrimitive.Input
               placeholder="Haz una pregunta sobre tus documentos..."
               className="flex-1 min-h-[44px] max-h-36 resize-none bg-transparent px-3 py-2 text-sm text-slate-100 focus:outline-none placeholder-slate-500 scrollbar-none"
@@ -89,7 +92,7 @@ export const ChatArea: React.FC = () => {
             </AuiIf>
             
             <AuiIf condition={(s) => !s.thread.isRunning}>
-              <ComposerPrimitive.Send className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-violet-600 text-slate-100 hover:bg-violet-500 disabled:opacity-25 disabled:hover:bg-violet-600 transition-all shadow-[0_0_10px_rgba(139,92,246,0.25)]">
+              <ComposerPrimitive.Send className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand-primary text-slate-950 hover:bg-brand-primary-hover disabled:opacity-25 disabled:hover:bg-brand-primary transition-all shadow-[0_0_10px_var(--brand-shadow)]">
                 <ArrowUp className="h-4 w-4" />
               </ComposerPrimitive.Send>
             </AuiIf>
@@ -100,21 +103,22 @@ export const ChatArea: React.FC = () => {
   );
 };
 
+
 // User Message component
 const UserMessage: React.FC = () => {
   return (
     <div className="flex justify-end w-full max-w-3xl mx-auto animate-fade-in">
       <div className="flex gap-3 max-w-[85%]">
         <div className="flex flex-col items-end">
-          <div className="rounded-2xl rounded-tr-none bg-violet-600/10 border border-violet-500/20 text-slate-100 px-4 py-3 text-sm shadow-md leading-relaxed">
+          <div className="rounded-2xl rounded-tr-none bg-brand-primary/10 border border-brand-primary/20 text-slate-100 px-4 py-3 text-sm shadow-md leading-relaxed">
             <MessagePrimitive.Content />
           </div>
           <span className="text-[10px] text-slate-500 mt-1.5 mr-1 font-medium uppercase tracking-wider">
             Tú
           </span>
         </div>
-        <div className="h-7 w-7 rounded-lg bg-violet-600/20 border border-violet-500/30 flex items-center justify-center shrink-0 shadow-sm mt-1">
-          <User className="h-4 w-4 text-violet-400" />
+        <div className="h-7 w-7 rounded-lg bg-brand-primary/20 border border-brand-primary/30 flex items-center justify-center shrink-0 shadow-sm mt-1">
+          <User className="h-4 w-4 text-brand-primary" />
         </div>
       </div>
     </div>
@@ -132,14 +136,14 @@ const AssistantMessage: React.FC<AssistantMessageProps> = ({ sources }) => {
   return (
     <div className="flex justify-start w-full max-w-3xl mx-auto animate-fade-in">
       <div className="flex gap-3 max-w-[85%]">
-        <div className="h-7 w-7 rounded-lg bg-emerald-600/10 border border-emerald-500/20 flex items-center justify-center shrink-0 shadow-sm mt-1">
-          <Bot className="h-4 w-4 text-emerald-400" />
+        <div className="h-7 w-7 rounded-lg bg-brand-secondary/15 border border-brand-secondary/30 flex items-center justify-center shrink-0 shadow-sm mt-1">
+          <Bot className="h-4 w-4 text-brand-secondary" />
         </div>
         
         <div className="flex-1 flex flex-col items-start min-w-0">
-          <div className="rounded-2xl rounded-tl-none bg-slate-900/30 border border-slate-800/40 text-slate-200 px-4 py-3 text-sm shadow-sm leading-relaxed w-full">
+          <div className="rounded-2xl rounded-tl-none bg-slate-900/30 border border-brand-border text-slate-200 px-4 py-3 text-sm shadow-sm leading-relaxed w-full">
             {/* Using MarkdownTextPrimitive component from @assistant-ui/react-markdown */}
-            <div className="prose prose-invert max-w-none text-slate-200 text-sm leading-relaxed prose-p:my-2 prose-pre:bg-slate-950/70 prose-pre:border prose-pre:border-slate-850 prose-code:text-violet-300 prose-code:bg-slate-900/50 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:before:content-none prose-code:after:content-none">
+            <div className="prose prose-invert max-w-none text-slate-200 text-sm leading-relaxed prose-p:my-2 prose-pre:bg-slate-950/70 prose-pre:border prose-pre:border-brand-border prose-code:text-brand-primary prose-code:bg-slate-900/50 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:before:content-none prose-code:after:content-none">
               <MessagePrimitive.Parts>
                 {({ part }) => part.type === "text" ? <MarkdownTextPrimitive remarkPlugins={[remarkGfm]} /> : null}
               </MessagePrimitive.Parts>
@@ -152,7 +156,7 @@ const AssistantMessage: React.FC<AssistantMessageProps> = ({ sources }) => {
                   onClick={() => setSourcesOpen(!sourcesOpen)}
                   className="flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-300 transition-colors font-medium focus:outline-none"
                 >
-                  <Sparkles className="h-3 w-3 text-violet-400" />
+                  <Sparkles className="h-3 w-3 text-brand-primary" />
                   <span>Fuentes utilizadas ({sources.length})</span>
                   <ChevronRight className={`h-3 w-3 transition-transform duration-200 ${sourcesOpen ? 'rotate-90 text-slate-400' : 'text-slate-600'}`} />
                 </button>
@@ -191,10 +195,11 @@ const AssistantMessage: React.FC<AssistantMessageProps> = ({ sources }) => {
           </div>
           
           <span className="text-[10px] text-slate-500 mt-1.5 ml-1 font-medium uppercase tracking-wider">
-            MyBrain
+            My Brain LM
           </span>
         </div>
       </div>
     </div>
   );
 };
+

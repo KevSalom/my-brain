@@ -99,7 +99,7 @@ export const UploadZone: React.FC<UploadZoneProps> = ({ onUploadSuccess }) => {
         onClick={triggerFileInput}
         className={`w-full h-36 border-2 border-dashed rounded-xl flex flex-col items-center justify-center p-4 cursor-pointer transition-all duration-300 backdrop-blur-md ${
           isDragActive
-            ? 'border-violet-500 bg-violet-950/20'
+            ? 'border-brand-primary bg-brand-primary/10'
             : 'border-slate-700 hover:border-slate-500 bg-slate-900/30'
         }`}
       >
@@ -113,12 +113,12 @@ export const UploadZone: React.FC<UploadZoneProps> = ({ onUploadSuccess }) => {
 
         {loading ? (
           <div className="flex flex-col items-center gap-2">
-            <Loader2 className="h-8 w-8 text-violet-400 animate-spin" />
+            <Loader2 className="h-8 w-8 text-brand-primary animate-spin" />
             <p className="text-sm text-slate-300 font-medium">Ingestando archivo RAG...</p>
           </div>
         ) : (
-          <div className="flex flex-col items-center gap-2 text-center">
-            <Upload className="h-8 w-8 text-slate-400 group-hover:text-violet-400 transition-colors" />
+          <div className="flex flex-col items-center gap-2 text-center group">
+            <Upload className="h-8 w-8 text-slate-400 group-hover:text-brand-primary transition-colors" />
             <p className="text-sm text-slate-200 font-medium">
               Arrastra un archivo o haz clic
             </p>

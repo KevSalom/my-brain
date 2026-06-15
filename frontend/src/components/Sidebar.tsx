@@ -11,18 +11,23 @@ interface SidebarProps {
   onRefresh: () => void;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ status, loading, error, onRefresh }) => {
+export const Sidebar: React.FC<SidebarProps> = ({ 
+  status, 
+  loading, 
+  error, 
+  onRefresh
+}) => {
   return (
-    <aside className="w-80 h-full bg-slate-950/60 border-r border-slate-850 flex flex-col backdrop-blur-md shrink-0">
+    <aside className="w-80 h-full bg-brand-bg-sidebar border-r border-brand-border flex flex-col backdrop-blur-md shrink-0">
       {/* App Logo/Header */}
       <div className="flex items-center gap-3 p-5 border-b border-slate-900 bg-slate-950/20">
-        <div className="p-2 rounded-xl bg-violet-600/10 border border-violet-500/20 shadow-[0_0_15px_rgba(139,92,246,0.15)]">
-          <BrainCircuit className="h-6 w-6 text-violet-400" />
+        <div className="p-2 rounded-xl bg-brand-primary/10 border border-brand-primary/20 shadow-[0_0_15px_var(--brand-shadow)]">
+          <BrainCircuit className="h-6 w-6 text-brand-primary" />
         </div>
         <div>
-          <h1 className="font-semibold text-base text-slate-100 leading-tight">MyBrain</h1>
-          <p className="text-[10px] text-violet-400 font-medium tracking-widest uppercase mt-0.5">
-            IA Second Brain
+          <h1 className="font-bold text-base text-slate-100 leading-tight tracking-tight">My Brain <span className="text-brand-primary text-xs ml-1 font-mono uppercase bg-brand-primary/10 px-1 py-0.5 rounded border border-brand-primary/20">LM</span></h1>
+          <p className="text-[10px] text-brand-primary font-semibold tracking-wider uppercase mt-1">
+            Local Intelligence
           </p>
         </div>
       </div>
@@ -52,9 +57,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ status, loading, error, onRefr
       {/* Sidebar Footer */}
       <div className="p-4 border-t border-slate-900 bg-slate-950/20 text-center">
         <p className="text-[10px] text-slate-600 font-mono">
-          MyBrain MVP v1.0.0
+          My Brain LM v1.0.0
         </p>
       </div>
     </aside>
   );
 };
+

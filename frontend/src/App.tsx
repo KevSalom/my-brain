@@ -11,6 +11,7 @@ export default function App() {
   const [status, setStatus] = useState<StatusResponse | null>(null);
   const [loadingStatus, setLoadingStatus] = useState(false);
   const [statusError, setStatusError] = useState<string | null>(null);
+  
 
   const refreshStatus = useCallback(async () => {
     setLoadingStatus(true);
@@ -102,7 +103,7 @@ export default function App() {
 
   return (
     <AssistantRuntimeProvider runtime={runtime}>
-      <div className="w-screen h-screen flex overflow-hidden bg-[#0a0e17] font-sans antialiased text-slate-200">
+      <div className="w-screen h-screen flex overflow-hidden bg-brand-bg font-sans antialiased text-brand-text">
         <Sidebar
           status={status}
           loading={loadingStatus}
