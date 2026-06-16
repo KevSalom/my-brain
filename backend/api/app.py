@@ -36,14 +36,23 @@ def on_startup():
 # CORS — Permitir conexiones desde el frontend (Fase 2)
 # =====================================================================
 
+import os
+
+env_origins = os.getenv("ALLOWED_ORIGINS", "")
+allowed_origins = [
+    "http://localhost:5173",    # Vite dev server (default)
+    "http://localhost:3000",    # Alternativa común
+    "http://127.0.0.1:5173",
+    "http://127.0.0.1:3000",
+    "http://localhost",         # Docker local (puerto 80)
+    "http://127.0.0.1",         # Docker local (puerto 80)
+]
+if env_origins:
+    allowed_origins.extend([origin.strip() for origin in env_origins.split(",") if origin.strip()])
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",    # Vite dev server (default)
-        "http://localhost:3000",    # Alternativa común
-        "http://127.0.0.1:5173",
-        "http://127.0.0.1:3000",
-    ],
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

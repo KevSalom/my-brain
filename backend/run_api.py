@@ -17,11 +17,15 @@ def main():
     print(f"\n🧠 My Brain LM API iniciando en http://{settings.api_host}:{settings.api_port}")
     print(f"📖 Documentación en http://{settings.api_host}:{settings.api_port}/docs\n")
     
+    import os
+    reload_env = os.getenv("API_RELOAD", "true").lower()
+    should_reload = reload_env == "true"
+
     uvicorn.run(
         "api.app:app",
         host=settings.api_host,
         port=settings.api_port,
-        reload=True,  # Hot reload durante desarrollo
+        reload=should_reload,
     )
 
 
