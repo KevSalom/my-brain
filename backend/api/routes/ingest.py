@@ -14,6 +14,7 @@ from fastapi import APIRouter, UploadFile, File, HTTPException
 from config import settings
 from ingest import ingest_file, ingest_directory, SUPPORTED_EXTENSIONS
 from api.schemas import IngestFileResponse, IngestDirectoryResponse
+from retriever import bm25_cache_manager
 
 router = APIRouter(prefix="/api/ingest", tags=["Ingesta"])
 
@@ -61,6 +62,9 @@ async def ingest_uploaded_file(file: UploadFile = File(...)):
         # Ingestar usando la función existente
         chunks = ingest_file(str(temp_path))
         
+        # Invalidad la caché del índice BM25 de la colección por defecto
+        bm25_cache_manager.invalidate(settings.collection_name)
+        
         return IngestFileResponse(
             filename=file.filename,
             chunks=chunks,
@@ -94,6 +98,9 @@ async def ingest_documents_directory():
     try:
         results = ingest_directory(str(docs_dir))
         total = sum(results.values())
+        
+        # Invalidad la caché del índice BM25 de la colección por defecto
+        bm25_cache_manager.invalidate(settings.collection_name)
         
         return IngestDirectoryResponse(
             directory=str(docs_dir),

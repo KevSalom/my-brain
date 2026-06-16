@@ -18,6 +18,7 @@ from api.database import get_session
 from api.models import Area, Document, Conversation
 from api.schemas import AreaCreate, AreaResponse, DocumentResponse, IngestFileResponse
 from ingest import ingest_file, SUPPORTED_EXTENSIONS
+from retriever import bm25_cache_manager
 
 router = APIRouter(prefix="/api/areas", tags=["Áreas"])
 
@@ -105,8 +106,9 @@ def delete_area(area_id: str, session: Session = Depends(get_session)):
     if not area:
         raise HTTPException(status_code=404, detail="Área no encontrada.")
 
-    # 1. Eliminar colección de ChromaDB
+    # 1. Eliminar colección de ChromaDB y su caché en memoria
     collection_name = f"mybrain_area_{area_id}"
+    bm25_cache_manager.invalidate(collection_name)
     try:
         client = chromadb.PersistentClient(path=str(settings.chroma_persist_path))
         client.delete_collection(name=collection_name)
@@ -178,6 +180,9 @@ async def ingest_file_to_area(
         collection_name = f"mybrain_area_{area_id}"
         chunks_count = ingest_file(str(dest_path), collection_name=collection_name)
 
+        # Invalidad la caché del índice BM25 en memoria
+        bm25_cache_manager.invalidate(collection_name)
+
         # Guardar registro en la SQLite
         # Si ya existe en DB, actualizar metadatos o recrearlo
         stmt = select(Document).where(Document.filename == file.filename, Document.area_id == area_id)
@@ -238,8 +243,9 @@ def delete_area_document(
             detail="Documento no encontrado en esta área."
         )
 
-    # 1. Eliminar de ChromaDB (eliminar todos los chunks de este archivo)
+    # 1. Eliminar de ChromaDB (eliminar todos los chunks de este archivo) e invalidar la caché
     collection_name = f"mybrain_area_{area_id}"
+    bm25_cache_manager.invalidate(collection_name)
     try:
         client = chromadb.PersistentClient(path=str(settings.chroma_persist_path))
         collection = client.get_collection(name=collection_name)

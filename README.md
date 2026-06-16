@@ -84,7 +84,7 @@ My Brain LM es una herramienta diseñada **principalmente para desarrolladores**
 - [ ] **Preview HTML sandboxed** dentro del chat
 - [ ] Migración a **LangChain** para document loaders avanzados
 - [ ] Explorar **LangGraph** para flujos conversacionales complejos
-- [ ] Búsqueda híbrida (semántica + keyword)
+- [x] Búsqueda híbrida (semántica + keyword)
 
 ---
 

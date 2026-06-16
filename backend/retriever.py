@@ -13,6 +13,7 @@ Uso:
 """
 
 import re
+import threading
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from typing import Optional
@@ -191,6 +192,95 @@ def _tokenize_for_bm25(text: str) -> list[str]:
 
 
 # ---------------------------------------------------------------------------
+# Gestor de caché en memoria para BM25 (Thread-Safe Singleton)
+# ---------------------------------------------------------------------------
+
+class BM25CacheManager:
+    """Administrador de caché en memoria RAM para índices BM25.
+
+    Almacena los índices calculados y los metadatos de los documentos
+    para evitar recuperarlos de ChromaDB y reconstruir el índice en cada query.
+    Esta clase es segura para acceso concurrente mediante locks.
+    """
+
+    def __init__(self) -> None:
+        # Cache mapea: collection_name -> {
+        #    "bm25_index": BM25Okapi,
+        #    "documents": list[str],
+        #    "metadatas": list[dict]
+        # }
+        self._cache: dict[str, dict] = {}
+        self._lock = threading.Lock()
+
+    def get_bm25_index(
+        self,
+        collection_name: str,
+        collection: chromadb.Collection,
+    ) -> tuple[Optional[BM25Okapi], list[str], list[dict]]:
+        """Obtiene el índice BM25 para una colección específica.
+
+        Si ya está en caché, lo devuelve inmediatamente. Si no, lee de
+        ChromaDB, construye el índice, lo guarda en caché y lo devuelve.
+        """
+        # Intentar una lectura rápida sin lock (optimista)
+        if collection_name in self._cache:
+            cached = self._cache[collection_name]
+            return cached["bm25_index"], cached["documents"], cached["metadatas"]
+
+        # Si no está en caché, adquirir lock para construir
+        with self._lock:
+            # Volver a comprobar por si otro hilo lo calculó mientras esperábamos el lock
+            if collection_name in self._cache:
+                cached = self._cache[collection_name]
+                return cached["bm25_index"], cached["documents"], cached["metadatas"]
+
+            # Obtener todos los documentos de la colección
+            all_data = collection.get(include=["documents", "metadatas"])
+            all_documents: list[str] = all_data["documents"] or []
+            all_metadatas: list[dict] = all_data["metadatas"] or []
+
+            # Si no hay documentos, no creamos índice pero retornamos listas vacías
+            if not all_documents:
+                return None, [], []
+
+            # Tokenizar todos los documentos para el corpus BM25
+            tokenized_corpus: list[list[str]] = [
+                _tokenize_for_bm25(doc) for doc in all_documents
+            ]
+
+            # Caso borde: todos los documentos se tokenizaron a listas vacías
+            if all(len(tokens) == 0 for tokens in tokenized_corpus):
+                return None, all_documents, all_metadatas
+
+            # Crear índice BM25
+            bm25_index = BM25Okapi(tokenized_corpus)
+
+            # Guardar en caché
+            self._cache[collection_name] = {
+                "bm25_index": bm25_index,
+                "documents": all_documents,
+                "metadatas": all_metadatas,
+            }
+
+            return bm25_index, all_documents, all_metadatas
+
+    def invalidate(self, collection_name: str) -> None:
+        """Invalida/elimina la caché para una colección específica."""
+        with self._lock:
+            if collection_name in self._cache:
+                del self._cache[collection_name]
+
+    def clear(self) -> None:
+        """Limpia toda la caché en memoria."""
+        with self._lock:
+            self._cache.clear()
+
+
+# Instancia singleton global
+bm25_cache_manager = BM25CacheManager()
+
+
+# ---------------------------------------------------------------------------
 # Estrategia: Solo vectores (embeddings)
 # ---------------------------------------------------------------------------
 
@@ -300,8 +390,8 @@ class HybridStrategy(RetrieverStrategy):
     ) -> RetrievalResult:
         """Ejecuta búsqueda BM25 sobre todos los documentos de la colección.
 
-        Obtiene todos los documentos de ChromaDB, construye un índice BM25
-        y devuelve los más relevantes según la consulta tokenizada.
+        Obtiene el índice BM25 desde la caché (o lo calcula si es necesario)
+        y devuelve los chunks más relevantes según la consulta tokenizada.
 
         Args:
             query: Texto de búsqueda.
@@ -311,31 +401,17 @@ class HybridStrategy(RetrieverStrategy):
         Returns:
             RetrievalResult con los chunks mejor rankeados por BM25.
         """
-        # TODO: El índice BM25 se reconstruye en cada consulta. Para producción,
-        #       se debería cachear el índice y reconstruirlo solo cuando cambie
-        #       la colección (ej. tras una nueva ingesta).
+        # Obtener colección por nombre para la caché
+        collection_name = collection.name
 
-        # Obtener todos los documentos de la colección
-        all_data = collection.get(include=["documents", "metadatas"])
+        # Recuperar de la caché en memoria RAM
+        bm25_index, all_documents, all_metadatas = bm25_cache_manager.get_bm25_index(
+            collection_name, collection
+        )
 
-        all_documents: list[str] = all_data["documents"] or []
-        all_metadatas: list[dict] = all_data["metadatas"] or []
-
-        # Caso borde: colección vacía
-        if not all_documents:
+        # Caso borde: colección vacía o sin índice válido
+        if not bm25_index or not all_documents:
             return RetrievalResult()
-
-        # Tokenizar todos los documentos para el corpus BM25
-        tokenized_corpus: list[list[str]] = [
-            _tokenize_for_bm25(doc) for doc in all_documents
-        ]
-
-        # Caso borde: todos los documentos se tokenizaron a listas vacías
-        if all(len(tokens) == 0 for tokens in tokenized_corpus):
-            return RetrievalResult()
-
-        # Crear índice BM25
-        bm25_index = BM25Okapi(tokenized_corpus)
 
         # Tokenizar la consulta y obtener scores
         tokenized_query = _tokenize_for_bm25(query)
