@@ -133,6 +133,11 @@ class DocumentResponse(BaseModel):
         from_attributes = True
 
 
+class ConversationUpdate(BaseModel):
+    """Modelo para actualizar una Conversación."""
+    title: str = Field(..., min_length=1, max_length=150, description="Nuevo título de la conversación")
+
+
 class ConversationResponse(BaseModel):
     """Modelo de respuesta para una Conversación."""
     id: str

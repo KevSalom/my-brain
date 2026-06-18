@@ -16,7 +16,7 @@ export const ChatArea: React.FC = () => {
       <ThreadPrimitive.Root className="flex flex-col h-full w-full">
         {/* Scrollable Viewport */}
         <ThreadPrimitive.Viewport
-          turnAnchor="top"
+          autoScroll={true}
           className="flex-1 overflow-y-auto px-4 py-6 md:px-8 space-y-6 scrollbar-thin scroll-smooth"
         >
           {/* Empty State / Welcome Screen */}
@@ -107,7 +107,7 @@ export const ChatArea: React.FC = () => {
 // User Message component
 const UserMessage: React.FC = () => {
   return (
-    <div className="flex justify-end w-full max-w-3xl mx-auto animate-fade-in">
+    <MessagePrimitive.Root className="flex justify-end w-full max-w-3xl mx-auto animate-fade-in">
       <div className="flex gap-3 max-w-[85%]">
         <div className="flex flex-col items-end">
           <div className="rounded-2xl rounded-tr-none bg-brand-primary/10 border border-brand-primary/20 text-zinc-100 px-4 py-3 text-sm shadow-md leading-relaxed">
@@ -121,7 +121,7 @@ const UserMessage: React.FC = () => {
           <User className="h-4 w-4 text-brand-primary" />
         </div>
       </div>
-    </div>
+    </MessagePrimitive.Root>
   );
 };
 
@@ -134,7 +134,7 @@ const AssistantMessage: React.FC<AssistantMessageProps> = ({ sources }) => {
   const [sourcesOpen, setSourcesOpen] = useState(false);
 
   return (
-    <div className="flex justify-start w-full max-w-3xl mx-auto animate-fade-in">
+    <MessagePrimitive.Root className="flex justify-start w-full max-w-3xl mx-auto animate-fade-in">
       <div className="flex gap-3 max-w-[85%]">
         <div className="h-7 w-7 rounded-lg bg-brand-secondary/15 border border-brand-secondary/30 flex items-center justify-center shrink-0 shadow-sm mt-1">
           <Bot className="h-4 w-4 text-brand-secondary" />
@@ -199,7 +199,7 @@ const AssistantMessage: React.FC<AssistantMessageProps> = ({ sources }) => {
           </span>
         </div>
       </div>
-    </div>
+    </MessagePrimitive.Root>
   );
 };
 

@@ -14,7 +14,7 @@ from sqlmodel import Session, select
 
 from api.database import get_session, engine
 from api.models import Conversation, Message, Area
-from api.schemas import ChatRequest, ConversationResponse, MessageResponse
+from api.schemas import ChatRequest, ConversationResponse, MessageResponse, ConversationUpdate
 from query import query_stream
 
 router = APIRouter(prefix="/api/chat", tags=["Chat"])
@@ -53,7 +53,7 @@ def create_conversation(
         raise HTTPException(status_code=404, detail="Área no encontrada.")
 
     # Título por defecto
-    title = payload.title or f"Chat en {area.name} - {len(area.conversations) + 1}"
+    title = payload.title or "Nueva conversación"
 
     db_conv = Conversation(
         title=title,
@@ -63,6 +63,24 @@ def create_conversation(
     session.commit()
     session.refresh(db_conv)
     return db_conv
+
+
+@router.patch("/conversations/{conversation_id}", response_model=ConversationResponse)
+def update_conversation(
+    conversation_id: str,
+    payload: ConversationUpdate,
+    session: Session = Depends(get_session)
+):
+    """Actualiza el título de una conversación."""
+    conv = session.get(Conversation, conversation_id)
+    if not conv:
+        raise HTTPException(status_code=404, detail="Conversación no encontrada.")
+
+    conv.title = payload.title
+    session.add(conv)
+    session.commit()
+    session.refresh(conv)
+    return conv
 
 
 @router.delete("/conversations/{conversation_id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -133,6 +151,22 @@ async def chat_stream(
                 sources = []
                 context_chunks = []
 
+                # 1. Generar título dinámico si es el primer mensaje y tiene el título predeterminado
+                conv_db = db_session.get(Conversation, conversation_id)
+                stmt = select(Message).where(Message.conversation_id == conversation_id)
+                messages = db_session.exec(stmt).all()
+                if len(messages) == 1 and conv_db.title == "Nueva conversación":
+                    from query import generate_title_from_question
+                    first_question = messages[0].content
+                    try:
+                        new_title = generate_title_from_question(first_question)
+                        conv_db.title = new_title
+                        db_session.add(conv_db)
+                        db_session.commit()
+                        db_session.refresh(conv_db)
+                    except Exception as title_err:
+                        print(f"Error generando título dinámico: {title_err}")
+
                 # Ejecutar query_stream pasando la colección del área
                 for token, final_result in query_stream(
                     question=request.question,
@@ -149,11 +183,13 @@ async def chat_stream(
                         sources = final_result.sources
                         context_chunks = final_result.context_chunks
                         
+                        db_session.refresh(conv_db)
                         done_data = json.dumps(
                             {
                                 "done": True,
                                 "sources": sources,
                                 "context_chunks": context_chunks,
+                                "title": conv_db.title,
                             },
                             ensure_ascii=False,
                         )

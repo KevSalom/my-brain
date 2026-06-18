@@ -21,7 +21,8 @@ import {
   getAreaConversations,
   createConversation,
   deleteConversation,
-  getConversationMessages
+  getConversationMessages,
+  updateConversationTitle
 } from './api';
 import type { 
   StatusResponse, 
@@ -211,6 +212,19 @@ function MainApp() {
     }
   };
 
+  const handleRenameConversation = async (id: string, newTitle: string) => {
+    try {
+      await updateConversationTitle(id, newTitle);
+      setConversations(prev => prev.map(c => c.id === id ? { ...c, title: newTitle } : c));
+    } catch (err: any) {
+      alert(err.message || "Error al renombrar conversación");
+    }
+  };
+
+  const handleConversationTitleUpdated = useCallback((id: string, newTitle: string) => {
+    setConversations(prev => prev.map(c => c.id === id ? { ...c, title: newTitle } : c));
+  }, []);
+
   const handleDeleteDocument = async (docId: number) => {
     if (selectedAreaId === null) return;
     try {
@@ -251,6 +265,7 @@ function MainApp() {
         selectedConversationId={selectedConversationId}
         onCreateConversation={handleCreateConversation}
         onDeleteConversation={handleDeleteConversation}
+        onRenameConversation={handleRenameConversation}
         documents={documents}
         onDeleteDocument={handleDeleteDocument}
         onUploadSuccess={refreshAreaResources}
@@ -267,7 +282,12 @@ function MainApp() {
             </div>
           ) : (
             // El key en el ChatContainer fuerza a remontar y crear una runtime limpia
-            <ChatContainer key={selectedConversationId} chatId={selectedConversationId} initialMessages={initialMessages} />
+            <ChatContainer 
+              key={selectedConversationId} 
+              chatId={selectedConversationId} 
+              initialMessages={initialMessages} 
+              onConversationTitleUpdated={handleConversationTitleUpdated} 
+            />
           )
         ) : (
           // Empty State / Welcome Screen

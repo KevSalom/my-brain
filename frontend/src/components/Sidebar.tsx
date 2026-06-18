@@ -9,7 +9,8 @@ import {
   Plus, 
   FileText, 
   FolderOpen,
-  Info
+  Info,
+  Edit3
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -24,6 +25,7 @@ interface SidebarProps {
   selectedConversationId: string | null;
   onCreateConversation: () => void;
   onDeleteConversation: (id: string) => void;
+  onRenameConversation: (id: string, newTitle: string) => void;
 
   // Documents
   documents: DocumentResponse[];
@@ -43,6 +45,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   selectedConversationId,
   onCreateConversation,
   onDeleteConversation,
+  onRenameConversation,
   documents,
   onDeleteDocument,
   onUploadSuccess,
@@ -51,6 +54,17 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const navigate = useNavigate();
   const [hoveredAreaId, setHoveredAreaId] = useState<string | null>(null);
   const activeArea = areas.find(a => a.id === selectedAreaId);
+
+  const [editingConvId, setEditingConvId] = useState<string | null>(null);
+  const [editTitleValue, setEditTitleValue] = useState<string>('');
+
+  const handleSaveRename = (id: string) => {
+    const trimmed = editTitleValue.trim();
+    if (trimmed) {
+      onRenameConversation(id, trimmed);
+    }
+    setEditingConvId(null);
+  };
 
   // Helper to format file size
   const formatSize = (bytes: number) => {
@@ -183,6 +197,31 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   <div className="flex flex-col gap-1">
                     {conversations.map(conv => {
                       const isActive = conv.id === selectedConversationId;
+                      if (editingConvId === conv.id) {
+                        return (
+                          <div
+                            key={conv.id}
+                            className="flex items-center gap-2 p-1.5 rounded-xl border border-brand-border bg-zinc-800/40 w-full"
+                          >
+                            <MessageSquare className="h-3.5 w-3.5 shrink-0 text-brand-primary ml-1" />
+                            <input
+                              type="text"
+                              value={editTitleValue}
+                              onChange={(e) => setEditTitleValue(e.target.value)}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                  handleSaveRename(conv.id);
+                                } else if (e.key === 'Escape') {
+                                  setEditingConvId(null);
+                                }
+                              }}
+                              onBlur={() => handleSaveRename(conv.id)}
+                              autoFocus
+                              className="flex-1 bg-transparent text-xs text-zinc-100 outline-none border-none p-0 focus:ring-0"
+                            />
+                          </div>
+                        );
+                      }
                       return (
                         <div
                           key={conv.id}
@@ -199,16 +238,32 @@ export const Sidebar: React.FC<SidebarProps> = ({
                             <MessageSquare className={`h-3.5 w-3.5 shrink-0 ${isActive ? 'text-brand-primary' : 'text-zinc-500 group-hover:text-zinc-400'}`} />
                             <span className="truncate">{conv.title}</span>
                           </button>
-                          <button
-                            onClick={() => {
-                              if (confirm(`¿Eliminar la conversación "${conv.title}"?`)) {
-                                onDeleteConversation(conv.id);
-                              }
-                            }}
-                            className="opacity-0 group-hover:opacity-100 p-1 rounded hover:text-rose-400 hover:bg-rose-950/25 transition-all duration-200 cursor-pointer ml-1.5"
-                          >
-                            <Trash2 className="h-3 w-3" />
-                          </button>
+                          
+                          <div className="opacity-0 group-hover:opacity-100 flex items-center shrink-0 ml-1.5">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setEditingConvId(conv.id);
+                                setEditTitleValue(conv.title);
+                              }}
+                              title="Renombrar Chat"
+                              className="p-1 rounded hover:text-zinc-200 hover:bg-zinc-800 transition-all duration-200 cursor-pointer"
+                            >
+                              <Edit3 className="h-3 w-3" />
+                            </button>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                if (confirm(`¿Eliminar la conversación "${conv.title}"?`)) {
+                                  onDeleteConversation(conv.id);
+                                }
+                              }}
+                              title="Eliminar Chat"
+                              className="p-1 rounded hover:text-rose-400 hover:bg-rose-950/25 transition-all duration-200 cursor-pointer ml-1"
+                            >
+                              <Trash2 className="h-3 w-3" />
+                            </button>
+                          </div>
                         </div>
                       );
                     })}

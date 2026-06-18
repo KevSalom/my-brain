@@ -12,9 +12,14 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000
 interface ChatContainerProps {
   chatId: string;
   initialMessages: ThreadMessageLike[];
+  onConversationTitleUpdated?: (convId: string, newTitle: string) => void;
 }
 
-export const ChatContainer: React.FC<ChatContainerProps> = ({ chatId, initialMessages }) => {
+export const ChatContainer: React.FC<ChatContainerProps> = ({ 
+  chatId, 
+  initialMessages,
+  onConversationTitleUpdated
+}) => {
   // Configurar el modelAdapter específicamente atado a este chatId
   const modelAdapter = useMemo<ChatModelAdapter>(() => ({
     async *run({ messages, abortSignal }) {
@@ -69,6 +74,9 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({ chatId, initialMes
                     content: [{ type: 'text' as const, text }],
                     custom: { sources },
                   };
+                  if (data.title && onConversationTitleUpdated) {
+                    onConversationTitleUpdated(chatId, data.title);
+                  }
                 } else if (data.error) {
                   throw new Error(data.error);
                 }
@@ -82,7 +90,7 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({ chatId, initialMes
         reader.releaseLock();
       }
     },
-  }), [chatId]);
+  }), [chatId, onConversationTitleUpdated]);
 
   // useLocalRuntime se ejecutará de cero porque el componente se remonta cuando cambia el key (chatId)
   const runtime = useLocalRuntime(modelAdapter, { initialMessages });

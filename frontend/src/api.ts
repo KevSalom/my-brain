@@ -130,6 +130,19 @@ export async function createConversation(areaId: string, title?: string): Promis
   return response.json();
 }
 
+export async function updateConversationTitle(convId: string, title: string): Promise<ConversationResponse> {
+  const response = await fetch(`${API_BASE_URL}/api/chat/conversations/${convId}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ title }),
+  });
+  if (!response.ok) {
+    const errData = await response.json().catch(() => ({}));
+    throw new Error(errData.detail || `Error al actualizar conversación: ${response.statusText}`);
+  }
+  return response.json();
+}
+
 export async function deleteConversation(convId: string): Promise<void> {
   const response = await fetch(`${API_BASE_URL}/api/chat/conversations/${convId}`, {
     method: 'DELETE',

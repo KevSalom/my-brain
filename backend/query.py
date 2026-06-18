@@ -236,6 +236,42 @@ def query_stream(
     yield "", result
 
 
+def generate_title_from_question(question: str) -> str:
+    """Genera un título corto a partir de la primera pregunta del usuario."""
+    try:
+        openai_client = _get_openai_client()
+        response = openai_client.chat.completions.create(
+            model=settings.llm_model,
+            messages=[
+                {
+                    "role": "system",
+                    "content": (
+                        "Eres un asistente que resume la primera pregunta de un chat en un título corto y conciso. "
+                        "Genera un título de máximo 5 palabras en el mismo idioma de la pregunta. "
+                        "Responde ÚNICAMENTE con el título, sin comillas, sin punto final y sin introducciones."
+                    ),
+                },
+                {"role": "user", "content": question},
+            ],
+            temperature=0.5,
+            max_tokens=25,
+        )
+        title = response.choices[0].message.content.strip()
+        # Limpiar posibles comillas
+        if title.startswith('"') and title.endswith('"'):
+            title = title[1:-1].strip()
+        if title.startswith("'") and title.endswith("'"):
+            title = title[1:-1].strip()
+        return title[:50]  # Limitar largo por seguridad
+    except Exception as e:
+        print(f"Error al generar título con LLM: {e}")
+        # Fallback seguro
+        fallback = question.strip()
+        if len(fallback) > 30:
+            return fallback[:30] + "..."
+        return fallback
+
+
 def get_collection_stats(collection_name: Optional[str] = None) -> dict:
     """Obtiene estadísticas de la colección de ChromaDB.
 
