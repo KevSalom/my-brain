@@ -32,26 +32,26 @@ export const ChatArea: React.FC = () => {
                 "your docs, your local intelligence"
               </p>
               <p className="text-xs text-zinc-400 mt-3 max-w-sm leading-relaxed">
-                Hazme cualquier pregunta sobre los documentos que has cargado en tu cerebro. Analizaré la información localmente.
+                Ask me anything about the documents you have loaded in your brain. I will analyze the information locally.
               </p>
 
               <div className="grid grid-cols-2 gap-3 mt-8 w-full text-left">
                 <div className="bg-zinc-900/10 border border-brand-border p-4 rounded-xl hover:border-brand-primary/30 transition-all duration-300">
                   <h4 className="text-xs font-semibold text-zinc-300 flex items-center gap-1.5">
                     <Sparkles className="h-3.5 w-3.5 text-brand-primary" />
-                    Búsqueda Híbrida
+                    Hybrid Search
                   </h4>
                   <p className="text-[11px] text-zinc-500 mt-1">
-                    Combino similitud semántica y palabras clave para darte respuestas exactas.
+                    I combine semantic similarity and keywords to give you exact answers.
                   </p>
                 </div>
                 <div className="bg-zinc-900/10 border border-brand-border p-4 rounded-xl hover:border-brand-primary/30 transition-all duration-300">
                   <h4 className="text-xs font-semibold text-zinc-300 flex items-center gap-1.5">
                     <FileText className="h-3.5 w-3.5 text-brand-primary" />
-                    Referencias Claras
+                    Clear References
                   </h4>
                   <p className="text-[11px] text-zinc-500 mt-1">
-                    Cada respuesta indica los archivos fuente y puntuación de relevancia del vector store.
+                    Each response indicates the source files and relevance score from the vector store.
                   </p>
                 </div>
               </div>
@@ -80,7 +80,7 @@ export const ChatArea: React.FC = () => {
         <ThreadPrimitive.ViewportFooter className="px-4 pb-6 md:px-8 bg-gradient-to-t from-brand-bg via-brand-bg/90 to-transparent pt-4">
           <ComposerPrimitive.Root className="max-w-3xl mx-auto flex items-end gap-3 bg-zinc-950/40 backdrop-blur border border-brand-border focus-within:border-brand-primary rounded-2xl p-2.5 transition-all shadow-lg">
             <ComposerPrimitive.Input
-              placeholder="Haz una pregunta sobre tus documentos..."
+              placeholder="Ask a question about your documents..."
               className="flex-1 min-h-[44px] max-h-36 resize-none bg-transparent px-3 py-2 text-sm text-zinc-100 focus:outline-none placeholder-zinc-500 scrollbar-none"
               rows={1}
             />
@@ -114,7 +114,7 @@ const UserMessage: React.FC = () => {
             <MessagePrimitive.Content />
           </div>
           <span className="text-[10px] text-zinc-500 mt-1.5 mr-1 font-medium uppercase tracking-wider">
-            Tú
+            You
           </span>
         </div>
         <div className="h-7 w-7 rounded-lg bg-brand-primary/20 border border-brand-primary/30 flex items-center justify-center shrink-0 shadow-sm mt-1">
@@ -157,7 +157,7 @@ const AssistantMessage: React.FC<AssistantMessageProps> = ({ sources }) => {
                   className="flex items-center gap-1.5 text-xs text-zinc-500 hover:text-zinc-300 transition-colors font-medium focus:outline-none"
                 >
                   <Sparkles className="h-3 w-3 text-brand-primary" />
-                  <span>Fuentes utilizadas ({sources.length})</span>
+                  <span>Sources used ({sources.length})</span>
                   <ChevronRight className={`h-3 w-3 transition-transform duration-200 ${sourcesOpen ? 'rotate-90 text-zinc-400' : 'text-zinc-600'}`} />
                 </button>
 
@@ -183,7 +183,7 @@ const AssistantMessage: React.FC<AssistantMessageProps> = ({ sources }) => {
                               ? 'bg-amber-950/20 border border-amber-900/50 text-amber-400'
                               : 'bg-zinc-900 border border-zinc-800 text-zinc-500'
                           }`}>
-                            {(src.relevance_score * 100).toFixed(0)}% de confianza
+                            {(src.relevance_score * 100).toFixed(0)}% confidence
                           </span>
                         </div>
                       </div>

@@ -34,7 +34,7 @@ export const UploadZone: React.FC<UploadZoneProps> = ({ areaId, onUploadSuccess 
     if (!allowedExtensions.includes(suffix)) {
       setStatus({
         type: 'error',
-        message: `Formato no soportado. Tipos válidos: PDF, TXT, MD`,
+        message: `Unsupported format. Valid types: PDF, TXT, MD`,
       });
       return;
     }
@@ -43,7 +43,7 @@ export const UploadZone: React.FC<UploadZoneProps> = ({ areaId, onUploadSuccess 
     if (file.size > maxSizeBytes) {
       setStatus({
         type: 'error',
-        message: `El archivo supera el límite de 10MB (${(file.size / 1024 / 1024).toFixed(1)}MB)`,
+        message: `File exceeds the 10MB limit (${(file.size / 1024 / 1024).toFixed(1)}MB)`,
       });
       return;
     }
@@ -55,7 +55,7 @@ export const UploadZone: React.FC<UploadZoneProps> = ({ areaId, onUploadSuccess 
       if (!areaId) {
         setStatus({
           type: 'error',
-          message: 'Selecciona o crea un Área primero.',
+          message: 'Select or create an Area first.',
         });
         setLoading(false);
         return;
@@ -63,7 +63,7 @@ export const UploadZone: React.FC<UploadZoneProps> = ({ areaId, onUploadSuccess 
       const res = await ingestFileToArea(areaId, file);
       setStatus({
         type: 'success',
-        message: `¡Ingestado! ${res.filename} (${res.chunks} chunks creados)`,
+        message: `Ingested! ${res.filename} (${res.chunks} chunks created)`,
       });
       if (onUploadSuccess) {
         onUploadSuccess();
@@ -71,7 +71,7 @@ export const UploadZone: React.FC<UploadZoneProps> = ({ areaId, onUploadSuccess 
     } catch (err: any) {
       setStatus({
         type: 'error',
-        message: err.message || 'Error al procesar el archivo.',
+        message: err.message || 'Error processing file.',
       });
     } finally {
       setLoading(false);
@@ -123,16 +123,16 @@ export const UploadZone: React.FC<UploadZoneProps> = ({ areaId, onUploadSuccess 
         {loading ? (
           <div className="flex flex-col items-center gap-2">
             <Loader2 className="h-8 w-8 text-brand-primary animate-spin" />
-            <p className="text-sm text-zinc-300 font-medium">Ingestando archivo RAG...</p>
+            <p className="text-sm text-zinc-300 font-medium">Ingesting RAG file...</p>
           </div>
         ) : (
           <div className="flex flex-col items-center gap-2 text-center group">
             <Upload className="h-8 w-8 text-zinc-400 group-hover:text-brand-primary transition-colors" />
             <p className="text-sm text-zinc-200 font-medium">
-              Arrastra un archivo o haz clic
+              Drag a file or click to upload
             </p>
             <p className="text-xs text-zinc-500">
-              Soporta PDF, TXT y MD (max 10MB)
+              Supports PDF, TXT and MD (max 10MB)
             </p>
           </div>
         )}

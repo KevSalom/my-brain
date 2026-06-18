@@ -127,7 +127,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
           <button
             onClick={onCreateAreaClick}
-            title="Crear Nueva Área"
+            title="Create New Area"
             className="w-11 h-11 rounded-full bg-zinc-900/40 border border-zinc-800/80 flex items-center justify-center text-zinc-400 hover:text-zinc-100 hover:bg-zinc-850 hover:border-zinc-700 hover:rounded-2xl transition-all duration-300 cursor-pointer"
           >
             <Plus className="h-4 w-4" />
@@ -137,7 +137,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {/* Brain status trigger at bottom left */}
         <button
           onClick={onBrainStatusClick}
-          title="Estado del Cerebro (Stats)"
+          title="Brain Status (Stats)"
           className="w-11 h-11 rounded-full bg-zinc-900/40 border border-zinc-850 flex items-center justify-center text-zinc-500 hover:text-brand-primary hover:bg-brand-primary/10 hover:border-brand-primary/25 hover:rounded-2xl transition-all duration-300 cursor-pointer mt-auto"
         >
           <BrainCircuit className="h-4 w-4 text-zinc-400" />
@@ -166,11 +166,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
               </div>
               <button
                 onClick={() => {
-                  if (confirm(`¿Estás seguro de eliminar el área "${activeArea.name}"? Esto borrará permanentemente sus documentos, chats e historial.`)) {
+                  if (confirm(`Are you sure you want to delete the area "${activeArea.name}"? This will permanently delete its documents, chats, and history.`)) {
                     onDeleteArea(activeArea.id);
                   }
                 }}
-                title="Eliminar Área"
+                title="Delete Area"
                 className="p-1.5 rounded-lg text-zinc-500 hover:text-rose-400 hover:bg-rose-950/20 transition-all cursor-pointer"
               >
                 <Trash2 className="h-3.5 w-3.5" />
@@ -183,13 +183,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <div className="flex flex-col gap-2.5">
                 <div className="flex items-center justify-between">
                   <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">
-                    Hilos de Chat
+                    Chat Threads
                   </span>
                   <button
                     onClick={onCreateConversation}
                     className="flex items-center gap-1 text-[10px] text-brand-primary hover:text-brand-primary-hover font-semibold transition-colors cursor-pointer"
                   >
-                    <Plus className="h-3 w-3" /> Nuevo Chat
+                    <Plus className="h-3 w-3" /> New Chat
                   </button>
                 </div>
                 
@@ -246,7 +246,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                                 setEditingConvId(conv.id);
                                 setEditTitleValue(conv.title);
                               }}
-                              title="Renombrar Chat"
+                              title="Rename Chat"
                               className="p-1 rounded hover:text-zinc-200 hover:bg-zinc-800 transition-all duration-200 cursor-pointer"
                             >
                               <Edit3 className="h-3 w-3" />
@@ -254,11 +254,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
-                                if (confirm(`¿Eliminar la conversación "${conv.title}"?`)) {
+                                if (confirm(`Delete conversation "${conv.title}"?`)) {
                                   onDeleteConversation(conv.id);
                                 }
                               }}
-                              title="Eliminar Chat"
+                              title="Delete Chat"
                               className="p-1 rounded hover:text-rose-400 hover:bg-rose-950/25 transition-all duration-200 cursor-pointer ml-1"
                             >
                               <Trash2 className="h-3 w-3" />
@@ -270,7 +270,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   </div>
                 ) : (
                   <p className="text-[11px] text-zinc-650 italic py-2 pl-2">
-                    No hay chats iniciados.
+                    No chats started.
                   </p>
                 )}
               </div>
@@ -278,7 +278,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               {/* Ingest Zone */}
               <div className="flex flex-col gap-2">
                 <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">
-                  Ingestar Documento
+                  Ingest Document
                 </span>
                 <UploadZone areaId={selectedAreaId} onUploadSuccess={onUploadSuccess} />
               </div>
@@ -286,7 +286,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               {/* Documents List */}
               <div className="flex flex-col gap-2.5">
                 <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">
-                  Documentos del Área ({documents.length})
+                  Area Documents ({documents.length})
                 </span>
                 {documents.length > 0 ? (
                   <div className="flex flex-col gap-1.5">
@@ -304,7 +304,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                         </div>
                         <button
                           onClick={() => {
-                            if (confirm(`¿Eliminar el documento "${doc.filename}"? Esto borrará sus datos de la base de datos relacional y sus vectores.`)) {
+                            if (confirm(`Delete document "${doc.filename}"? This will remove its data from the database and vector store.`)) {
                               onDeleteDocument(doc.id);
                             }
                           }}
@@ -319,7 +319,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   <div className="flex flex-col items-center gap-1 py-4 text-center border border-dashed border-zinc-900 rounded-xl bg-zinc-950/10">
                     <FolderOpen className="h-5 w-5 text-zinc-750" />
                     <p className="text-[10px] text-zinc-600">
-                      Sin documentos cargados.
+                      No documents loaded.
                     </p>
                   </div>
                 )}
@@ -329,9 +329,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
         ) : (
           <div className="flex-1 flex flex-col items-center justify-center p-6 text-center text-zinc-500">
             <Info className="h-7 w-7 text-zinc-700 mb-2 animate-bounce" />
-            <p className="text-xs font-medium text-zinc-400">Sin Área Seleccionada</p>
+            <p className="text-xs font-medium text-zinc-400">No Area Selected</p>
             <p className="text-[10px] text-zinc-650 mt-2 leading-relaxed">
-              Crea o selecciona una burbuja en la columna izquierda para administrar tu cerebro.
+              Create or select a bubble in the left column to manage your brain.
             </p>
           </div>
         )}

@@ -37,12 +37,12 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({
       });
 
       if (!response.ok) {
-        throw new Error(`Error en la API: ${response.statusText}`);
+        throw new Error(`API error: ${response.statusText}`);
       }
 
       const reader = response.body?.getReader();
       if (!reader) {
-        throw new Error('No se pudo abrir el stream de respuesta.');
+        throw new Error('Could not open response stream.');
       }
 
       const decoder = new TextDecoder('utf-8');

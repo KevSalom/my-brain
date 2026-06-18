@@ -19,10 +19,10 @@ export const StatusPanel: React.FC<StatusPanelProps> = ({ status, loading, error
     setIngestDirStatus(null);
     try {
       const res = await ingestDirectory();
-      setIngestDirStatus(`Éxito: ${res.message}`);
+      setIngestDirStatus(`Success: ${res.message}`);
       onRefresh();
     } catch (err: any) {
-      setIngestDirStatus(`Error: ${err.message || 'Ocurrió un error al ingestar.'}`);
+      setIngestDirStatus(`Error: ${err.message || 'An error occurred during ingestion.'}`);
     } finally {
       setIngestDirLoading(false);
     }
@@ -34,13 +34,13 @@ export const StatusPanel: React.FC<StatusPanelProps> = ({ status, loading, error
       <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
         <div className="flex items-center gap-2">
           <Database className="h-5 w-5 text-brand-primary transition-colors duration-300" />
-          <h2 className="font-semibold text-zinc-100">Estado del Cerebro</h2>
+          <h2 className="font-semibold text-zinc-100">Brain Status</h2>
         </div>
         <button
           onClick={onRefresh}
           disabled={loading}
           className="p-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-zinc-200 transition-colors disabled:opacity-50"
-          title="Actualizar estado"
+          title="Update status"
         >
           <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
         </button>
@@ -49,20 +49,20 @@ export const StatusPanel: React.FC<StatusPanelProps> = ({ status, loading, error
       {error && (
         <div className="flex items-start gap-2.5 p-3 rounded-lg border border-rose-900/50 bg-rose-950/20 text-rose-300 text-xs leading-relaxed">
           <AlertCircle className="h-4 w-4 shrink-0 text-rose-400" />
-          <span>Error de conexión: {error}</span>
+          <span>Connection error: {error}</span>
         </div>
       )}
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 gap-3">
         <div className="bg-zinc-900/40 border border-zinc-800/80 p-3.5 rounded-xl backdrop-blur-sm">
-          <p className="text-xs text-zinc-500 font-medium">Documentos</p>
+          <p className="text-xs text-zinc-500 font-medium">Documents</p>
           <p className="text-2xl font-semibold text-zinc-100 mt-1">
             {status ? status.total_documents : '--'}
           </p>
         </div>
         <div className="bg-zinc-900/40 border border-zinc-800/80 p-3.5 rounded-xl backdrop-blur-sm">
-          <p className="text-xs text-zinc-500 font-medium">Chunks RAG</p>
+          <p className="text-xs text-zinc-500 font-medium">RAG Chunks</p>
           <p className="text-2xl font-semibold text-zinc-100 mt-1">
             {status ? status.total_chunks : '--'}
           </p>
@@ -74,14 +74,14 @@ export const StatusPanel: React.FC<StatusPanelProps> = ({ status, loading, error
         <div className="flex items-center gap-2 border-b border-zinc-800/50 pb-2">
           <Settings className="h-4 w-4 text-zinc-400" />
           <span className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
-            Configuración RAG
+            RAG Configuration
           </span>
         </div>
         
         {status ? (
           <div className="grid grid-cols-2 gap-x-2 gap-y-3 text-xs">
             <div>
-              <span className="text-zinc-500 block">LLM Activo</span>
+              <span className="text-zinc-500 block">Active LLM</span>
               <span className="font-mono text-zinc-300 truncate block mt-0.5" title={status.config.llm_model}>
                 {status.config.llm_model}
               </span>
@@ -93,13 +93,13 @@ export const StatusPanel: React.FC<StatusPanelProps> = ({ status, loading, error
               </span>
             </div>
             <div>
-              <span className="text-zinc-500 block">Estrategia</span>
+              <span className="text-zinc-500 block">Strategy</span>
               <span className="capitalize text-zinc-300 block mt-0.5">
                 {status.config.retrieval_strategy}
               </span>
             </div>
             <div>
-              <span className="text-zinc-500 block">Peso BM25</span>
+              <span className="text-zinc-500 block">BM25 Weight</span>
               <span className="font-mono text-zinc-300 block mt-0.5">
                 {(status.config.retrieval_bm25_weight * 100).toFixed(0)}%
               </span>
@@ -111,14 +111,14 @@ export const StatusPanel: React.FC<StatusPanelProps> = ({ status, loading, error
               </span>
             </div>
             <div>
-              <span className="text-zinc-500 block">Estrategia Chunk</span>
+              <span className="text-zinc-500 block">Chunk Strategy</span>
               <span className="capitalize text-zinc-300 block mt-0.5">
                 {status.config.chunking_strategy}
               </span>
             </div>
           </div>
         ) : (
-          <p className="text-xs text-zinc-500 italic">Cargando configuración...</p>
+          <p className="text-xs text-zinc-500 italic">Loading configuration...</p>
         )}
       </div>
 
@@ -134,7 +134,7 @@ export const StatusPanel: React.FC<StatusPanelProps> = ({ status, loading, error
           ) : (
             <FolderInput className="h-4 w-4 text-brand-primary transition-colors duration-300" />
           )}
-          <span>Cargar Directorio Local (/documents)</span>
+          <span>Load Local Directory (/documents)</span>
         </button>
         {ingestDirStatus && (
           <p className={`text-[10px] leading-relaxed p-2 rounded-lg border ${
@@ -150,7 +150,7 @@ export const StatusPanel: React.FC<StatusPanelProps> = ({ status, loading, error
       {/* Source Files List */}
       <div className="flex-1 flex flex-col gap-2 min-h-0">
         <span className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
-          Documentos Cargados ({status?.sources.length || 0})
+          Loaded Documents ({status?.sources.length || 0})
         </span>
         <div className="flex-1 overflow-y-auto max-h-[220px] border border-zinc-800/80 rounded-xl bg-zinc-900/10 p-2 scrollbar-thin">
           {status && status.sources.length > 0 ? (
@@ -168,7 +168,7 @@ export const StatusPanel: React.FC<StatusPanelProps> = ({ status, loading, error
             </div>
           ) : (
             <p className="text-xs text-zinc-500 italic p-3 text-center">
-              No hay documentos cargados en el cerebro.
+              No documents loaded in the brain.
             </p>
           )}
         </div>

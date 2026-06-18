@@ -69,7 +69,7 @@ function MainApp() {
       const data = await getStatus();
       setStatus(data);
     } catch (err: any) {
-      setStatusError(err.message || 'Error de conexión con el backend.');
+      setStatusError(err.message || 'Connection error with the backend.');
     } finally {
       setLoadingStatus(false);
     }
@@ -87,7 +87,7 @@ function MainApp() {
         navigate('/');
       }
     } catch (err) {
-      console.error("Error al cargar áreas:", err);
+      console.error("Error loading areas:", err);
     }
   }, [selectedAreaId, navigate]);
 
@@ -108,7 +108,7 @@ function MainApp() {
       const convList = await getAreaConversations(selectedAreaId);
       setConversations(convList);
     } catch (err) {
-      console.error("Error al refrescar recursos del área:", err);
+      console.error("Error refreshing area resources:", err);
     }
   }, [selectedAreaId]);
 
@@ -122,7 +122,7 @@ function MainApp() {
       const list = await getConversationMessages(selectedConversationId);
       setMessages(list);
     } catch (err) {
-      console.error("Error al cargar mensajes del hilo:", err);
+      console.error("Error loading thread messages:", err);
     } finally {
       setIsLoadingMessages(false);
     }
@@ -166,7 +166,7 @@ function MainApp() {
       await refreshAreas(false);
       navigate(`/areas/${created.id}`);
     } catch (err: any) {
-      alert(err.message || "Error al crear área");
+      alert(err.message || "Error creating area");
     }
   }, [refreshAreas, navigate]);
 
@@ -179,7 +179,7 @@ function MainApp() {
       refreshAreas(true);
       refreshStatus();
     } catch (err: any) {
-      alert(err.message || "Error al eliminar área");
+      alert(err.message || "Error deleting area");
     }
   };
 
@@ -193,7 +193,7 @@ function MainApp() {
       setConversations(convList);
       navigate(`/areas/${selectedAreaId}/chats/${newConv.id}`);
     } catch (err: any) {
-      alert(err.message || "Error al crear conversación");
+      alert(err.message || "Error creating conversation");
     }
   };
 
@@ -208,7 +208,7 @@ function MainApp() {
         setConversations(convList);
       }
     } catch (err: any) {
-      alert(err.message || "Error al eliminar chat");
+      alert(err.message || "Error deleting chat");
     }
   };
 
@@ -217,7 +217,7 @@ function MainApp() {
       await updateConversationTitle(id, newTitle);
       setConversations(prev => prev.map(c => c.id === id ? { ...c, title: newTitle } : c));
     } catch (err: any) {
-      alert(err.message || "Error al renombrar conversación");
+      alert(err.message || "Error renaming conversation");
     }
   };
 
@@ -233,7 +233,7 @@ function MainApp() {
       setDocuments(docsList);
       refreshStatus();
     } catch (err: any) {
-      alert(err.message || "Error al eliminar documento");
+      alert(err.message || "Error deleting document");
     }
   };
 
@@ -278,7 +278,7 @@ function MainApp() {
           isLoadingMessages ? (
             <div className="flex-1 flex flex-col items-center justify-center text-zinc-500">
               <div className="h-6 w-6 rounded-full border-2 border-brand-primary border-t-transparent animate-spin mb-2" />
-              <p className="text-xs">Cargando historial de mensajes...</p>
+              <p className="text-xs">Loading message history...</p>
             </div>
           ) : (
             // El key en el ChatContainer fuerza a remontar y crear una runtime limpia
@@ -302,16 +302,16 @@ function MainApp() {
             {selectedAreaId !== null ? (
               <>
                 <p className="text-sm text-zinc-400 mt-2">
-                  Estás en el área <span className="text-brand-primary font-bold">{activeAreaName}</span>.
+                  You are in area <span className="text-brand-primary font-bold">{activeAreaName}</span>.
                 </p>
-                <p className="text-xs text-zinc-505 mt-2 max-w-sm leading-relaxed">
-                  Inicia un chat nuevo en esta área para empezar a hacer consultas sobre sus documentos locales.
+                <p className="text-xs text-zinc-550 mt-2 max-w-sm leading-relaxed">
+                  Start a new chat in this area to begin querying its local documents.
                 </p>
                 <button
                   onClick={handleCreateConversation}
                   className="mt-6 flex items-center gap-2 px-5 py-2.5 rounded-xl bg-brand-primary text-zinc-950 font-bold hover:bg-brand-primary-hover shadow-[0_0_15px_var(--brand-shadow)] transition-all cursor-pointer text-xs"
                 >
-                  <MessageSquare className="h-4 w-4" /> Iniciar Primer Chat
+                  <MessageSquare className="h-4 w-4" /> Start First Chat
                 </button>
               </>
             ) : (
@@ -319,14 +319,14 @@ function MainApp() {
                 <p className="text-sm font-medium text-brand-primary/80 mt-1.5 italic tracking-wide">
                   "your docs, your local intelligence"
                 </p>
-                <p className="text-xs text-zinc-505 mt-3 max-w-sm leading-relaxed">
-                  Crea tu primera área temática en el panel izquierdo (ej: "Código", "Estudios", "Finanzas") para empezar a ingestar documentos de forma organizada.
+                <p className="text-xs text-zinc-550 mt-3 max-w-sm leading-relaxed">
+                  Create your first knowledge area in the left panel (e.g., "Code", "Studies", "Finance") to start organizing and ingesting documents.
                 </p>
                 <button
                   onClick={() => setIsCreatingArea(true)}
                   className="mt-6 flex items-center gap-2 px-5 py-2.5 rounded-xl bg-brand-primary text-zinc-950 font-bold hover:bg-brand-primary-hover shadow-[0_0_15px_var(--brand-shadow)] transition-all cursor-pointer text-xs"
                 >
-                  <Plus className="h-4 w-4" /> Crear Área de Conocimiento
+                  <Plus className="h-4 w-4" /> Create Knowledge Area
                 </button>
               </>
             )}
@@ -349,7 +349,7 @@ function MainApp() {
             <button
               onClick={() => setIsViewingBrainStatus(false)}
               className="absolute top-4 right-4 text-zinc-500 hover:text-zinc-200 transition-colors p-1.5 rounded-lg hover:bg-zinc-800 cursor-pointer"
-              title="Cerrar modal"
+              title="Close modal"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />

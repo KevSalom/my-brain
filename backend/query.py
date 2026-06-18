@@ -73,13 +73,13 @@ def _build_context_prompt(context_chunks: list[str], sources: list[dict]) -> str
         Cadena formateada con todo el contexto.
     """
     if not context_chunks:
-        return "No se encontró contexto relevante en los documentos."
+        return "No relevant context was found in the documents."
 
     context_parts: list[str] = []
     for i, (chunk, source) in enumerate(zip(context_chunks, sources), 1):
-        source_name = source.get("source", "desconocido")
+        source_name = source.get("source", "unknown")
         context_parts.append(
-            f"--- Fragmento {i} (Fuente: {source_name}) ---\n{chunk}"
+            f"--- Chunk {i} (Source: {source_name}) ---\n{chunk}"
         )
 
     return "\n\n".join(context_parts)
@@ -146,9 +146,9 @@ def query(
     # Paso 3: Construir el prompt completo
     context_text = _build_context_prompt(context_chunks, sources)
     user_message = (
-        f"Contexto de mis documentos:\n\n{context_text}\n\n"
+        f"Context from my documents:\n\n{context_text}\n\n"
         f"---\n\n"
-        f"Pregunta: {question}"
+        f"Question: {question}"
     )
 
     # Paso 4: Llamar al LLM
@@ -201,9 +201,9 @@ def query_stream(
     # Paso 3: Construir el prompt completo
     context_text = _build_context_prompt(context_chunks, sources)
     user_message = (
-        f"Contexto de mis documentos:\n\n{context_text}\n\n"
+        f"Context from my documents:\n\n{context_text}\n\n"
         f"---\n\n"
-        f"Pregunta: {question}"
+        f"Question: {question}"
     )
 
     # Paso 4: Llamar al LLM con streaming
@@ -246,9 +246,9 @@ def generate_title_from_question(question: str) -> str:
                 {
                     "role": "system",
                     "content": (
-                        "Eres un asistente que resume la primera pregunta de un chat en un título corto y conciso. "
-                        "Genera un título de máximo 5 palabras en el mismo idioma de la pregunta. "
-                        "Responde ÚNICAMENTE con el título, sin comillas, sin punto final y sin introducciones."
+                        "You are an assistant that summarizes the first question of a chat into a short and concise title. "
+                        "Generate a title of maximum 5 words in the same language as the question. "
+                        "Respond ONLY with the title, without quotes, without a final period, and without introductions."
                     ),
                 },
                 {"role": "user", "content": question},
