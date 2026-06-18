@@ -7,8 +7,69 @@ import {
 } from '@assistant-ui/react';
 import { MarkdownTextPrimitive } from '@assistant-ui/react-markdown';
 import remarkGfm from 'remark-gfm';
-import { ArrowUp, StopCircle, Bot, User, Sparkles, FileText, ChevronRight } from 'lucide-react';
+import { ArrowUp, StopCircle, Bot, User, Sparkles, FileText, ChevronRight, Copy, Check } from 'lucide-react';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import type { SourceInfo } from '../types';
+
+const CodeBlockWithCopy: React.FC<{
+  language: string;
+  value: string;
+}> = ({ language, value }) => {
+  const [isCopied, setIsCopied] = useState(false);
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(value);
+      setIsCopied(true);
+      setTimeout(() => setIsCopied(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy text: ', err);
+    }
+  };
+
+  return (
+    <div className="relative group rounded-xl my-3 border border-zinc-800 bg-[#09090b] overflow-hidden">
+      {/* Header bar */}
+      <div className="flex items-center justify-between px-4 py-2 border-b border-zinc-850 bg-zinc-950/40 text-[10px] text-zinc-500 font-mono select-none">
+        <span className="uppercase">{language}</span>
+        <button
+          onClick={handleCopy}
+          className="flex items-center gap-1.5 px-2 py-1 rounded bg-zinc-900 border border-zinc-800 hover:bg-zinc-850 text-zinc-400 hover:text-zinc-200 transition-all cursor-pointer font-sans"
+        >
+          {isCopied ? (
+            <>
+              <Check className="h-3 w-3 text-emerald-400" />
+              <span className="text-emerald-400 font-medium">Copied!</span>
+            </>
+          ) : (
+            <>
+              <Copy className="h-3.5 w-3.5" />
+              <span>Copy</span>
+            </>
+          )}
+        </button>
+      </div>
+
+      {/* Code contents */}
+      <SyntaxHighlighter
+        style={vscDarkPlus as any}
+        language={language}
+        PreTag="div"
+        customStyle={{
+          background: 'transparent',
+          margin: 0,
+          padding: '16px',
+          fontSize: '12px',
+          lineHeight: '1.6',
+          overflowX: 'auto',
+        }}
+      >
+        {value}
+      </SyntaxHighlighter>
+    </div>
+  );
+};
 
 export const ChatArea: React.FC = () => {
   return (
@@ -145,7 +206,29 @@ const AssistantMessage: React.FC<AssistantMessageProps> = ({ sources }) => {
             {/* Using MarkdownTextPrimitive component from @assistant-ui/react-markdown */}
             <div className="prose prose-invert max-w-none text-zinc-200 text-sm leading-relaxed prose-p:my-2 prose-pre:bg-zinc-950/70 prose-pre:border prose-pre:border-brand-border prose-code:text-brand-primary prose-code:bg-zinc-900/50 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:before:content-none prose-code:after:content-none">
               <MessagePrimitive.Parts>
-                {({ part }) => part.type === "text" ? <MarkdownTextPrimitive remarkPlugins={[remarkGfm]} /> : null}
+                {({ part }) => part.type === "text" ? (
+                  <MarkdownTextPrimitive 
+                    remarkPlugins={[remarkGfm]} 
+                    components={{
+                      code({ className, children, ...props }) {
+                        const match = /language-(\w+)/.exec(className || '');
+                        const { ref, ...rest } = props as any;
+                        const codeString = String(children).replace(/\n$/, '');
+                        return match ? (
+                          <CodeBlockWithCopy
+                            language={match[1]}
+                            value={codeString}
+                            {...rest}
+                          />
+                        ) : (
+                          <code className={className} {...props}>
+                            {children}
+                          </code>
+                        );
+                      }
+                    }}
+                  />
+                ) : null}
               </MessagePrimitive.Parts>
             </div>
 
