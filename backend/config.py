@@ -77,6 +77,11 @@ class Settings:
         default_factory=lambda: int(os.getenv("API_PORT", "8000"))
     )
 
+    # --- CORS (Fase 2) ---
+    allowed_origins: str = field(
+        default_factory=lambda: os.getenv("ALLOWED_ORIGINS", "")
+    )
+
     # --- Memoria Conversacional (Fase 4) ---
     # Número máximo de mensajes previos a incluir como contexto para el LLM.
     # 10 mensajes = 5 intercambios (usuario + asistente).

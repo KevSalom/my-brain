@@ -8,6 +8,7 @@ y define metadata de la documentación OpenAPI.
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from config import settings
 from api.routes import status, ingest, chat, areas
 from api.database import create_db_and_tables
 
@@ -36,9 +37,7 @@ def on_startup():
 # CORS — Permitir conexiones desde el frontend (Fase 2)
 # =====================================================================
 
-import os
-
-env_origins = os.getenv("ALLOWED_ORIGINS", "")
+env_origins = settings.allowed_origins
 allowed_origins = [
     "http://localhost:5173",    # Vite dev server (default)
     "http://localhost:3000",    # Alternativa común
