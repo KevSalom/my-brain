@@ -123,7 +123,8 @@ def query(
     question: str,
     top_k: int = 5,
     strategy_name: Optional[str] = None,
-    collection_name: Optional[str] = None
+    collection_name: Optional[str] = None,
+    chat_history: Optional[list[dict]] = None
 ) -> QueryResult:
     """Realiza una consulta completa al sistema RAG (sin streaming).
 
@@ -132,6 +133,9 @@ def query(
         top_k: Número de chunks a recuperar para el contexto.
         strategy_name: Nombre de estrategia de retrieval. None = usa la configurada.
         collection_name: Nombre de la colección ChromaDB a consultar.
+        chat_history: Lista de mensajes previos [{"role": ..., "content": ...}]
+                      para memoria conversacional. Se inyectan entre el system
+                      prompt y el mensaje actual del usuario.
 
     Returns:
         Objeto QueryResult con la respuesta, fuentes y chunks de contexto.
@@ -151,13 +155,20 @@ def query(
         f"Question: {question}"
     )
 
-    # Paso 4: Llamar al LLM
+    # Paso 4: Construir lista de mensajes con historial conversacional
+    messages = [{"role": "system", "content": SYSTEM_PROMPT}]
+
+    # Inyectar historial previo (sin contexto RAG, solo texto plano)
+    if chat_history:
+        messages.extend(chat_history)
+
+    # Mensaje actual del usuario con contexto RAG fresco
+    messages.append({"role": "user", "content": user_message})
+
+    # Paso 5: Llamar al LLM
     response = openai_client.chat.completions.create(
         model=settings.llm_model,
-        messages=[
-            {"role": "system", "content": SYSTEM_PROMPT},
-            {"role": "user", "content": user_message},
-        ],
+        messages=messages,
         temperature=0.3,  # Baja temperatura para respuestas más fieles al contexto
     )
 
@@ -174,7 +185,8 @@ def query_stream(
     question: str,
     top_k: int = 5,
     strategy_name: Optional[str] = None,
-    collection_name: Optional[str] = None
+    collection_name: Optional[str] = None,
+    chat_history: Optional[list[dict]] = None
 ) -> Generator[tuple[str, Optional[QueryResult]], None, None]:
     """Realiza una consulta con streaming de la respuesta.
 
@@ -186,6 +198,9 @@ def query_stream(
         top_k: Número de chunks a recuperar para el contexto.
         strategy_name: Nombre de la estrategia a usar.
         collection_name: Nombre de la colección ChromaDB a consultar.
+        chat_history: Lista de mensajes previos [{"role": ..., "content": ...}]
+                      para memoria conversacional. Se inyectan entre el system
+                      prompt y el mensaje actual del usuario.
 
     Yields:
         Tuplas de (token, result) donde result es None hasta el último
@@ -206,13 +221,20 @@ def query_stream(
         f"Question: {question}"
     )
 
-    # Paso 4: Llamar al LLM con streaming
+    # Paso 4: Construir lista de mensajes con historial conversacional
+    messages = [{"role": "system", "content": SYSTEM_PROMPT}]
+
+    # Inyectar historial previo (sin contexto RAG, solo texto plano)
+    if chat_history:
+        messages.extend(chat_history)
+
+    # Mensaje actual del usuario con contexto RAG fresco
+    messages.append({"role": "user", "content": user_message})
+
+    # Paso 5: Llamar al LLM con streaming
     stream = openai_client.chat.completions.create(
         model=settings.llm_model,
-        messages=[
-            {"role": "system", "content": SYSTEM_PROMPT},
-            {"role": "user", "content": user_message},
-        ],
+        messages=messages,
         temperature=0.3,
         stream=True,
     )

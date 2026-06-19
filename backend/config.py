@@ -77,6 +77,13 @@ class Settings:
         default_factory=lambda: int(os.getenv("API_PORT", "8000"))
     )
 
+    # --- Memoria Conversacional (Fase 4) ---
+    # Número máximo de mensajes previos a incluir como contexto para el LLM.
+    # 10 mensajes = 5 intercambios (usuario + asistente).
+    memory_max_messages: int = field(
+        default_factory=lambda: int(os.getenv("MEMORY_MAX_MESSAGES", "10"))
+    )
+
     def __post_init__(self) -> None:
         """Validación post-inicialización.
 

@@ -142,6 +142,23 @@ async def chat_stream(
     # Colección ChromaDB asociada al Área de la conversación
     collection_name = f"mybrain_area_{conv.area_id}"
 
+    # Cargar historial conversacional para memoria multi-turno
+    # Se excluye el mensaje actual del usuario (recién guardado) porque ya va como contexto RAG.
+    from config import settings as app_settings
+    stmt_history = (
+        select(Message)
+        .where(Message.conversation_id == conversation_id)
+        .where(Message.id != user_msg.id)
+        .order_by(Message.id)
+    )
+    all_previous = session.exec(stmt_history).all()
+    # Tomar solo los últimos N mensajes configurados
+    recent_messages = all_previous[-(app_settings.memory_max_messages):]
+    chat_history = [
+        {"role": msg.role, "content": msg.content}
+        for msg in recent_messages
+    ]
+
     # Generador de eventos SSE
     async def event_generator() -> AsyncGenerator[str, None]:
         # Usamos una sesión fresca para el hilo de fondo de streaming
@@ -167,12 +184,13 @@ async def chat_stream(
                     except Exception as title_err:
                         print(f"Error generando título dinámico: {title_err}")
 
-                # Ejecutar query_stream pasando la colección del área
+                # Ejecutar query_stream pasando la colección del área y el historial
                 for token, final_result in query_stream(
                     question=request.question,
                     top_k=request.top_k,
                     strategy_name=request.strategy,
-                    collection_name=collection_name
+                    collection_name=collection_name,
+                    chat_history=chat_history if chat_history else None
                 ):
                     if token:
                         final_answer += token
