@@ -10,8 +10,11 @@ import {
   FileText, 
   FolderOpen,
   Info,
-  Edit3
+  Edit3,
+  Link,
+  Loader2
 } from 'lucide-react';
+import { ingestUrlToArea } from '../api';
 
 interface SidebarProps {
   // Areas
@@ -64,6 +67,49 @@ export const Sidebar: React.FC<SidebarProps> = ({
       onRenameConversation(id, trimmed);
     }
     setEditingConvId(null);
+  };
+
+  const [linkUrl, setLinkUrl] = useState('');
+  const [linkLoading, setLinkLoading] = useState(false);
+  const [linkStatus, setLinkStatus] = useState<{ type: 'success' | 'error' | null; message: string }>({
+    type: null,
+    message: '',
+  });
+
+  const handleIngestUrl = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const targetUrl = linkUrl.trim();
+    if (!targetUrl) return;
+    if (!selectedAreaId) {
+      setLinkStatus({ type: 'error', message: 'Select or create an Area first.' });
+      return;
+    }
+    if (!targetUrl.startsWith('http://') && !targetUrl.startsWith('https://')) {
+      setLinkStatus({ type: 'error', message: 'URL must start with http:// or https://' });
+      return;
+    }
+
+    setLinkLoading(true);
+    setLinkStatus({ type: null, message: '' });
+
+    try {
+      const res = await ingestUrlToArea(selectedAreaId, targetUrl);
+      setLinkStatus({
+        type: 'success',
+        message: `Ingested! Saved as: ${res.filename} (${res.chunks} chunks created)`,
+      });
+      setLinkUrl('');
+      if (onUploadSuccess) {
+        onUploadSuccess();
+      }
+    } catch (err: any) {
+      setLinkStatus({
+        type: 'error',
+        message: err.message || 'Error ingesting URL.',
+      });
+    } finally {
+      setLinkLoading(false);
+    }
   };
 
   // Helper to format file size
@@ -281,6 +327,50 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   Ingest Document
                 </span>
                 <UploadZone areaId={selectedAreaId} onUploadSuccess={onUploadSuccess} />
+              </div>
+
+              {/* Ingest Web Link */}
+              <div className="flex flex-col gap-2 border-t border-zinc-900/60 pt-4">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">
+                  Ingest Web Link
+                </span>
+                <form onSubmit={handleIngestUrl} className="flex flex-col gap-2">
+                  <div className="flex gap-2">
+                    <div className="relative flex-1">
+                      <Link className="absolute left-3 top-2.5 h-3.5 w-3.5 text-zinc-500" />
+                      <input
+                        type="url"
+                        placeholder="https://example.com/article"
+                        value={linkUrl}
+                        onChange={(e) => setLinkUrl(e.target.value)}
+                        disabled={linkLoading}
+                        className="w-full bg-zinc-900/40 border border-zinc-800 text-xs rounded-xl pl-9 pr-3 py-2 text-zinc-250 placeholder-zinc-650 focus:outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary/20 transition-all disabled:opacity-50"
+                      />
+                    </div>
+                    <button
+                      type="submit"
+                      disabled={linkLoading || !linkUrl.trim()}
+                      className="px-3 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-350 hover:bg-zinc-800 hover:text-zinc-100 disabled:opacity-40 disabled:hover:bg-zinc-900 disabled:hover:text-zinc-350 flex items-center justify-center transition-colors cursor-pointer"
+                    >
+                      {linkLoading ? (
+                        <Loader2 className="h-3.5 w-3.5 animate-spin text-brand-primary" />
+                      ) : (
+                        <Plus className="h-3.5 w-3.5" />
+                      )}
+                    </button>
+                  </div>
+                  {linkStatus.type && (
+                    <div
+                      className={`flex items-start gap-2 p-2 rounded-lg border text-[10px] leading-relaxed ${
+                        linkStatus.type === 'success'
+                          ? 'bg-emerald-950/20 border-emerald-900/50 text-emerald-300'
+                          : 'bg-rose-950/20 border-rose-900/50 text-rose-300'
+                      }`}
+                    >
+                      <span className="break-all">{linkStatus.message}</span>
+                    </div>
+                  )}
+                </form>
               </div>
 
               {/* Documents List */}

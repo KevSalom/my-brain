@@ -7,8 +7,10 @@ y eliminación física y semántica de documentos.
 
 import os
 import shutil
+import re
 from pathlib import Path
 from typing import List
+import requests
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, status
 from sqlmodel import Session, select, func
 import chromadb
@@ -16,7 +18,7 @@ import chromadb
 from config import settings
 from api.database import get_session
 from api.models import Area, Document, Conversation
-from api.schemas import AreaCreate, AreaResponse, DocumentResponse, IngestFileResponse
+from api.schemas import AreaCreate, AreaResponse, DocumentResponse, IngestFileResponse, URLIngestPayload
 from ingest import ingest_file, SUPPORTED_EXTENSIONS
 from retriever import bm25_cache_manager
 
@@ -216,6 +218,136 @@ async def ingest_file_to_area(
         raise HTTPException(
             status_code=500,
             detail=f"Error en la ingesta: {str(e)}"
+        )
+
+
+
+@router.post("/{area_id}/ingest/url", response_model=IngestFileResponse)
+async def ingest_url_to_area(
+    area_id: str,
+    payload: URLIngestPayload,
+    session: Session = Depends(get_session)
+):
+    """Descarga el contenido de una URL vía Jina Reader API, lo guarda como archivo MD e ingesta."""
+    # 1. Verificar que el área existe
+    area = session.get(Area, area_id)
+    if not area:
+        raise HTTPException(status_code=404, detail="Área no encontrada.")
+
+    url = payload.url.strip()
+    if not (url.startswith("http://") or url.startswith("https://")):
+        raise HTTPException(
+            status_code=400,
+            detail="La URL debe comenzar con http:// o https://"
+        )
+
+    # 2. Consultar Jina Reader API
+    jina_reader_url = f"https://r.jina.ai/{url}"
+    headers = {"Accept": "application/json"}
+    
+    # Agregar API Key de Jina si está configurada
+    jina_key = getattr(settings, "jina_api_key", None) or os.getenv("JINA_API_KEY", "")
+    if jina_key:
+        headers["Authorization"] = f"Bearer {jina_key}"
+
+    try:
+        response = requests.get(jina_reader_url, headers=headers, timeout=30)
+        response.raise_for_status()
+        resp_json = response.json()
+    except Exception as e:
+        raise HTTPException(
+            status_code=502,
+            detail=f"Error al conectar con el servicio Jina Reader: {str(e)}"
+        )
+
+    # Validar formato de respuesta
+    if not resp_json or "data" not in resp_json:
+        raise HTTPException(
+            status_code=502,
+            detail="El servicio Jina Reader retornó una respuesta inválida."
+        )
+
+    data = resp_json["data"]
+    title = data.get("title") or ""
+    content = data.get("content") or ""
+
+    if not content.strip():
+        raise HTTPException(
+            status_code=400,
+            detail="La URL especificada no contiene texto legible indexable."
+        )
+
+    # Si no hay título, usar dominio o nombre genérico
+    if not title.strip():
+        from urllib.parse import urlparse
+        parsed = urlparse(url)
+        title = parsed.netloc or "enlace_web"
+
+    # 3. Sanitizar título para el nombre de archivo
+    # Reemplazar caracteres no permitidos por guión bajo
+    sanitized_title = re.sub(r'[\\/*?:"<>|]', "_", title)
+    # Limitar longitud para evitar problemas con el sistema de archivos
+    if len(sanitized_title) > 100:
+        sanitized_title = sanitized_title[:100].strip()
+    
+    filename = f"{sanitized_title}.md"
+
+    # 4. Guardar físicamente el contenido Markdown en la carpeta de documentos de la área
+    storage_dir = get_area_storage_dir(area_id)
+    dest_path = storage_dir / filename
+
+    content_bytes = content.encode("utf-8")
+
+    # Validar tamaño (máximo 10MB)
+    max_size = 10 * 1024 * 1024
+    if len(content_bytes) > max_size:
+        raise HTTPException(
+            status_code=413,
+            detail=f"El contenido de la página excede el límite de 10MB ({len(content_bytes) / 1024 / 1024:.1f}MB).",
+        )
+
+    try:
+        with open(dest_path, "wb") as f:
+            f.write(content_bytes)
+
+        # Ingestar en ChromaDB bajo la colección del área
+        collection_name = f"mybrain_area_{area_id}"
+        chunks_count = ingest_file(str(dest_path), collection_name=collection_name)
+
+        # Invalidad la caché del índice BM25
+        bm25_cache_manager.invalidate(collection_name)
+
+        # Guardar registro en la SQLite
+        stmt = select(Document).where(Document.filename == filename, Document.area_id == area_id)
+        existing_doc = session.exec(stmt).first()
+        
+        if existing_doc:
+            existing_doc.file_size = len(content_bytes)
+            existing_doc.file_path = str(dest_path)
+            session.add(existing_doc)
+        else:
+            db_doc = Document(
+                filename=filename,
+                file_path=str(dest_path),
+                file_size=len(content_bytes),
+                area_id=area_id
+            )
+            session.add(db_doc)
+            
+        session.commit()
+
+        return IngestFileResponse(
+            filename=filename,
+            chunks=chunks_count,
+            message=f"Enlace '{title}' guardado como '{filename}' e ingestado exitosamente ({chunks_count} chunks)."
+        )
+
+    except Exception as e:
+        if dest_path.exists():
+            os.remove(dest_path)
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error en la ingesta del enlace: {str(e)}"
         )
 
 

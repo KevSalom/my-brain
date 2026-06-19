@@ -95,6 +95,19 @@ export async function ingestFileToArea(areaId: string, file: File): Promise<Inge
   return response.json();
 }
 
+export async function ingestUrlToArea(areaId: string, url: string): Promise<IngestFileResponse> {
+  const response = await fetch(`${API_BASE_URL}/api/areas/${areaId}/ingest/url`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ url }),
+  });
+  if (!response.ok) {
+    const errData = await response.json().catch(() => ({}));
+    throw new Error(errData.detail || `Error al ingestar el enlace: ${response.statusText}`);
+  }
+  return response.json();
+}
+
 export async function deleteAreaDocument(areaId: string, docId: number): Promise<void> {
   const response = await fetch(`${API_BASE_URL}/api/areas/${areaId}/documents/${docId}`, {
     method: 'DELETE',

@@ -84,6 +84,11 @@ class Settings:
         default_factory=lambda: int(os.getenv("MEMORY_MAX_MESSAGES", "10"))
     )
 
+    # --- Jina Reader API (Fase 5) ---
+    jina_api_key: str = field(
+        default_factory=lambda: os.getenv("JINA_API_KEY", "")
+    )
+
     def __post_init__(self) -> None:
         """Validación post-inicialización.
 

@@ -161,3 +161,8 @@ class MessageResponse(BaseModel):
     class Config:
         from_attributes = True
 
+
+class URLIngestPayload(BaseModel):
+    """Modelo para recibir una petición de ingesta de URL."""
+    url: str = Field(..., description="La URL de la página web a descargar e ingestar")
+
