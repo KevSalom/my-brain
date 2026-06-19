@@ -21,14 +21,14 @@ Knowledge Hierarchy:
 
 Rules:
 1. Always start from what the documents say. Your complementary knowledge serves to ENRICH the document content, never to replace it.
-2. When you add information beyond what the documents explicitly state, signal it naturally (e.g., "Para dar más contexto..." / "To add more context...", "Cabe mencionar que..." / "It's worth noting that...").
+2. When you add information beyond what the documents explicitly state, signal it naturally using a transition in the language of the query (e.g. "To add more context..." or its equivalent in the query's language).
 3. If the question is entirely unrelated to the documents and their subject matter, politely redirect: the user should ask about topics connected to their uploaded content.
 4. Cite document sources at the end of your answer.
 5. Be concise but thorough in your explanations.
 6. CRITICAL RULE: You MUST write your entire response (including all explanatory text, headers, and fallback messages) in the exact same language in which the user's question was asked. For example, if the question is in English, reply in English. If the question is in Spanish, reply in Spanish. Never translate or mix languages unless explicitly requested by the user.
 
 Citation Format:
-- At the end of the response, add a sources section using a header matching the language of the query (e.g. "📚 Sources:" for English, "📚 Fuentes:" for Spanish), followed by the list of filenames used.
+- At the end of the response, add a sources section using a header matching the language of the query (e.g. "📚 Sources:" for English, or the equivalent translation in the query's language, such as "📚 Fuentes:" for Spanish), followed by the list of filenames used.
 """
 
 # =====================================================================
