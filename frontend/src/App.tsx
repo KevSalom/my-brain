@@ -19,7 +19,6 @@ import {
   getAreaDocuments, 
   deleteAreaDocument,
   getAreaConversations,
-  createConversation,
   deleteConversation,
   getConversationMessages,
   updateConversationTitle
@@ -31,7 +30,7 @@ import type {
   ConversationResponse, 
   SourceInfo 
 } from './types';
-import { Plus, Bot, MessageSquare } from 'lucide-react';
+import { Plus, Bot } from 'lucide-react';
 
 function MainApp() {
   const { areaId, chatId } = useParams<{ areaId?: string; chatId?: string }>();
@@ -183,25 +182,17 @@ function MainApp() {
     }
   };
 
-  const handleCreateConversation = async () => {
+  const handleCreateConversation = useCallback(() => {
     if (selectedAreaId === null) return;
-    try {
-      const newConv = await createConversation(selectedAreaId);
-      
-      // Refrescar lista e ir directamente al nuevo chat
-      const convList = await getAreaConversations(selectedAreaId);
-      setConversations(convList);
-      navigate(`/areas/${selectedAreaId}/chats/${newConv.id}`);
-    } catch (err: any) {
-      alert(err.message || "Error creating conversation");
-    }
-  };
+    navigate(`/areas/${selectedAreaId}`);
+  }, [selectedAreaId, navigate]);
 
   const handleDeleteConversation = async (id: string) => {
     try {
       await deleteConversation(id);
       if (selectedConversationId === id) {
-        navigate(`/areas/${selectedAreaId}`);
+        setMessages([]);
+        navigate(`/areas/${selectedAreaId}`, { replace: true });
       }
       if (selectedAreaId !== null) {
         const convList = await getAreaConversations(selectedAreaId);
@@ -250,8 +241,6 @@ function MainApp() {
     });
   }, [messages]);
 
-  // Nombre del Área activa
-  const activeAreaName = areas.find(a => a.id === selectedAreaId)?.name || '';
 
   return (
     <div className="w-screen h-screen flex overflow-hidden bg-brand-bg font-sans antialiased text-brand-text relative">
@@ -289,6 +278,19 @@ function MainApp() {
               onConversationTitleUpdated={handleConversationTitleUpdated} 
             />
           )
+        ) : selectedAreaId ? (
+          <ChatContainer
+            key="draft-chat"
+            chatId={null}
+            areaId={selectedAreaId}
+            initialMessages={[]}
+            onConversationCreated={async (newConvId) => {
+              const convList = await getAreaConversations(selectedAreaId);
+              setConversations(convList);
+              navigate(`/areas/${selectedAreaId}/chats/${newConvId}`, { replace: true });
+            }}
+            onConversationTitleUpdated={handleConversationTitleUpdated}
+          />
         ) : (
           // Empty State / Welcome Screen
           <div className="flex-1 h-full flex flex-col items-center justify-center text-center max-w-lg mx-auto py-12 select-none animate-fade-in">
@@ -299,37 +301,18 @@ function MainApp() {
               My Brain <span className="text-brand-primary font-mono text-sm uppercase bg-brand-primary/10 px-2 py-0.5 rounded border border-brand-primary/30">LM</span>
             </h2>
             
-            {selectedAreaId !== null ? (
-              <>
-                <p className="text-sm text-zinc-400 mt-2">
-                  You are in area <span className="text-brand-primary font-bold">{activeAreaName}</span>.
-                </p>
-                <p className="text-xs text-zinc-550 mt-2 max-w-sm leading-relaxed">
-                  Start a new chat in this area to begin querying its local documents.
-                </p>
-                <button
-                  onClick={handleCreateConversation}
-                  className="mt-6 flex items-center gap-2 px-5 py-2.5 rounded-xl bg-brand-primary text-zinc-950 font-bold hover:bg-brand-primary-hover shadow-[0_0_15px_var(--brand-shadow)] transition-all cursor-pointer text-xs"
-                >
-                  <MessageSquare className="h-4 w-4" /> Start First Chat
-                </button>
-              </>
-            ) : (
-              <>
-                <p className="text-sm font-medium text-brand-primary/80 mt-1.5 italic tracking-wide">
-                  "your docs, your local intelligence"
-                </p>
-                <p className="text-xs text-zinc-550 mt-3 max-w-sm leading-relaxed">
-                  Create your first knowledge area in the left panel (e.g., "Code", "Studies", "Finance") to start organizing and ingesting documents.
-                </p>
-                <button
-                  onClick={() => setIsCreatingArea(true)}
-                  className="mt-6 flex items-center gap-2 px-5 py-2.5 rounded-xl bg-brand-primary text-zinc-950 font-bold hover:bg-brand-primary-hover shadow-[0_0_15px_var(--brand-shadow)] transition-all cursor-pointer text-xs"
-                >
-                  <Plus className="h-4 w-4" /> Create Knowledge Area
-                </button>
-              </>
-            )}
+            <p className="text-sm font-medium text-brand-primary/80 mt-1.5 italic tracking-wide">
+              "your docs, your local intelligence"
+            </p>
+            <p className="text-xs text-zinc-550 mt-3 max-w-sm leading-relaxed">
+              Create your first knowledge area in the left panel (e.g., "Code", "Studies", "Finance") to start organizing and ingesting documents.
+            </p>
+            <button
+              onClick={() => setIsCreatingArea(true)}
+              className="mt-6 flex items-center gap-2 px-5 py-2.5 rounded-xl bg-brand-primary text-zinc-950 font-bold hover:bg-brand-primary-hover shadow-[0_0_15px_var(--brand-shadow)] transition-all cursor-pointer text-xs"
+            >
+              <Plus className="h-4 w-4" /> Create Knowledge Area
+            </button>
           </div>
         )}
       </main>

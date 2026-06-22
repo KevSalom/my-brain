@@ -187,7 +187,7 @@ def query_stream(
     strategy_name: Optional[str] = None,
     collection_name: Optional[str] = None,
     chat_history: Optional[list[dict]] = None
-) -> Generator[tuple[str, Optional[QueryResult]], None, None]:
+) -> Generator[tuple[str, Optional[QueryResult], Optional[str]], None, None]:
     """Realiza una consulta con streaming de la respuesta.
 
     Genera tokens uno a uno mientras el LLM produce la respuesta.
@@ -203,10 +203,15 @@ def query_stream(
                       prompt y el mensaje actual del usuario.
 
     Yields:
-        Tuplas de (token, result) donde result es None hasta el último
-        token, donde contiene el QueryResult completo.
+        Tuplas de (token, result, status) donde:
+        - token: El fragmento de texto generado por el LLM.
+        - result: QueryResult completo al finalizar.
+        - status: Estado del procesamiento ("Searching your documents...", "Synthesizing response...", etc.)
     """
     openai_client = _get_openai_client()
+
+    # yield status: Searching documents
+    yield "", None, "Searching your documents..."
 
     # Paso 1-2: Retrieval usando la estrategia configurada
     context_chunks, sources = _retrieve_and_build_sources(
@@ -231,6 +236,9 @@ def query_stream(
     # Mensaje actual del usuario con contexto RAG fresco
     messages.append({"role": "user", "content": user_message})
 
+    # yield status: Generating response / Synthesizing
+    yield "", None, "Synthesizing response..."
+
     # Paso 5: Llamar al LLM con streaming
     stream = openai_client.chat.completions.create(
         model=settings.llm_model,
@@ -246,7 +254,7 @@ def query_stream(
         delta = chunk.choices[0].delta
         if delta.content:
             full_answer_parts.append(delta.content)
-            yield delta.content, None
+            yield delta.content, None, None
 
     # Al finalizar, generar el resultado completo
     full_answer = "".join(full_answer_parts)
@@ -255,7 +263,7 @@ def query_stream(
         sources=sources,
         context_chunks=context_chunks,
     )
-    yield "", result
+    yield "", result, None
 
 
 def generate_title_from_question(question: str) -> str:

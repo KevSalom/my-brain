@@ -164,6 +164,9 @@ async def chat_stream(
         # Usamos una sesión fresca para el hilo de fondo de streaming
         with Session(engine) as db_session:
             try:
+                # Emitir status inicial
+                yield f'data: {json.dumps({"status": "Thinking..."}, ensure_ascii=False)}\n\n'
+
                 final_answer = ""
                 sources = []
                 context_chunks = []
@@ -185,13 +188,17 @@ async def chat_stream(
                         print(f"Error generando título dinámico: {title_err}")
 
                 # Ejecutar query_stream pasando la colección del área y el historial
-                for token, final_result in query_stream(
+                for token, final_result, status in query_stream(
                     question=request.question,
                     top_k=request.top_k,
                     strategy_name=request.strategy,
                     collection_name=collection_name,
                     chat_history=chat_history if chat_history else None
                 ):
+                    if status:
+                        event_data = json.dumps({"status": status}, ensure_ascii=False)
+                        yield f"data: {event_data}\n\n"
+
                     if token:
                         final_answer += token
                         event_data = json.dumps({"token": token}, ensure_ascii=False)

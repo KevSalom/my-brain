@@ -239,8 +239,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   </button>
                 </div>
                 
-                {conversations.length > 0 ? (
+                {conversations.length > 0 || selectedConversationId === null ? (
                   <div className="flex flex-col gap-1">
+                    {selectedConversationId === null && (
+                      <div className="flex items-center justify-between p-2 rounded-xl bg-zinc-800/40 border-brand-border border text-zinc-100 font-medium">
+                        <div className="flex items-center gap-2 min-w-0 flex-1 text-left text-xs text-ellipsis overflow-hidden select-none">
+                          <MessageSquare className="h-3.5 w-3.5 shrink-0 text-brand-primary animate-pulse" />
+                          <span className="truncate italic text-zinc-300">New Conversation...</span>
+                        </div>
+                      </div>
+                    )}
                     {conversations.map(conv => {
                       const isActive = conv.id === selectedConversationId;
                       if (editingConvId === conv.id) {

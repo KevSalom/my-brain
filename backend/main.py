@@ -214,7 +214,7 @@ def cmd_chat(args: argparse.Namespace) -> None:
 
             result = None
             try:
-                for token, final_result in query_stream(question):
+                for token, final_result, _ in query_stream(question):
                     if token:
                         # Imprimir cada token en tiempo real sin salto de línea
                         console.print(token, end="", highlight=False)

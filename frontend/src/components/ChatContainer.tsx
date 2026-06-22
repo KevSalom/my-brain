@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useRef } from 'react';
 import { 
   useLocalRuntime, 
   AssistantRuntimeProvider, 
@@ -6,21 +6,34 @@ import {
   type ThreadMessageLike 
 } from '@assistant-ui/react';
 import { ChatArea } from './ChatArea';
+import { createConversation } from '../api';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
 
 interface ChatContainerProps {
-  chatId: string;
+  chatId: string | null;
+  areaId?: string;
   initialMessages: ThreadMessageLike[];
+  onConversationCreated?: (newConvId: string) => void;
   onConversationTitleUpdated?: (convId: string, newTitle: string) => void;
 }
 
 export const ChatContainer: React.FC<ChatContainerProps> = ({ 
   chatId, 
+  areaId,
   initialMessages,
+  onConversationCreated,
   onConversationTitleUpdated
 }) => {
-  // Configurar el modelAdapter específicamente atado a este chatId
+  // Guardar refs de chatId y callbacks para evitar recrear el adapter ante cambios de props
+  const activeChatIdRef = useRef<string | null>(chatId);
+  const onConversationCreatedRef = useRef(onConversationCreated);
+  onConversationCreatedRef.current = onConversationCreated;
+  
+  const onConversationTitleUpdatedRef = useRef(onConversationTitleUpdated);
+  onConversationTitleUpdatedRef.current = onConversationTitleUpdated;
+
+  // Configurar el modelAdapter específicamente atado a este chatId o el draft actual
   const modelAdapter = useMemo<ChatModelAdapter>(() => ({
     async *run({ messages, abortSignal }) {
       const lastMessage = messages[messages.length - 1];
@@ -29,7 +42,24 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({
         .map((c) => (c.type === 'text' ? c.text : ''))
         .join('\n');
 
-      const response = await fetch(`${API_BASE_URL}/api/chat/conversations/${chatId}/stream`, {
+      let activeId = activeChatIdRef.current;
+      
+      // Si es una conversación draft (lazy), la creamos ahora en el backend antes de la consulta
+      if (!activeId) {
+        if (!areaId) {
+          throw new Error('Area ID is required to create a conversation');
+        }
+        try {
+          const newConv = await createConversation(areaId);
+          activeId = newConv.id;
+          activeChatIdRef.current = activeId;
+        } catch (err: any) {
+          console.error("Error creating conversation lazy:", err);
+          throw new Error(err.message || 'Error creating conversation');
+        }
+      }
+
+      const response = await fetch(`${API_BASE_URL}/api/chat/conversations/${activeId}/stream`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ question: userQuestion, top_k: 5 }),
@@ -48,6 +78,7 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({
       const decoder = new TextDecoder('utf-8');
       let text = '';
       let sources: any[] = [];
+      let currentStatus = '';
 
       try {
         while (true) {
@@ -63,19 +94,36 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({
 
               try {
                 const data = JSON.parse(dataStr);
-                if (data.token) {
+                
+                if (data.status) {
+                  currentStatus = data.status;
+                  yield {
+                    content: [{ type: 'text' as const, text: '' }],
+                    custom: { agentStatus: currentStatus },
+                    metadata: {
+                      custom: { agentStatus: currentStatus }
+                    }
+                  };
+                } else if (data.token) {
                   text += data.token;
                   yield {
                     content: [{ type: 'text' as const, text }],
+                    custom: { agentStatus: null },
+                    metadata: {
+                      custom: { agentStatus: null }
+                    }
                   };
                 } else if (data.done) {
                   sources = data.sources || [];
                   yield {
                     content: [{ type: 'text' as const, text }],
-                    custom: { sources },
+                    custom: { sources, agentStatus: null },
+                    metadata: {
+                      custom: { sources, agentStatus: null }
+                    }
                   };
-                  if (data.title && onConversationTitleUpdated) {
-                    onConversationTitleUpdated(chatId, data.title);
+                  if (data.title && onConversationTitleUpdatedRef.current && activeId) {
+                    onConversationTitleUpdatedRef.current(activeId, data.title);
                   }
                 } else if (data.error) {
                   throw new Error(data.error);
@@ -86,11 +134,17 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({
             }
           }
         }
+        
+        // Al terminar con éxito la transmisión del primer mensaje, notificamos la creación de la conversación
+        // para que el padre actualice la URL y el sidebar sin interrumpir el flujo visual.
+        if (chatId === null && activeId && onConversationCreatedRef.current) {
+          onConversationCreatedRef.current(activeId);
+        }
       } finally {
         reader.releaseLock();
       }
     },
-  }), [chatId, onConversationTitleUpdated]);
+  }), [areaId, chatId]);
 
   // useLocalRuntime se ejecutará de cero porque el componente se remonta cuando cambia el key (chatId)
   const runtime = useLocalRuntime(modelAdapter, { initialMessages });
