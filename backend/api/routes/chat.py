@@ -5,6 +5,7 @@ Permite listar, crear conversaciones por área y realizar consultas con streamin
 guardando el historial completo en SQLite.
 """
 
+import asyncio
 import json
 from typing import AsyncGenerator, List, Optional
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -187,27 +188,59 @@ async def chat_stream(
                     except Exception as title_err:
                         print(f"Error generando título dinámico: {title_err}")
 
-                # Ejecutar query_stream pasando la colección del área y el historial
-                for token, final_result, status in query_stream(
-                    question=request.question,
-                    top_k=request.top_k,
-                    strategy_name=request.strategy,
-                    collection_name=collection_name,
-                    chat_history=chat_history if chat_history else None
-                ):
-                    if status:
-                        event_data = json.dumps({"status": status}, ensure_ascii=False)
+                # query_stream es un generador SÍNCRONO bloqueante.
+                # Si lo llamamos directamente con `for ... in query_stream(...)` dentro de
+                # un `async def`, bloqueamos el event loop de asyncio y ningún `yield`
+                # puede salir al cliente hasta que el generador termina por completo.
+                #
+                # Solución: corremos query_stream en un ThreadPoolExecutor (hilo separado)
+                # y comunicamos cada tupla al event loop vía asyncio.Queue, lo que permite
+                # que el event loop fluya libremente y envíe cada chunk SSE de inmediato.
+                _sentinel = object()  # marcador especial para indicar fin del generador
+                loop = asyncio.get_event_loop()
+                queue: asyncio.Queue = asyncio.Queue()
+
+                def _run_query_in_thread():
+                    """Corre query_stream en un hilo y mete cada item en la queue."""
+                    try:
+                        for item in query_stream(
+                            question=request.question,
+                            top_k=request.top_k,
+                            strategy_name=request.strategy,
+                            collection_name=collection_name,
+                            chat_history=chat_history if chat_history else None
+                        ):
+                            loop.call_soon_threadsafe(queue.put_nowait, item)
+                    except Exception as exc:
+                        loop.call_soon_threadsafe(queue.put_nowait, exc)
+                    finally:
+                        loop.call_soon_threadsafe(queue.put_nowait, _sentinel)
+
+                # Lanzar el generador síncrono en un hilo de fondo
+                asyncio.get_event_loop().run_in_executor(None, _run_query_in_thread)
+
+                # Consumir la queue de forma async — el event loop puede ceder entre items
+                while True:
+                    item = await queue.get()
+                    if item is _sentinel:
+                        break
+                    if isinstance(item, Exception):
+                        raise item
+                    token, final_result, item_status = item
+
+                    if item_status:
+                        event_data = json.dumps({"status": item_status}, ensure_ascii=False)
                         yield f"data: {event_data}\n\n"
 
                     if token:
                         final_answer += token
                         event_data = json.dumps({"token": token}, ensure_ascii=False)
                         yield f"data: {event_data}\n\n"
-                    
+
                     if final_result is not None:
                         sources = final_result.sources
                         context_chunks = final_result.context_chunks
-                        
+
                         db_session.refresh(conv_db)
                         done_data = json.dumps(
                             {
