@@ -4,14 +4,23 @@ Configuración de la base de datos relacional (SQLite) para My Brain LM.
 Configura el motor de SQLModel, la creación de tablas y la provisión de sesiones.
 """
 
+import os
 from pathlib import Path
 from typing import Generator
 from sqlmodel import create_engine, SQLModel, Session
 
 # Definir la ruta de la base de datos en el directorio backend
 BACKEND_DIR = Path(__file__).resolve().parent.parent
-DB_FILE = BACKEND_DIR / "mybrain_v3.db"
-DATABASE_URL = f"sqlite:///{DB_FILE}"
+
+# Permite configurar la URL de la base de datos por variable de entorno
+DATABASE_URL = os.getenv("DATABASE_URL")
+if not DATABASE_URL:
+    db_file_env = os.getenv("SQLITE_DB_PATH")
+    if db_file_env:
+        DATABASE_URL = f"sqlite:///{db_file_env}"
+    else:
+        DB_FILE = BACKEND_DIR / "mybrain_v3.db"
+        DATABASE_URL = f"sqlite:///{DB_FILE}"
 
 # Configurar el motor de la base de datos (con check_same_thread=False para FastAPI async)
 engine = create_engine(

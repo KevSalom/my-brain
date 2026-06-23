@@ -117,7 +117,10 @@ class Settings:
     @property
     def chroma_persist_path(self) -> Path:
         """Ruta absoluta al directorio de persistencia de ChromaDB."""
-        return (Path(__file__).resolve().parent / self.chroma_persist_dir).resolve()
+        path = Path(self.chroma_persist_dir)
+        if path.is_absolute():
+            return path
+        return (Path(__file__).resolve().parent / path).resolve()
 
     @property
     def documents_path(self) -> Path:

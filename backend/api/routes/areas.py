@@ -25,7 +25,11 @@ from retriever import bm25_cache_manager
 router = APIRouter(prefix="/api/areas", tags=["Áreas"])
 
 # Directorio base para almacenamiento físico
-STORAGE_BASE_DIR = Path(__file__).resolve().parent.parent.parent.parent / "storage"
+_storage_dir_env = os.getenv("STORAGE_DIR")
+if _storage_dir_env:
+    STORAGE_BASE_DIR = Path(_storage_dir_env)
+else:
+    STORAGE_BASE_DIR = Path(__file__).resolve().parent.parent.parent.parent / "storage"
 
 
 def get_area_storage_dir(area_id: str) -> Path:

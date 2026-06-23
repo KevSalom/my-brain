@@ -13,10 +13,14 @@ services:
       - API_HOST=0.0.0.0
       - API_PORT=8000
       - API_RELOAD=false
+      - DATABASE_URL=sqlite:////app/db/mybrain_v3.db
+      - STORAGE_DIR=/app/storage
     volumes:
-      - backend_chroma:/app/chroma_db
-      - backend_uploads:/app/uploads
-      - backend_documents:/app/documents
+      - ../files/chroma_db:/app/chroma_db
+      - ../files/uploads:/app/uploads
+      - ../files/documents:/app/documents
+      - ../files/storage:/app/storage
+      - ../files/db:/app/db
     restart: unless-stopped
 
   frontend:
@@ -30,8 +34,3 @@ services:
     depends_on:
       - backend
     restart: unless-stopped
-
-volumes:
-  backend_chroma:
-  backend_uploads:
-  backend_documents:
