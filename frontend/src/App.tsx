@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { 
   BrowserRouter as Router, 
   Routes, 
@@ -56,6 +56,9 @@ function MainApp() {
 
   // --- Estados de Documentos ---
   const [documents, setDocuments] = useState<DocumentResponse[]>([]);
+
+  // Evitar refetch y spinner de carga al transicionar de chat borrador (draft) a chat creado
+  const skipMessageFetchRef = useRef<string | null>(null);
 
   // =====================================================================
   // Carga de datos de la API
@@ -116,6 +119,13 @@ function MainApp() {
       setMessages([]);
       return;
     }
+    
+    // Si ya cargamos los mensajes manualmente durante la transición, saltamos este fetch
+    if (skipMessageFetchRef.current === selectedConversationId) {
+      skipMessageFetchRef.current = null;
+      return;
+    }
+
     setIsLoadingMessages(true);
     try {
       const list = await getConversationMessages(selectedConversationId);
@@ -285,8 +295,22 @@ function MainApp() {
             areaId={selectedAreaId}
             initialMessages={[]}
             onConversationCreated={async (newConvId) => {
+              // 1. Guardar que saltaremos el fetch automático al cambiar de URL
+              skipMessageFetchRef.current = newConvId;
+
+              // 2. Actualizar la barra lateral
               const convList = await getAreaConversations(selectedAreaId);
               setConversations(convList);
+
+              // 3. Precargar los mensajes del chat recién creado mientras el borrador sigue montado
+              try {
+                const list = await getConversationMessages(newConvId);
+                setMessages(list);
+              } catch (err) {
+                console.error("Error pre-loading messages for new conversation:", err);
+              }
+
+              // 4. Cambiar la URL. Como ya tenemos los mensajes cargados, la transición será fluida y sin spinner.
               navigate(`/areas/${selectedAreaId}/chats/${newConvId}`, { replace: true });
             }}
             onConversationTitleUpdated={handleConversationTitleUpdated}
