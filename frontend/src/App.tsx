@@ -273,48 +273,38 @@ function MainApp() {
 
       {/* Main Container */}
       <main className="flex-1 h-full flex flex-col min-w-0 bg-brand-bg relative">
-        {selectedConversationId ? (
+        {selectedAreaId ? (
           isLoadingMessages ? (
             <div className="flex-1 flex flex-col items-center justify-center text-zinc-500">
               <div className="h-6 w-6 rounded-full border-2 border-brand-primary border-t-transparent animate-spin mb-2" />
               <p className="text-xs">Loading message history...</p>
             </div>
           ) : (
-            // El key en el ChatContainer fuerza a remontar y crear una runtime limpia
             <ChatContainer 
-              key={selectedConversationId} 
               chatId={selectedConversationId} 
-              initialMessages={initialMessages} 
+              areaId={selectedAreaId}
+              initialMessages={selectedConversationId ? initialMessages : []} 
+              onConversationCreated={async (newConvId) => {
+                // 1. Guardar que saltaremos el fetch automático al cambiar de URL
+                skipMessageFetchRef.current = newConvId;
+
+                // 2. Inicializar el estado de mensajes como vacío para este nuevo chat
+                setMessages([]);
+
+                // 3. Cambiar la URL de inmediato para evitar bloqueos de red
+                navigate(`/areas/${selectedAreaId}/chats/${newConvId}`, { replace: true });
+
+                // 4. Actualizar la barra lateral en segundo plano de manera asíncrona
+                try {
+                  const convList = await getAreaConversations(selectedAreaId);
+                  setConversations(convList);
+                } catch (err) {
+                  console.error("Error updating conversations list in background:", err);
+                }
+              }}
               onConversationTitleUpdated={handleConversationTitleUpdated} 
             />
           )
-        ) : selectedAreaId ? (
-          <ChatContainer
-            key="draft-chat"
-            chatId={null}
-            areaId={selectedAreaId}
-            initialMessages={[]}
-            onConversationCreated={async (newConvId) => {
-              // 1. Guardar que saltaremos el fetch automático al cambiar de URL
-              skipMessageFetchRef.current = newConvId;
-
-              // 2. Actualizar la barra lateral
-              const convList = await getAreaConversations(selectedAreaId);
-              setConversations(convList);
-
-              // 3. Precargar los mensajes del chat recién creado mientras el borrador sigue montado
-              try {
-                const list = await getConversationMessages(newConvId);
-                setMessages(list);
-              } catch (err) {
-                console.error("Error pre-loading messages for new conversation:", err);
-              }
-
-              // 4. Cambiar la URL. Como ya tenemos los mensajes cargados, la transición será fluida y sin spinner.
-              navigate(`/areas/${selectedAreaId}/chats/${newConvId}`, { replace: true });
-            }}
-            onConversationTitleUpdated={handleConversationTitleUpdated}
-          />
         ) : (
           // Empty State / Welcome Screen
           <div className="flex-1 h-full flex flex-col items-center justify-center text-center max-w-lg mx-auto py-12 select-none animate-fade-in">

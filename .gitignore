@@ -1,3 +1,5 @@
 # Local data and generated files
 *.db
 storage/
+.agents
+.playwright-cli

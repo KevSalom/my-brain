@@ -1,4 +1,4 @@
-import React, { useMemo, useRef } from 'react';
+import React, { useMemo, useRef, useEffect } from 'react';
 import { 
   useLocalRuntime, 
   AssistantRuntimeProvider, 
@@ -25,13 +25,21 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({
   onConversationCreated,
   onConversationTitleUpdated
 }) => {
-  // Guardar refs de chatId y callbacks para evitar recrear el adapter ante cambios de props
-  const activeChatIdRef = useRef<string | null>(chatId);
+  // Guardar refs de callbacks para evitar recrear el adapter ante cambios de props
   const onConversationCreatedRef = useRef(onConversationCreated);
   onConversationCreatedRef.current = onConversationCreated;
   
   const onConversationTitleUpdatedRef = useRef(onConversationTitleUpdated);
   onConversationTitleUpdatedRef.current = onConversationTitleUpdated;
+
+  // Guardar refs de chatId y areaId para evitar recrear el adapter y por ende el runtime
+  const chatIdRef = useRef(chatId);
+  chatIdRef.current = chatId;
+
+  const areaIdRef = useRef(areaId);
+  areaIdRef.current = areaId;
+
+  const transitioningChatIdRef = useRef<string | null>(null);
 
   // Configurar el modelAdapter específicamente atado a este chatId o el draft actual
   const modelAdapter = useMemo<ChatModelAdapter>(() => ({
@@ -42,21 +50,28 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({
         .map((c) => (c.type === 'text' ? c.text : ''))
         .join('\n');
 
-      let activeId = activeChatIdRef.current;
-      
-      // Si es una conversación draft (lazy), la creamos ahora en el backend antes de la consulta
-      if (!activeId) {
-        if (!areaId) {
+      let activeId: string;
+      const currentChatId = chatIdRef.current;
+      const currentAreaId = areaIdRef.current;
+
+      // Si es una conversación borrador (draft), la creamos e iniciamos la transición
+      if (!currentChatId) {
+        if (!currentAreaId) {
           throw new Error('Area ID is required to create a conversation');
         }
         try {
-          const newConv = await createConversation(areaId);
+          const newConv = await createConversation(currentAreaId);
           activeId = newConv.id;
-          activeChatIdRef.current = activeId;
+          transitioningChatIdRef.current = newConv.id;
+          if (onConversationCreatedRef.current) {
+            onConversationCreatedRef.current(newConv.id);
+          }
         } catch (err: any) {
           console.error("Error creating conversation lazy:", err);
           throw new Error(err.message || 'Error creating conversation');
         }
+      } else {
+        activeId = currentChatId;
       }
 
       const response = await fetch(`${API_BASE_URL}/api/chat/conversations/${activeId}/stream`, {
@@ -134,20 +149,35 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({
             }
           }
         }
-        
-        // Al terminar con éxito la transmisión del primer mensaje, notificamos la creación de la conversación
-        // para que el padre actualice la URL y el sidebar sin interrumpir el flujo visual.
-        if (chatId === null && activeId && onConversationCreatedRef.current) {
-          onConversationCreatedRef.current(activeId);
-        }
       } finally {
         reader.releaseLock();
       }
     },
-  }), [areaId, chatId]);
+  }), []);
 
-  // useLocalRuntime se ejecutará de cero porque el componente se remonta cuando cambia el key (chatId)
   const runtime = useLocalRuntime(modelAdapter, { initialMessages });
+
+  const prevChatIdRef = useRef<string | null>(chatId);
+
+  // Sincronizar initialMessages cuando cambian (ej. al cambiar de chat o al reiniciar el borrador)
+  useEffect(() => {
+    const prevChatId = prevChatIdRef.current;
+    prevChatIdRef.current = chatId;
+
+    // Solo nos interesa resetear si el chatId cambió
+    if (prevChatId !== chatId) {
+      // Si el cambio de chatId es la transición esperada del borrador al chat recién creado,
+      // evitamos el reset para que no se interrumpa el stream en progreso
+      if (prevChatId === null && chatId === transitioningChatIdRef.current) {
+        // Limpiar el ref de transición ya que se ha completado la navegación
+        transitioningChatIdRef.current = null;
+        return;
+      }
+
+      // En cualquier otro caso de cambio de chatId, reseteamos el thread con los nuevos mensajes
+      runtime.thread.reset(initialMessages);
+    }
+  }, [chatId, initialMessages, runtime]);
 
   return (
     <AssistantRuntimeProvider runtime={runtime}>
