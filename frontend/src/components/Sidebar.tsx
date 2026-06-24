@@ -14,7 +14,8 @@ import {
   Link,
   Loader2
 } from 'lucide-react';
-import { ingestUrlToArea } from '../api';
+import { ingestUrlToArea, ingestTextToArea } from '../api';
+import { convertHtmlToMarkdown } from '../utils/htmlToMarkdown';
 
 interface SidebarProps {
   // Areas
@@ -75,6 +76,62 @@ export const Sidebar: React.FC<SidebarProps> = ({
     type: null,
     message: '',
   });
+
+  const [isPasteModalOpen, setIsPasteModalOpen] = useState(false);
+  const [pasteTitle, setPasteTitle] = useState('');
+  const [pasteContent, setPasteContent] = useState('');
+  const [pasteLoading, setPasteLoading] = useState(false);
+  const [pasteStatus, setPasteStatus] = useState<{ type: 'success' | 'error' | null; message: string }>({
+    type: null,
+    message: '',
+  });
+
+  const handlePasteIngest = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const title = pasteTitle.trim();
+    const content = pasteContent.trim();
+    if (!title || !content) return;
+    if (!selectedAreaId) {
+      setPasteStatus({ type: 'error', message: 'Select or create an Area first.' });
+      return;
+    }
+
+    setPasteLoading(true);
+    setPasteStatus({ type: null, message: '' });
+
+    try {
+      const res = await ingestTextToArea(selectedAreaId, title, content);
+      setPasteStatus({
+        type: 'success',
+        message: `Ingested! Saved as: ${res.filename} (${res.chunks} chunks created)`,
+      });
+      setPasteTitle('');
+      setPasteContent('');
+      if (onUploadSuccess) {
+        onUploadSuccess();
+      }
+      setTimeout(() => {
+        setIsPasteModalOpen(false);
+        setPasteStatus({ type: null, message: '' });
+      }, 1500);
+    } catch (err: any) {
+      setPasteStatus({
+        type: 'error',
+        message: err.message || 'Error ingesting text.',
+      });
+    } finally {
+      setPasteLoading(false);
+    }
+  };
+
+  const handleTextareaPaste = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
+    const html = e.clipboardData.getData('text/html');
+    if (html) {
+      e.preventDefault();
+      const markdown = convertHtmlToMarkdown(html);
+      setPasteContent(markdown);
+    }
+  };
 
   const handleIngestUrl = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -331,9 +388,20 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
               {/* Ingest Zone */}
               <div className="flex flex-col gap-2">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">
-                  Ingest Document
-                </span>
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">
+                    Ingest Document
+                  </span>
+                  <button
+                    onClick={() => {
+                      setPasteStatus({ type: null, message: '' });
+                      setIsPasteModalOpen(true);
+                    }}
+                    className="flex items-center gap-1 text-[10px] text-brand-primary hover:text-brand-primary-hover font-semibold transition-colors cursor-pointer"
+                  >
+                    <Edit3 className="h-3 w-3" /> Paste Text
+                  </button>
+                </div>
                 <UploadZone areaId={selectedAreaId} onUploadSuccess={onUploadSuccess} />
               </div>
 
@@ -434,6 +502,96 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </div>
         )}
       </aside>
+
+      {isPasteModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="w-full max-w-xl bg-zinc-950/95 border border-zinc-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh] animate-in fade-in zoom-in-95 duration-205">
+            <div className="p-4 border-b border-zinc-900 flex items-center justify-between bg-zinc-950/40">
+              <h3 className="text-sm font-bold text-zinc-200 flex items-center gap-2">
+                <Edit3 className="h-4 w-4 text-brand-primary" />
+                Paste Document Text (Markdown Auto-format)
+              </h3>
+              <button
+                onClick={() => setIsPasteModalOpen(false)}
+                className="text-zinc-500 hover:text-zinc-300 text-xs transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+            </div>
+            
+            <form onSubmit={handlePasteIngest} className="flex-1 overflow-y-auto p-4 flex flex-col gap-4">
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">
+                  Document Title
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. OpenAI Lied About Solving Math"
+                  value={pasteTitle}
+                  onChange={(e) => setPasteTitle(e.target.value)}
+                  required
+                  className="w-full bg-zinc-900/40 border border-zinc-800 text-xs rounded-xl px-3 py-2 text-zinc-200 placeholder-zinc-600 focus:outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary/20 transition-all"
+                />
+              </div>
+
+              <div className="flex-1 flex flex-col gap-1.5 min-h-[250px]">
+                <div className="flex items-center justify-between">
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">
+                    Content
+                  </label>
+                  <span className="text-[9px] text-zinc-500 italic">
+                    Paste rich text from Medium/Substack for auto-markdown conversion
+                  </span>
+                </div>
+                <textarea
+                  placeholder="Paste your copied text here..."
+                  value={pasteContent}
+                  onChange={(e) => setPasteContent(e.target.value)}
+                  onPaste={handleTextareaPaste}
+                  required
+                  className="flex-1 w-full bg-zinc-900/40 border border-zinc-800 text-xs rounded-xl px-3 py-2 text-zinc-200 placeholder-zinc-650 focus:outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary/20 transition-all font-mono resize-none h-60"
+                />
+              </div>
+
+              {pasteStatus.type && (
+                <div
+                  className={`flex items-start gap-2 p-3 rounded-xl border text-xs leading-relaxed ${
+                    pasteStatus.type === 'success'
+                      ? 'bg-emerald-950/20 border-emerald-900/50 text-emerald-300'
+                      : 'bg-rose-950/20 border-rose-900/50 text-rose-300'
+                  }`}
+                >
+                  <span className="break-all">{pasteStatus.message}</span>
+                </div>
+              )}
+
+              <div className="flex justify-end gap-3 mt-2">
+                <button
+                  type="button"
+                  onClick={() => setIsPasteModalOpen(false)}
+                  className="px-4 py-2 rounded-xl border border-zinc-850 text-xs text-zinc-400 hover:text-zinc-250 hover:bg-zinc-900 transition-all cursor-pointer"
+                >
+                  Close
+                </button>
+                <button
+                  type="submit"
+                  disabled={pasteLoading || !pasteTitle.trim() || !pasteContent.trim()}
+                  className="px-4 py-2 rounded-xl bg-brand-primary text-xs font-semibold text-white hover:bg-brand-primary-hover disabled:opacity-40 disabled:hover:bg-brand-primary flex items-center gap-1.5 transition-all cursor-pointer"
+                >
+                  {pasteLoading ? (
+                    <>
+                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      Ingesting...
+                    </>
+                  ) : (
+                    'Ingest Text'
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

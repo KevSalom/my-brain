@@ -18,7 +18,7 @@ import chromadb
 from config import settings
 from api.database import get_session
 from api.models import Area, Document, Conversation
-from api.schemas import AreaCreate, AreaResponse, DocumentResponse, IngestFileResponse, URLIngestPayload
+from api.schemas import AreaCreate, AreaResponse, DocumentResponse, IngestFileResponse, URLIngestPayload, TextInputPayload
 from ingest import ingest_file, SUPPORTED_EXTENSIONS
 from retriever import bm25_cache_manager
 
@@ -246,23 +246,44 @@ async def ingest_url_to_area(
         )
 
     # 2. Consultar Jina Reader API
-    jina_reader_url = f"https://r.jina.ai/{url}"
-    headers = {"Accept": "application/json"}
-    
-    # Agregar API Key de Jina si está configurada
-    jina_key = getattr(settings, "jina_api_key", None) or os.getenv("JINA_API_KEY", "")
-    if jina_key:
-        headers["Authorization"] = f"Bearer {jina_key}"
+    # Determinar si es un link de Medium para intentar el bypass con Freedium
+    is_medium = False
+    medium_domains = ["medium.com", "towardsdatascience.com", "uxdesign.cc", "betterprogramming.pub", "betterhumans.coach", "writingcoop.com", "javascriptinplainenglish.com", "python.plainenglish.io"]
+    for domain in medium_domains:
+        if domain in url:
+            is_medium = True
+            break
 
-    try:
-        response = requests.get(jina_reader_url, headers=headers, timeout=30)
-        response.raise_for_status()
-        resp_json = response.json()
-    except Exception as e:
-        raise HTTPException(
-            status_code=502,
-            detail=f"Error al conectar con el servicio Jina Reader: {str(e)}"
-        )
+    resp_json = None
+    if is_medium:
+        try:
+            freedium_url = f"https://freedium.cfd/{url}"
+            jina_reader_url = f"https://r.jina.ai/{freedium_url}"
+            headers = {"Accept": "application/json"}
+            jina_key = getattr(settings, "jina_api_key", None) or os.getenv("JINA_API_KEY", "")
+            if jina_key:
+                headers["Authorization"] = f"Bearer {jina_key}"
+            response = requests.get(jina_reader_url, headers=headers, timeout=30)
+            response.raise_for_status()
+            resp_json = response.json()
+        except Exception as e:
+            print(f"Error al usar Freedium bypass para Medium, reintentando directo: {e}")
+
+    if not resp_json:
+        jina_reader_url = f"https://r.jina.ai/{url}"
+        headers = {"Accept": "application/json"}
+        jina_key = getattr(settings, "jina_api_key", None) or os.getenv("JINA_API_KEY", "")
+        if jina_key:
+            headers["Authorization"] = f"Bearer {jina_key}"
+        try:
+            response = requests.get(jina_reader_url, headers=headers, timeout=30)
+            response.raise_for_status()
+            resp_json = response.json()
+        except Exception as e:
+            raise HTTPException(
+                status_code=502,
+                detail=f"Error al conectar con el servicio Jina Reader: {str(e)}"
+            )
 
     # Validar formato de respuesta
     if not resp_json or "data" not in resp_json:
@@ -352,6 +373,92 @@ async def ingest_url_to_area(
         raise HTTPException(
             status_code=500,
             detail=f"Error en la ingesta del enlace: {str(e)}"
+        )
+
+
+@router.post("/{area_id}/ingest/text", response_model=IngestFileResponse)
+async def ingest_text_to_area(
+    area_id: str,
+    payload: TextInputPayload,
+    session: Session = Depends(get_session)
+):
+    """Guarda un texto copiado como archivo MD e ingesta en ChromaDB."""
+    # 1. Verificar que el área existe
+    area = session.get(Area, area_id)
+    if not area:
+        raise HTTPException(status_code=404, detail="Área no encontrada.")
+
+    title = payload.title.strip()
+    content = payload.content
+
+    if not title:
+        raise HTTPException(status_code=400, detail="El título es requerido.")
+    if not content.strip():
+        raise HTTPException(status_code=400, detail="El contenido no puede estar vacío.")
+
+    # 2. Sanitizar título para el nombre de archivo
+    sanitized_title = re.sub(r'[\\/*?:"<>|]', "_", title)
+    if len(sanitized_title) > 100:
+        sanitized_title = sanitized_title[:100].strip()
+    
+    filename = f"{sanitized_title}.md"
+
+    # 3. Guardar físicamente el contenido Markdown en la carpeta de documentos del área
+    storage_dir = get_area_storage_dir(area_id)
+    dest_path = storage_dir / filename
+
+    content_bytes = content.encode("utf-8")
+
+    # Validar tamaño (máximo 10MB)
+    max_size = 10 * 1024 * 1024
+    if len(content_bytes) > max_size:
+        raise HTTPException(
+            status_code=413,
+            detail=f"El contenido excede el límite de 10MB ({len(content_bytes) / 1024 / 1024:.1f}MB).",
+        )
+
+    try:
+        with open(dest_path, "wb") as f:
+            f.write(content_bytes)
+
+        # Ingestar en ChromaDB bajo la colección del área
+        collection_name = f"mybrain_area_{area_id}"
+        chunks_count = ingest_file(str(dest_path), collection_name=collection_name)
+
+        # Invalidad la caché del índice BM25
+        bm25_cache_manager.invalidate(collection_name)
+
+        # Guardar registro en la SQLite
+        stmt = select(Document).where(Document.filename == filename, Document.area_id == area_id)
+        existing_doc = session.exec(stmt).first()
+        
+        if existing_doc:
+            existing_doc.file_size = len(content_bytes)
+            existing_doc.file_path = str(dest_path)
+            session.add(existing_doc)
+        else:
+            db_doc = Document(
+                filename=filename,
+                file_path=str(dest_path),
+                file_size=len(content_bytes),
+                area_id=area_id
+            )
+            session.add(db_doc)
+            
+        session.commit()
+
+        return IngestFileResponse(
+            filename=filename,
+            chunks=chunks_count,
+            message=f"Texto '{title}' guardado como '{filename}' e ingestado exitosamente ({chunks_count} chunks)."
+        )
+
+    except Exception as e:
+        if dest_path.exists():
+            os.remove(dest_path)
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error en la ingesta del texto: {str(e)}"
         )
 
 

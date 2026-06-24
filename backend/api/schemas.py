@@ -166,3 +166,11 @@ class URLIngestPayload(BaseModel):
     """Modelo para recibir una petición de ingesta de URL."""
     url: str = Field(..., description="La URL de la página web a descargar e ingestar")
 
+
+class TextInputPayload(BaseModel):
+    """Modelo para recibir una petición de ingesta de texto copiado."""
+    title: str = Field(..., description="El título para el documento")
+    content: str = Field(..., description="El contenido del documento a ingestar")
+    source_url: Optional[str] = Field(None, description="La URL de origen opcional")
+
+

@@ -108,6 +108,19 @@ export async function ingestUrlToArea(areaId: string, url: string): Promise<Inge
   return response.json();
 }
 
+export async function ingestTextToArea(areaId: string, title: string, content: string): Promise<IngestFileResponse> {
+  const response = await fetch(`${API_BASE_URL}/api/areas/${areaId}/ingest/text`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ title, content }),
+  });
+  if (!response.ok) {
+    const errData = await response.json().catch(() => ({}));
+    throw new Error(errData.detail || `Error al ingestar el texto: ${response.statusText}`);
+  }
+  return response.json();
+}
+
 export async function deleteAreaDocument(areaId: string, docId: number): Promise<void> {
   const response = await fetch(`${API_BASE_URL}/api/areas/${areaId}/documents/${docId}`, {
     method: 'DELETE',
