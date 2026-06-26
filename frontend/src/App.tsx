@@ -298,7 +298,7 @@ function MainApp() {
       {isSidebarOpen && (
         <div 
           onClick={() => setIsSidebarOpen(false)}
-          className="fixed inset-0 z-35 bg-black/60 backdrop-blur-xs md:hidden"
+          className="fixed inset-0 z-35 bg-black/80 md:hidden"
         />
       )}
 
@@ -425,7 +425,7 @@ function MainApp() {
 
       {/* Modal de Estado del Cerebro */}
       {isViewingBrainStatus && (
-        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-md flex items-center justify-center p-4 animate-fade-in animate-duration-300">
+        <div className="fixed inset-0 z-50 bg-black/85 flex items-center justify-center p-4 animate-fade-in animate-duration-300">
           <div className="relative bg-zinc-900/90 border border-brand-border rounded-2xl w-full max-w-lg p-6 shadow-2xl flex flex-col max-h-[90vh] overflow-hidden">
             {/* Botón de cerrar */}
             <button

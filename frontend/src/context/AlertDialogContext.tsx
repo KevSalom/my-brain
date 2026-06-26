@@ -60,7 +60,7 @@ export const AlertDialogProvider: React.FC<{ children: React.ReactNode }> = ({ c
     <AlertDialogContext.Provider value={{ alert, confirm }}>
       {children}
       {dialog && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-fade-in select-none">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/75 p-4 animate-fade-in select-none">
           <div className="w-full max-w-sm rounded-2xl bg-zinc-900 border border-brand-border p-5 shadow-2xl animate-fade-in">
             {/* Header with Title and Icon */}
             <div className="flex items-start gap-3">

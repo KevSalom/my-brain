@@ -35,7 +35,7 @@ export const CreateAreaModal: React.FC<CreateAreaModalProps> = React.memo(({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 bg-black/85 flex items-center justify-center p-4">
       <div className="bg-zinc-900 border border-brand-border rounded-2xl w-full max-w-sm p-5 shadow-2xl animate-fade-in">
         <h3 className="text-sm font-bold text-zinc-150 mb-4 flex items-center gap-2">
           <Plus className="h-4 w-4 text-brand-primary" /> Create Knowledge Area

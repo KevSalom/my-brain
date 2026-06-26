@@ -128,10 +128,10 @@ export const UploadZone: React.FC<UploadZoneProps> = ({ areaId, onUploadSuccess 
         ) : (
           <div className="flex flex-col items-center gap-2 text-center group">
             <Upload className="size-6 text-zinc-400 group-hover:text-brand-primary transition-colors" />
-            <p className="text-sm text-zinc-200 font-medium">
+            <p className="text-xs text-zinc-200 font-bold">
               Drag a file or click to upload
             </p>
-            <p className="text-xs text-zinc-500">
+            <p className="text-[11px] text-zinc-500">
               Supports PDF, TXT and MD (max 10MB)
             </p>
           </div>

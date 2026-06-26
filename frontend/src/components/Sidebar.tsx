@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { UploadZone } from './UploadZone';
 import type { AreaResponse, DocumentResponse, ConversationResponse } from '../types';
@@ -278,7 +279,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             {/* Area Header */}
             <div className="p-4 border-b border-zinc-900 flex items-center justify-between bg-zinc-950/10 gap-3">
               <div className="min-w-0">
-                <h2 className="font-bold text-sm text-zinc-200 truncate flex items-center gap-1.5">
+                <h2 className="font-bold text-xs text-zinc-200 truncate flex items-center gap-1.5">
                   <span 
                     className="w-2.5 h-2.5 rounded-full shrink-0 shadow-sm"
                     style={{ backgroundColor: activeArea.color || '#f59e0b' }}
@@ -286,7 +287,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   {activeArea.name}
                 </h2>
                 {activeArea.description && (
-                  <p className="text-xs text-zinc-500 truncate mt-0.5">
+                  <p className="text-[11px] text-zinc-500 truncate mt-0.5">
                     {activeArea.description}
                   </p>
                 )}
@@ -310,12 +311,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
               {/* Chat conversations */}
               <div className="flex flex-col gap-2.5">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold uppercase tracking-wider text-zinc-500">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">
                     Chat Threads
                   </span>
                   <button
                     onClick={onCreateConversation}
-                    className="flex items-center gap-1 text-xs text-brand-primary hover:text-brand-primary-hover font-semibold transition-colors cursor-pointer"
+                    className="flex items-center gap-1 text-[10px] text-brand-primary hover:text-brand-primary-hover font-bold transition-colors cursor-pointer"
                   >
                     <Plus className="h-3 w-3" /> New Chat
                   </button>
@@ -415,7 +416,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               {/* Ingest Zone */}
               <div className="flex flex-col gap-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold uppercase tracking-wider text-zinc-500">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">
                     Ingest Document
                   </span>
                   <button
@@ -423,7 +424,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       setPasteStatus({ type: null, message: '' });
                       setIsPasteModalOpen(true);
                     }}
-                    className="flex items-center gap-1 text-xs text-brand-primary hover:text-brand-primary-hover font-semibold transition-colors cursor-pointer"
+                    className="flex items-center gap-1 text-[10px] text-brand-primary hover:text-brand-primary-hover font-bold transition-colors cursor-pointer"
                   >
                     <Edit3 className="h-3 w-3" /> Paste Text
                   </button>
@@ -433,7 +434,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
               {/* Ingest Web Link */}
               <div className="flex flex-col gap-2 border-t border-zinc-900/60 pt-4">
-                <span className="text-xs font-bold uppercase tracking-wider text-zinc-500">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">
                   Ingest Web Link
                 </span>
                 <form onSubmit={handleIngestUrl} className="flex flex-col gap-2">
@@ -477,7 +478,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
               {/* Documents List */}
               <div className="flex flex-col gap-2.5">
-                <span className="text-xs font-bold uppercase tracking-wider text-zinc-500">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">
                   Area Documents ({documents.length})
                 </span>
                 {documents.length > 0 ? (
@@ -530,8 +531,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
         )}
       </aside>
 
-      {isPasteModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+      {isPasteModalOpen && createPortal(
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-4">
           <div className="w-full max-w-xl bg-zinc-950/95 border border-zinc-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh] animate-in fade-in zoom-in-95 duration-205">
             <div className="p-4 border-b border-zinc-900 flex items-center justify-between bg-zinc-950/40">
               <h3 className="text-sm font-bold text-zinc-200 flex items-center gap-2">
@@ -617,7 +618,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
               </div>
             </form>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
