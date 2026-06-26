@@ -137,7 +137,7 @@ export const StatusPanel: React.FC<StatusPanelProps> = ({ status, loading, error
           <span>Load Local Directory (/documents)</span>
         </button>
         {ingestDirStatus && (
-          <p className={`text-[10px] leading-relaxed p-2 rounded-lg border ${
+          <p className={`text-xs leading-relaxed p-2 rounded-lg border ${
             ingestDirStatus.startsWith('Error')
               ? 'bg-rose-950/25 border-rose-900/50 text-rose-400'
               : 'bg-emerald-950/25 border-emerald-900/50 text-emerald-400'

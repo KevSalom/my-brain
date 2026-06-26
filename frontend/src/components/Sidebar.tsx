@@ -12,13 +12,18 @@ import {
   Info,
   Edit3,
   Link,
-  Loader2
+  Loader2,
+  Sun,
+  Moon
 } from 'lucide-react';
 import { ingestUrlToArea, ingestTextToArea } from '../api';
 import { convertHtmlToMarkdown } from '../utils/htmlToMarkdown';
+import { useAlert } from '../context/AlertDialogContext';
 
 interface SidebarProps {
   isOpen: boolean;
+  theme: 'dark' | 'light';
+  onThemeToggle: () => void;
   // Areas
   areas: AreaResponse[];
   selectedAreaId: string | null;
@@ -43,6 +48,8 @@ interface SidebarProps {
 
 export const Sidebar: React.FC<SidebarProps> = ({
   isOpen,
+  theme,
+  onThemeToggle,
   areas,
   selectedAreaId,
   onCreateAreaClick,
@@ -58,6 +65,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onBrainStatusClick
 }) => {
   const navigate = useNavigate();
+  const { confirm: showConfirm } = useAlert();
   const [hoveredAreaId, setHoveredAreaId] = useState<string | null>(null);
   const activeArea = areas.find(a => a.id === selectedAreaId);
 
@@ -239,14 +247,28 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </button>
         </div>
         
-        {/* Brain status trigger at bottom left */}
-        <button
-          onClick={onBrainStatusClick}
-          title="Brain Status (Stats)"
-          className="w-11 h-11 rounded-full bg-zinc-900/40 border border-zinc-850 flex items-center justify-center text-zinc-500 hover:text-brand-primary hover:bg-brand-primary/10 hover:border-brand-primary/25 hover:rounded-2xl transition-all duration-300 cursor-pointer mt-auto"
-        >
-          <BrainCircuit className="h-4 w-4 text-zinc-400" />
-        </button>
+        {/* Theme Toggle & Stats at bottom */}
+        <div className="mt-auto flex flex-col items-center gap-3">
+          <button
+            onClick={onThemeToggle}
+            title={theme === 'dark' ? "Switch to Light Mode" : "Switch to Dark Mode"}
+            className="w-11 h-11 rounded-full bg-zinc-900/40 border border-brand-border flex items-center justify-center text-zinc-500 hover:text-brand-primary hover:bg-brand-primary/10 hover:border-brand-primary/25 hover:rounded-2xl transition-all duration-300 cursor-pointer"
+          >
+            {theme === 'dark' ? (
+              <Sun className="h-4 w-4 text-zinc-400" />
+            ) : (
+              <Moon className="h-4 w-4 text-zinc-400" />
+            )}
+          </button>
+
+          <button
+            onClick={onBrainStatusClick}
+            title="Brain Status (Stats)"
+            className="w-11 h-11 rounded-full bg-zinc-900/40 border border-brand-border flex items-center justify-center text-zinc-500 hover:text-brand-primary hover:bg-brand-primary/10 hover:border-brand-primary/25 hover:rounded-2xl transition-all duration-300 cursor-pointer"
+          >
+            <BrainCircuit className="h-4 w-4 text-zinc-400" />
+          </button>
+        </div>
       </aside>
 
       {/* 2. Sub-Sidebar: Navigation & Management for the active Area */}
@@ -264,14 +286,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   {activeArea.name}
                 </h2>
                 {activeArea.description && (
-                  <p className="text-[10px] text-zinc-500 truncate mt-0.5">
+                  <p className="text-xs text-zinc-500 truncate mt-0.5">
                     {activeArea.description}
                   </p>
                 )}
               </div>
               <button
-                onClick={() => {
-                  if (confirm(`Are you sure you want to delete the area "${activeArea.name}"? This will permanently delete its documents, chats, and history.`)) {
+                onClick={async () => {
+                  const confirmed = await showConfirm(`Are you sure you want to delete the area "${activeArea.name}"? This will permanently delete its documents, chats, and history.`, "Delete Knowledge Area");
+                  if (confirmed) {
                     onDeleteArea(activeArea.id);
                   }
                 }}
@@ -287,12 +310,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
               {/* Chat conversations */}
               <div className="flex flex-col gap-2.5">
                 <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">
+                  <span className="text-xs font-bold uppercase tracking-wider text-zinc-500">
                     Chat Threads
                   </span>
                   <button
                     onClick={onCreateConversation}
-                    className="flex items-center gap-1 text-[10px] text-brand-primary hover:text-brand-primary-hover font-semibold transition-colors cursor-pointer"
+                    className="flex items-center gap-1 text-xs text-brand-primary hover:text-brand-primary-hover font-semibold transition-colors cursor-pointer"
                   >
                     <Plus className="h-3 w-3" /> New Chat
                   </button>
@@ -365,9 +388,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
                               <Edit3 className="h-3 w-3" />
                             </button>
                             <button
-                              onClick={(e) => {
+                              onClick={async (e) => {
                                 e.stopPropagation();
-                                if (confirm(`Delete conversation "${conv.title}"?`)) {
+                                const confirmed = await showConfirm(`Delete conversation "${conv.title}"?`, "Delete Chat Thread");
+                                if (confirmed) {
                                   onDeleteConversation(conv.id);
                                 }
                               }}
@@ -382,7 +406,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     })}
                   </div>
                 ) : (
-                  <p className="text-[11px] text-zinc-650 italic py-2 pl-2">
+                  <p className="text-xs text-zinc-650 italic py-2 pl-2">
                     No chats started.
                   </p>
                 )}
@@ -391,7 +415,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               {/* Ingest Zone */}
               <div className="flex flex-col gap-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">
+                  <span className="text-xs font-bold uppercase tracking-wider text-zinc-500">
                     Ingest Document
                   </span>
                   <button
@@ -399,7 +423,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       setPasteStatus({ type: null, message: '' });
                       setIsPasteModalOpen(true);
                     }}
-                    className="flex items-center gap-1 text-[10px] text-brand-primary hover:text-brand-primary-hover font-semibold transition-colors cursor-pointer"
+                    className="flex items-center gap-1 text-xs text-brand-primary hover:text-brand-primary-hover font-semibold transition-colors cursor-pointer"
                   >
                     <Edit3 className="h-3 w-3" /> Paste Text
                   </button>
@@ -409,7 +433,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
               {/* Ingest Web Link */}
               <div className="flex flex-col gap-2 border-t border-zinc-900/60 pt-4">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">
+                <span className="text-xs font-bold uppercase tracking-wider text-zinc-500">
                   Ingest Web Link
                 </span>
                 <form onSubmit={handleIngestUrl} className="flex flex-col gap-2">
@@ -439,7 +463,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   </div>
                   {linkStatus.type && (
                     <div
-                      className={`flex items-start gap-2 p-2 rounded-lg border text-[10px] leading-relaxed ${
+                      className={`flex items-start gap-2 p-2 rounded-lg border text-xs leading-relaxed ${
                         linkStatus.type === 'success'
                           ? 'bg-emerald-950/20 border-emerald-900/50 text-emerald-300'
                           : 'bg-rose-950/20 border-rose-900/50 text-rose-300'
@@ -453,26 +477,27 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
               {/* Documents List */}
               <div className="flex flex-col gap-2.5">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">
+                <span className="text-xs font-bold uppercase tracking-wider text-zinc-500">
                   Area Documents ({documents.length})
                 </span>
                 {documents.length > 0 ? (
                   <div className="flex flex-col gap-1.5">
                     {documents.map(doc => (
-                      <div
+                       <div
                         key={doc.id}
                         className="group flex items-center justify-between p-2 rounded-xl bg-zinc-950/20 border border-zinc-900/60 text-zinc-450 hover:text-zinc-300 hover:bg-zinc-950/40 hover:border-zinc-800/80 transition-colors duration-200"
                       >
                         <div className="flex items-center gap-2 min-w-0">
                           <FileText className="h-3.5 w-3.5 text-zinc-500 shrink-0" />
                           <div className="flex flex-col min-w-0">
-                            <span className="text-[11px] font-mono truncate leading-none">{doc.filename}</span>
-                            <span className="text-[9px] text-zinc-650 mt-1">{formatSize(doc.file_size)}</span>
+                            <span className="text-xs font-mono truncate leading-none">{doc.filename}</span>
+                            <span className="text-[10px] text-zinc-500 mt-1">{formatSize(doc.file_size)}</span>
                           </div>
                         </div>
                         <button
-                          onClick={() => {
-                            if (confirm(`Delete document "${doc.filename}"? This will remove its data from the database and vector store.`)) {
+                          onClick={async () => {
+                            const confirmed = await showConfirm(`Delete document "${doc.filename}"? This will remove its data from the database and vector store.`, "Delete Document");
+                            if (confirmed) {
                               onDeleteDocument(doc.id);
                             }
                           }}
@@ -486,7 +511,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 ) : (
                   <div className="flex flex-col items-center gap-1 py-4 text-center border border-dashed border-zinc-900 rounded-xl bg-zinc-950/10">
                     <FolderOpen className="h-5 w-5 text-zinc-750" />
-                    <p className="text-[10px] text-zinc-600">
+                    <p className="text-xs text-zinc-650">
                       No documents loaded.
                     </p>
                   </div>
@@ -498,7 +523,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <div className="flex-1 flex flex-col items-center justify-center p-6 text-center text-zinc-500">
             <Info className="h-7 w-7 text-zinc-700 mb-2 animate-bounce" />
             <p className="text-xs font-medium text-zinc-400">No Area Selected</p>
-            <p className="text-[10px] text-zinc-650 mt-2 leading-relaxed">
+            <p className="text-xs text-zinc-600 mt-2 leading-relaxed">
               Create or select a bubble in the left column to manage your brain.
             </p>
           </div>
@@ -523,7 +548,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             
             <form onSubmit={handlePasteIngest} className="flex-1 overflow-y-auto p-4 flex flex-col gap-4">
               <div className="flex flex-col gap-1.5">
-                <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">
+                <label className="text-xs font-bold uppercase tracking-wider text-zinc-500">
                   Document Title
                 </label>
                 <input
@@ -538,10 +563,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
               <div className="flex-1 flex flex-col gap-1.5 min-h-[250px]">
                 <div className="flex items-center justify-between">
-                  <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">
+                  <label className="text-xs font-bold uppercase tracking-wider text-zinc-500">
                     Content
                   </label>
-                  <span className="text-[9px] text-zinc-500 italic">
+                  <span className="text-xs text-zinc-500 italic">
                     Paste rich text from Medium/Substack for auto-markdown conversion
                   </span>
                 </div>

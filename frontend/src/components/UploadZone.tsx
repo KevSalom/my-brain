@@ -127,7 +127,7 @@ export const UploadZone: React.FC<UploadZoneProps> = ({ areaId, onUploadSuccess 
           </div>
         ) : (
           <div className="flex flex-col items-center gap-2 text-center group">
-            <Upload className="h-8 w-8 text-zinc-400 group-hover:text-brand-primary transition-colors" />
+            <Upload className="size-6 text-zinc-400 group-hover:text-brand-primary transition-colors" />
             <p className="text-sm text-zinc-200 font-medium">
               Drag a file or click to upload
             </p>

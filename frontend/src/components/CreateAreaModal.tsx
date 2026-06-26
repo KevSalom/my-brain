@@ -43,7 +43,7 @@ export const CreateAreaModal: React.FC<CreateAreaModalProps> = React.memo(({
         
         <div className="flex flex-col gap-4">
           <div>
-            <label className="text-[10px] text-zinc-450 font-bold uppercase tracking-wider block mb-1">
+            <label className="text-xs text-zinc-450 font-bold uppercase tracking-wider block mb-1">
               Name
             </label>
             <input
@@ -56,7 +56,7 @@ export const CreateAreaModal: React.FC<CreateAreaModalProps> = React.memo(({
           </div>
           
           <div>
-            <label className="text-[10px] text-zinc-450 font-bold uppercase tracking-wider block mb-1">
+            <label className="text-xs text-zinc-450 font-bold uppercase tracking-wider block mb-1">
               Description (Optional)
             </label>
             <textarea
@@ -69,7 +69,7 @@ export const CreateAreaModal: React.FC<CreateAreaModalProps> = React.memo(({
           </div>
           
           <div>
-            <label className="text-[10px] text-zinc-450 font-bold uppercase tracking-wider block mb-1">
+            <label className="text-xs text-zinc-450 font-bold uppercase tracking-wider block mb-1">
               Theme Color
             </label>
             <div className="flex gap-2.5 mt-1.5 justify-between">

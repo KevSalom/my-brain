@@ -7,6 +7,7 @@ import {
   useNavigate 
 } from 'react-router-dom';
 import { type ThreadMessageLike } from '@assistant-ui/react';
+import { AlertDialogProvider, useAlert } from './context/AlertDialogContext';
 import { Sidebar } from './components/Sidebar';
 import { ChatContainer } from './components/ChatContainer';
 import { StatusPanel } from './components/StatusPanel';
@@ -30,11 +31,12 @@ import type {
   ConversationResponse, 
   SourceInfo 
 } from './types';
-import { Plus, Bot, Menu, BrainCircuit } from 'lucide-react';
+import { Plus, Bot, Menu, BrainCircuit, Sun, Moon } from 'lucide-react';
 
 function MainApp() {
   const { areaId, chatId } = useParams<{ areaId?: string; chatId?: string }>();
   const navigate = useNavigate();
+  const { alert: showAlert } = useAlert();
 
   const selectedAreaId = areaId || null;
   const selectedConversationId = chatId || null;
@@ -45,6 +47,33 @@ function MainApp() {
   const [statusError, setStatusError] = useState<string | null>(null);
   const [isViewingBrainStatus, setIsViewingBrainStatus] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  // --- Tema Claro / Oscuro ---
+  const [theme, setTheme] = useState<'dark' | 'light'>(() => {
+    return (localStorage.getItem('theme') as 'dark' | 'light') || 'dark';
+  });
+
+  const toggleTheme = useCallback(() => {
+    setTheme(prev => {
+      const next = prev === 'dark' ? 'light' : 'dark';
+      localStorage.setItem('theme', next);
+      return next;
+    });
+  }, []);
+
+  // Aplicar tema en el elemento html raíz
+  useEffect(() => {
+    const root = window.document.documentElement;
+    if (theme === 'light') {
+      root.classList.remove('dark');
+      root.classList.add('light');
+      root.setAttribute('data-theme', 'light');
+    } else {
+      root.classList.remove('light');
+      root.classList.add('dark');
+      root.setAttribute('data-theme', 'dark');
+    }
+  }, [theme]);
 
   // --- Estados de Áreas ---
   const [areas, setAreas] = useState<AreaResponse[]>([]);
@@ -181,9 +210,9 @@ function MainApp() {
       await refreshAreas(false);
       navigate(`/areas/${created.id}`);
     } catch (err: any) {
-      alert(err.message || "Error creating area");
+      showAlert(err.message || "Error creating area", "Create Area Error");
     }
-  }, [refreshAreas, navigate]);
+  }, [refreshAreas, navigate, showAlert]);
 
   const handleDeleteArea = async (id: string) => {
     try {
@@ -194,7 +223,7 @@ function MainApp() {
       refreshAreas(true);
       refreshStatus();
     } catch (err: any) {
-      alert(err.message || "Error deleting area");
+      showAlert(err.message || "Error deleting area", "Delete Area Error");
     }
   };
 
@@ -215,7 +244,7 @@ function MainApp() {
         setConversations(convList);
       }
     } catch (err: any) {
-      alert(err.message || "Error deleting chat");
+      showAlert(err.message || "Error deleting chat", "Delete Chat Error");
     }
   };
 
@@ -224,7 +253,7 @@ function MainApp() {
       await updateConversationTitle(id, newTitle);
       setConversations(prev => prev.map(c => c.id === id ? { ...c, title: newTitle } : c));
     } catch (err: any) {
-      alert(err.message || "Error renaming conversation");
+      showAlert(err.message || "Error renaming conversation", "Rename Chat Error");
     }
   };
 
@@ -240,7 +269,7 @@ function MainApp() {
       setDocuments(docsList);
       refreshStatus();
     } catch (err: any) {
-      alert(err.message || "Error deleting document");
+      showAlert(err.message || "Error deleting document", "Delete Document Error");
     }
   };
 
@@ -276,6 +305,8 @@ function MainApp() {
       {/* Sidebar Split Panel (Burbujas + Listado) */}
       <Sidebar
         isOpen={isSidebarOpen}
+        theme={theme}
+        onThemeToggle={toggleTheme}
         areas={areas}
         selectedAreaId={selectedAreaId}
         onCreateAreaClick={() => setIsCreatingArea(true)}
@@ -305,13 +336,26 @@ function MainApp() {
           <span className="text-xs font-bold text-zinc-200 truncate px-2">
             {activeAreaName || 'My Brain LM'}
           </span>
-          <button
-            onClick={() => setIsViewingBrainStatus(true)}
-            className="p-2 -mr-2 rounded-lg text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/50 cursor-pointer"
-            title="Brain Status"
-          >
-            <BrainCircuit className="h-4 w-4 text-brand-primary animate-pulse" />
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={toggleTheme}
+              className="p-2 rounded-lg text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/50 cursor-pointer"
+              title={theme === 'dark' ? "Switch to Light Mode" : "Switch to Dark Mode"}
+            >
+              {theme === 'dark' ? (
+                <Sun className="h-4 w-4" />
+              ) : (
+                <Moon className="h-4 w-4" />
+              )}
+            </button>
+            <button
+              onClick={() => setIsViewingBrainStatus(true)}
+              className="p-2 -mr-2 rounded-lg text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/50 cursor-pointer"
+              title="Brain Status"
+            >
+              <BrainCircuit className="h-4 w-4 text-brand-primary animate-pulse" />
+            </button>
+          </div>
         </header>
 
         {selectedAreaId ? (
@@ -411,12 +455,14 @@ function MainApp() {
 
 export default function App() {
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<MainApp />} />
-        <Route path="/areas/:areaId" element={<MainApp />} />
-        <Route path="/areas/:areaId/chats/:chatId" element={<MainApp />} />
-      </Routes>
-    </Router>
+    <AlertDialogProvider>
+      <Router>
+        <Routes>
+          <Route path="/" element={<MainApp />} />
+          <Route path="/areas/:areaId" element={<MainApp />} />
+          <Route path="/areas/:areaId/chats/:chatId" element={<MainApp />} />
+        </Routes>
+      </Router>
+    </AlertDialogProvider>
   );
 }

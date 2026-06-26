@@ -31,7 +31,7 @@ const CodeBlockWithCopy: React.FC<{
   return (
     <div className="relative group rounded-xl my-3 border border-zinc-800 bg-[#09090b] overflow-hidden">
       {/* Header bar */}
-      <div className="flex items-center justify-between px-4 py-2 border-b border-zinc-850 bg-zinc-950/40 text-[10px] text-zinc-500 font-mono select-none">
+      <div className="flex items-center justify-between px-4 py-2 border-b border-zinc-850 bg-zinc-950/40 text-xs text-zinc-500 font-mono select-none">
         <span className="uppercase">{language}</span>
         <button
           onClick={handleCopy}
@@ -102,7 +102,7 @@ export const ChatArea: React.FC = () => {
                     <Sparkles className="h-3.5 w-3.5 text-brand-primary" />
                     Hybrid Search
                   </h4>
-                  <p className="text-[11px] text-zinc-500 mt-1">
+                  <p className="text-xs text-zinc-500 mt-1">
                     I combine semantic similarity and keywords to give you exact answers.
                   </p>
                 </div>
@@ -111,7 +111,7 @@ export const ChatArea: React.FC = () => {
                     <FileText className="h-3.5 w-3.5 text-brand-primary" />
                     Clear References
                   </h4>
-                  <p className="text-[11px] text-zinc-500 mt-1">
+                  <p className="text-xs text-zinc-500 mt-1">
                     Each response indicates the source files and relevance score from the vector store.
                   </p>
                 </div>
@@ -175,7 +175,7 @@ const UserMessage: React.FC = () => {
           <div className="rounded-2xl rounded-tr-none bg-brand-primary/10 border border-brand-primary/20 text-zinc-100 px-4 py-3 text-sm shadow-md leading-relaxed">
             <MessagePrimitive.Content />
           </div>
-          <span className="text-[10px] text-zinc-500 mt-1.5 mr-1 font-medium uppercase tracking-wider">
+          <span className="text-xs text-zinc-500 mt-1.5 mr-1 font-medium uppercase tracking-wider">
             You
           </span>
         </div>
@@ -270,12 +270,12 @@ const AssistantMessage: React.FC<AssistantMessageProps> = ({ sources, agentStatu
                             <div className="flex items-center gap-2 truncate">
                               <FileText className="h-3.5 w-3.5 text-zinc-500 shrink-0" />
                               <span className="font-mono truncate">{src.source}</span>
-                              <span className="text-[10px] text-zinc-600">
+                              <span className="text-xs text-zinc-600">
                                 (Chunk {src.chunk_index})
                               </span>
                             </div>
                             <div className="flex items-center gap-2 shrink-0">
-                              <span className={`px-1.5 py-0.5 rounded text-[10px] font-mono font-semibold ${
+                              <span className={`px-1.5 py-0.5 rounded text-xs font-mono font-semibold ${
                                 src.relevance_score > 0.8
                                   ? 'bg-emerald-950/20 border border-emerald-900/50 text-emerald-400'
                                   : src.relevance_score > 0.5
@@ -295,7 +295,7 @@ const AssistantMessage: React.FC<AssistantMessageProps> = ({ sources, agentStatu
             )}
           </div>
           
-          <span className="text-[10px] text-zinc-500 mt-1.5 ml-1 font-medium uppercase tracking-wider">
+           <span className="text-xs text-zinc-500 mt-1.5 ml-1 font-medium uppercase tracking-wider">
             My Brain LM
           </span>
         </div>
