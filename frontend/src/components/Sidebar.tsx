@@ -18,6 +18,7 @@ import { ingestUrlToArea, ingestTextToArea } from '../api';
 import { convertHtmlToMarkdown } from '../utils/htmlToMarkdown';
 
 interface SidebarProps {
+  isOpen: boolean;
   // Areas
   areas: AreaResponse[];
   selectedAreaId: string | null;
@@ -41,6 +42,7 @@ interface SidebarProps {
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
+  isOpen,
   areas,
   selectedAreaId,
   onCreateAreaClick,
@@ -179,7 +181,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   };
 
   return (
-    <div className="h-full flex overflow-hidden shrink-0 border-r border-brand-border">
+    <div className={`h-full flex overflow-hidden shrink-0 border-r border-brand-border fixed inset-y-0 left-0 z-40 bg-zinc-950/95 shadow-2xl transition-transform duration-300 ease-in-out md:static md:translate-x-0 md:shadow-none md:z-auto ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
       {/* 1. Discord-style Areas vertical panel */}
       <aside className="w-16 h-full bg-zinc-950/70 flex flex-col items-center py-5 gap-3 shrink-0 select-none">
         <div className="p-2 rounded-2xl bg-brand-primary/10 border border-brand-primary/20 shadow-[0_0_12px_var(--brand-shadow)] mb-4">

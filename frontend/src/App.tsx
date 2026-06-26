@@ -30,7 +30,7 @@ import type {
   ConversationResponse, 
   SourceInfo 
 } from './types';
-import { Plus, Bot } from 'lucide-react';
+import { Plus, Bot, Menu, BrainCircuit } from 'lucide-react';
 
 function MainApp() {
   const { areaId, chatId } = useParams<{ areaId?: string; chatId?: string }>();
@@ -44,6 +44,7 @@ function MainApp() {
   const [loadingStatus, setLoadingStatus] = useState(false);
   const [statusError, setStatusError] = useState<string | null>(null);
   const [isViewingBrainStatus, setIsViewingBrainStatus] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // --- Estados de Áreas ---
   const [areas, setAreas] = useState<AreaResponse[]>([]);
@@ -157,6 +158,11 @@ function MainApp() {
     refreshMessages();
   }, [selectedConversationId, refreshMessages]);
 
+  // Auto-cerrar barra lateral en móvil al cambiar de ruta
+  useEffect(() => {
+    setIsSidebarOpen(false);
+  }, [selectedAreaId, selectedConversationId]);
+
   // =====================================================================
   // Operaciones / Handlers
   // =====================================================================
@@ -252,10 +258,24 @@ function MainApp() {
   }, [messages]);
 
 
+  // Obtener el nombre del área activa para mostrar en el header de móvil
+  const activeAreaName = useMemo(() => {
+    return areas.find(a => a.id === selectedAreaId)?.name || '';
+  }, [areas, selectedAreaId]);
+
   return (
     <div className="w-screen h-screen flex overflow-hidden bg-brand-bg font-sans antialiased text-brand-text relative">
+      {/* Backdrop para móvil */}
+      {isSidebarOpen && (
+        <div 
+          onClick={() => setIsSidebarOpen(false)}
+          className="fixed inset-0 z-35 bg-black/60 backdrop-blur-xs md:hidden"
+        />
+      )}
+
       {/* Sidebar Split Panel (Burbujas + Listado) */}
       <Sidebar
+        isOpen={isSidebarOpen}
         areas={areas}
         selectedAreaId={selectedAreaId}
         onCreateAreaClick={() => setIsCreatingArea(true)}
@@ -273,6 +293,27 @@ function MainApp() {
 
       {/* Main Container */}
       <main className="flex-1 h-full flex flex-col min-w-0 bg-brand-bg relative">
+        {/* Header móvil */}
+        <header className="flex md:hidden h-14 border-b border-brand-border bg-zinc-950/20 backdrop-blur-md items-center px-4 justify-between shrink-0 z-20">
+          <button 
+            onClick={() => setIsSidebarOpen(true)}
+            className="p-2 -ml-2 rounded-lg text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/50 cursor-pointer"
+            aria-label="Open sidebar"
+          >
+            <Menu className="h-5 w-5" />
+          </button>
+          <span className="text-xs font-bold text-zinc-200 truncate px-2">
+            {activeAreaName || 'My Brain LM'}
+          </span>
+          <button
+            onClick={() => setIsViewingBrainStatus(true)}
+            className="p-2 -mr-2 rounded-lg text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/50 cursor-pointer"
+            title="Brain Status"
+          >
+            <BrainCircuit className="h-4 w-4 text-brand-primary animate-pulse" />
+          </button>
+        </header>
+
         {selectedAreaId ? (
           isLoadingMessages ? (
             <div className="flex-1 flex flex-col items-center justify-center text-zinc-500">
