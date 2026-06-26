@@ -73,7 +73,7 @@ const CodeBlockWithCopy: React.FC<{
 
 export const ChatArea: React.FC = () => {
   return (
-    <div className="flex-1 h-full bg-brand-bg flex flex-col min-w-0 relative">
+    <div className="flex-1 min-h-0 bg-brand-bg flex flex-col min-w-0 relative">
       <ThreadPrimitive.Root className="flex flex-col h-full w-full">
         {/* Scrollable Viewport */}
         <ThreadPrimitive.Viewport
@@ -82,7 +82,7 @@ export const ChatArea: React.FC = () => {
         >
           {/* Empty State / Welcome Screen */}
           <AuiIf condition={(s) => s.thread.isEmpty}>
-            <div className="h-full flex flex-col items-center justify-center text-center max-w-lg mx-auto py-12 select-none animate-fade-in">
+            <div className="h-[calc(100%-3rem)] flex flex-col items-center justify-center text-center max-w-lg mx-auto py-4 md:py-12 select-none animate-fade-in">
               <div className="p-3.5 rounded-2xl bg-brand-primary/10 border border-brand-primary/20 shadow-[0_0_20px_var(--brand-shadow)] mb-5">
                 <Bot className="h-10 w-10 text-brand-primary animate-pulse" />
               </div>
@@ -96,7 +96,7 @@ export const ChatArea: React.FC = () => {
                 Ask me anything about the documents you have loaded in your brain. I will analyze the information locally.
               </p>
 
-              <div className="grid grid-cols-2 gap-3 mt-8 w-full text-left">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-5 md:mt-8 w-full text-left">
                 <div className="bg-zinc-900/10 border border-brand-border p-4 rounded-xl hover:border-brand-primary/30 transition-all duration-300">
                   <h4 className="text-xs font-semibold text-zinc-300 flex items-center gap-1.5">
                     <Sparkles className="h-3.5 w-3.5 text-brand-primary" />

@@ -348,7 +348,7 @@ function MainApp() {
           )
         ) : (
           // Empty State / Welcome Screen
-          <div className="flex-1 h-full flex flex-col items-center justify-center text-center max-w-lg mx-auto py-12 select-none animate-fade-in">
+          <div className="flex-1 min-h-0 flex flex-col items-center justify-center text-center max-w-lg mx-auto py-12 select-none animate-fade-in">
             <div className="p-3.5 rounded-2xl bg-brand-primary/10 border border-brand-primary/20 shadow-[0_0_20px_var(--brand-shadow)] mb-5">
               <Bot className="h-10 w-10 text-brand-primary animate-pulse" />
             </div>
