@@ -139,7 +139,7 @@ export const ChatArea: React.FC = () => {
         </ThreadPrimitive.Viewport>
  
         {/* Viewport Footer with Composer */}
-        <ThreadPrimitive.ViewportFooter className="px-4 pb-6 md:px-8 bg-gradient-to-t from-brand-bg via-brand-bg/90 to-transparent pt-4">
+        <ThreadPrimitive.ViewportFooter className="px-4 pb-[calc(1.5rem+env(safe-area-inset-bottom))] md:px-8 bg-gradient-to-t from-brand-bg via-brand-bg/90 to-transparent pt-4">
           <ComposerPrimitive.Root className="max-w-3xl mx-auto flex items-end gap-3 bg-zinc-950/40 backdrop-blur border border-brand-border focus-within:border-brand-primary rounded-2xl p-2.5 transition-all shadow-lg">
             <ComposerPrimitive.Input
               placeholder="Ask a question about your documents..."

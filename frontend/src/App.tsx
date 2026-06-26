@@ -293,7 +293,7 @@ function MainApp() {
   }, [areas, selectedAreaId]);
 
   return (
-    <div className="w-screen h-screen flex overflow-hidden bg-brand-bg font-sans antialiased text-brand-text relative">
+    <div className="w-full h-dvh flex overflow-hidden bg-brand-bg font-sans antialiased text-brand-text relative">
       {/* Backdrop para móvil */}
       {isSidebarOpen && (
         <div 
