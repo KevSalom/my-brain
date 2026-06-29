@@ -465,9 +465,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   {linkStatus.type && (
                     <div
                       className={`flex items-start gap-2 p-2 rounded-lg border text-xs leading-relaxed ${
-                        linkStatus.type === 'success'
-                          ? 'bg-emerald-950/20 border-emerald-900/50 text-emerald-300'
-                          : 'bg-rose-950/20 border-rose-900/50 text-rose-300'
+                        linkStatus.type === 'success' ? 'status-success' : 'status-error'
                       }`}
                     >
                       <span className="break-all">{linkStatus.message}</span>
@@ -584,9 +582,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               {pasteStatus.type && (
                 <div
                   className={`flex items-start gap-2 p-3 rounded-xl border text-xs leading-relaxed ${
-                    pasteStatus.type === 'success'
-                      ? 'bg-emerald-950/20 border-emerald-900/50 text-emerald-300'
-                      : 'bg-rose-950/20 border-rose-900/50 text-rose-300'
+                    pasteStatus.type === 'success' ? 'status-success' : 'status-error'
                   }`}
                 >
                   <span className="break-all">{pasteStatus.message}</span>

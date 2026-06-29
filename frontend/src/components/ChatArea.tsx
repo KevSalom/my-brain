@@ -4,6 +4,7 @@ import {
   MessagePrimitive,
   ComposerPrimitive,
   AuiIf,
+  useAuiState,
 } from '@assistant-ui/react';
 import { MarkdownTextPrimitive } from '@assistant-ui/react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -130,7 +131,7 @@ export const ChatArea: React.FC = () => {
               const custom = ((message as any).custom || (message as any).metadata?.custom) as { sources?: SourceInfo[], agentStatus?: string } | undefined;
               const sources = custom?.sources || [];
               const agentStatus = custom?.agentStatus || '';
-              return <AssistantMessage sources={sources} agentStatus={agentStatus} />;
+              return <AssistantMessage message={message} sources={sources} agentStatus={agentStatus} />;
             }}
           </ThreadPrimitive.Messages>
  
@@ -189,12 +190,27 @@ const UserMessage: React.FC = () => {
 
 // Assistant Message component
 interface AssistantMessageProps {
+  message: any;
   sources: SourceInfo[];
   agentStatus?: string;
 }
 
-const AssistantMessage: React.FC<AssistantMessageProps> = ({ sources, agentStatus }) => {
+const AssistantMessage: React.FC<AssistantMessageProps> = ({ message, sources, agentStatus }) => {
   const [sourcesOpen, setSourcesOpen] = useState(false);
+  const isLast = useAuiState((s) => s.thread.messages.at(-1)?.id === message.id);
+  const isRunning = useAuiState((s) => s.thread.isRunning);
+
+  // Determinar si el mensaje no tiene contenido de texto real (vacío o solo espacios)
+  const isTextEmpty = !message.content || message.content.every((part: any) => {
+    return part.type === 'text' && (!part.text || !part.text.trim());
+  });
+
+  // Si está vacío, solo lo mostramos si el hilo está activo y es el último mensaje
+  if (isTextEmpty) {
+    if (!isRunning || !isLast) {
+      return null;
+    }
+  }
 
   return (
     <MessagePrimitive.Root className="flex justify-start w-full max-w-3xl mx-auto animate-fade-in">
@@ -289,10 +305,6 @@ const AssistantMessage: React.FC<AssistantMessageProps> = ({ sources, agentStatu
             </>
           )}
         </div>
-        
-         <span className="text-xs text-zinc-500 mt-1.5 ml-1 font-medium uppercase tracking-wider">
-          My Brain LM
-        </span>
       </div>
     </MessagePrimitive.Root>
   );

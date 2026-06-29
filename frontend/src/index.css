@@ -215,3 +215,45 @@ body, html, #root {
   border-radius: 0.5rem;
   overflow-x: auto;
 }
+
+/* Status alerts with high contrast in both themes */
+.status-success {
+  background-color: rgba(16, 185, 129, 0.08);
+  border-color: rgba(16, 185, 129, 0.25);
+  color: #065f46 !important; /* emerald-800 */
+}
+
+.dark .status-success {
+  background-color: rgba(2, 44, 34, 0.3) !important;
+  border-color: rgba(6, 78, 59, 0.5) !important;
+  color: #6ee7b7 !important; /* emerald-300 */
+}
+
+.status-success-icon {
+  color: #059669 !important; /* emerald-600 */
+}
+
+.dark .status-success-icon {
+  color: #34d399 !important; /* emerald-400 */
+}
+
+.status-error {
+  background-color: rgba(239, 68, 68, 0.08);
+  border-color: rgba(239, 68, 68, 0.25);
+  color: #991b1b !important; /* rose-800 */
+}
+
+.dark .status-error {
+  background-color: rgba(69, 10, 10, 0.3) !important;
+  border-color: rgba(127, 29, 29, 0.5) !important;
+  color: #fca5a5 !important; /* rose-300 */
+}
+
+.status-error-icon {
+  color: #dc2626 !important; /* rose-600 */
+}
+
+.dark .status-error-icon {
+  color: #f87171 !important; /* rose-400 */
+}
+

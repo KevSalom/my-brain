@@ -141,12 +141,10 @@ export const UploadZone: React.FC<UploadZoneProps> = ({ areaId, onUploadSuccess 
       {status.type && (
         <div
           className={`flex items-start gap-2.5 p-3 rounded-lg border text-xs leading-relaxed ${
-            status.type === 'success'
-              ? 'bg-emerald-950/20 border-emerald-900/50 text-emerald-300'
-              : 'bg-rose-950/20 border-rose-900/50 text-rose-300'
+            status.type === 'success' ? 'status-success' : 'status-error'
           }`}
         >
-          <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-400" />
+          <CheckCircle2 className={`h-4 w-4 shrink-0 ${status.type === 'success' ? 'status-success-icon' : 'status-error-icon'}`} />
           <span className="break-all">{status.message}</span>
         </div>
       )}
