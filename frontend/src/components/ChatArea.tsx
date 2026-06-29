@@ -198,107 +198,101 @@ const AssistantMessage: React.FC<AssistantMessageProps> = ({ sources, agentStatu
 
   return (
     <MessagePrimitive.Root className="flex justify-start w-full max-w-3xl mx-auto animate-fade-in">
-      <div className="flex gap-3 max-w-[85%] w-full">
-        <div className="h-7 w-7 rounded-lg bg-brand-secondary/15 border border-brand-secondary/30 flex items-center justify-center shrink-0 shadow-sm mt-1">
-          <Bot className="h-4 w-4 text-brand-secondary" />
+      <div className="flex flex-col items-start min-w-0 w-full">
+        <div className="text-zinc-200 text-sm leading-relaxed w-full">
+          {agentStatus ? (
+            <div className="py-1 flex flex-col gap-2.5">
+              <div className="flex items-center gap-2 text-zinc-400 font-medium select-none">
+                <Sparkles className="h-3.5 w-3.5 text-brand-primary animate-pulse" />
+                <span className="text-xs tracking-wide animate-pulse">{agentStatus}</span>
+              </div>
+              <div className="flex gap-1 pl-5">
+                <span className="w-1.5 h-1.5 rounded-full bg-brand-primary/45 animate-bounce" style={{ animationDelay: '0ms' }} />
+                <span className="w-1.5 h-1.5 rounded-full bg-brand-primary/65 animate-bounce" style={{ animationDelay: '150ms' }} />
+                <span className="w-1.5 h-1.5 rounded-full bg-brand-primary/85 animate-bounce" style={{ animationDelay: '300ms' }} />
+              </div>
+            </div>
+          ) : (
+            <>
+              {/* Using MarkdownTextPrimitive component from @assistant-ui/react-markdown */}
+              <div className="prose prose-invert max-w-none text-zinc-200 text-sm leading-relaxed prose-p:my-2 prose-pre:bg-zinc-950/70 prose-pre:border prose-pre:border-brand-border prose-code:text-brand-primary prose-code:bg-zinc-900/50 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:before:content-none prose-code:after:content-none">
+                <MessagePrimitive.Parts>
+                  {({ part }) => part.type === "text" ? (
+                    <MarkdownTextPrimitive 
+                      remarkPlugins={[remarkGfm]} 
+                      components={{
+                        code({ className, children, ...props }) {
+                          const match = /language-(\w+)/.exec(className || '');
+                          const { ref, ...rest } = props as any;
+                          const codeString = String(children).replace(/\n$/, '');
+                          return match ? (
+                            <CodeBlockWithCopy
+                              language={match[1]}
+                              value={codeString}
+                              {...rest}
+                            />
+                          ) : (
+                            <code className={className} {...props}>
+                              {children}
+                            </code>
+                          );
+                        }
+                      }}
+                    />
+                  ) : null}
+                </MessagePrimitive.Parts>
+              </div>
+
+              {/* RAG Sources Rendering */}
+              {sources.length > 0 && (
+                <div className="mt-4 pt-3.5 border-t border-zinc-800/50">
+                  <button
+                    onClick={() => setSourcesOpen(!sourcesOpen)}
+                    className="flex items-center gap-1.5 text-xs text-zinc-500 hover:text-zinc-300 transition-colors font-medium focus:outline-none"
+                  >
+                    <Sparkles className="h-3 w-3 text-brand-primary" />
+                    <span>Sources used ({sources.length})</span>
+                    <ChevronRight className={`h-3 w-3 transition-transform duration-200 ${sourcesOpen ? 'rotate-90 text-zinc-400' : 'text-zinc-600'}`} />
+                  </button>
+
+                  {sourcesOpen && (
+                    <div className="flex flex-col gap-1.5 mt-2.5 animate-slide-down">
+                      {sources.map((src, i) => (
+                        <div
+                          key={i}
+                          className="flex items-center justify-between p-2 rounded-lg bg-zinc-950/30 border border-zinc-900 text-xs text-zinc-400 hover:text-zinc-300 hover:bg-zinc-950/50 transition-colors"
+                        >
+                          <div className="flex items-center gap-2 truncate">
+                            <FileText className="h-3.5 w-3.5 text-zinc-500 shrink-0" />
+                            <span className="font-mono truncate">{src.source}</span>
+                            <span className="text-xs text-zinc-600">
+                              (Chunk {src.chunk_index})
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2 shrink-0">
+                            <span className={`px-1.5 py-0.5 rounded text-xs font-mono font-semibold ${
+                              src.relevance_score > 0.8
+                                ? 'bg-emerald-950/20 border border-emerald-900/50 text-emerald-400'
+                                : src.relevance_score > 0.5
+                                ? 'bg-amber-950/20 border border-amber-900/50 text-amber-400'
+                                : 'bg-zinc-900 border border-zinc-800 text-zinc-500'
+                            }`}>
+                              {(src.relevance_score * 100).toFixed(0)}% confidence
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </>
+          )}
         </div>
         
-        <div className="flex-1 flex flex-col items-start min-w-0">
-          <div className="rounded-2xl rounded-tl-none bg-zinc-900/30 border border-brand-border text-zinc-200 px-4 py-3 text-sm shadow-sm leading-relaxed w-full">
-            {agentStatus ? (
-              <div className="py-1 flex flex-col gap-2.5">
-                <div className="flex items-center gap-2 text-zinc-400 font-medium select-none">
-                  <Sparkles className="h-3.5 w-3.5 text-brand-primary animate-pulse" />
-                  <span className="text-xs tracking-wide animate-pulse">{agentStatus}</span>
-                </div>
-                <div className="flex gap-1 pl-5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-brand-primary/45 animate-bounce" style={{ animationDelay: '0ms' }} />
-                  <span className="w-1.5 h-1.5 rounded-full bg-brand-primary/65 animate-bounce" style={{ animationDelay: '150ms' }} />
-                  <span className="w-1.5 h-1.5 rounded-full bg-brand-primary/85 animate-bounce" style={{ animationDelay: '300ms' }} />
-                </div>
-              </div>
-            ) : (
-              <>
-                {/* Using MarkdownTextPrimitive component from @assistant-ui/react-markdown */}
-                <div className="prose prose-invert max-w-none text-zinc-200 text-sm leading-relaxed prose-p:my-2 prose-pre:bg-zinc-950/70 prose-pre:border prose-pre:border-brand-border prose-code:text-brand-primary prose-code:bg-zinc-900/50 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:before:content-none prose-code:after:content-none">
-                  <MessagePrimitive.Parts>
-                    {({ part }) => part.type === "text" ? (
-                      <MarkdownTextPrimitive 
-                        remarkPlugins={[remarkGfm]} 
-                        components={{
-                          code({ className, children, ...props }) {
-                            const match = /language-(\w+)/.exec(className || '');
-                            const { ref, ...rest } = props as any;
-                            const codeString = String(children).replace(/\n$/, '');
-                            return match ? (
-                              <CodeBlockWithCopy
-                                language={match[1]}
-                                value={codeString}
-                                {...rest}
-                              />
-                            ) : (
-                              <code className={className} {...props}>
-                                {children}
-                              </code>
-                            );
-                          }
-                        }}
-                      />
-                    ) : null}
-                  </MessagePrimitive.Parts>
-                </div>
-
-                {/* RAG Sources Rendering */}
-                {sources.length > 0 && (
-                  <div className="mt-4 pt-3.5 border-t border-zinc-800/50">
-                    <button
-                      onClick={() => setSourcesOpen(!sourcesOpen)}
-                      className="flex items-center gap-1.5 text-xs text-zinc-500 hover:text-zinc-300 transition-colors font-medium focus:outline-none"
-                    >
-                      <Sparkles className="h-3 w-3 text-brand-primary" />
-                      <span>Sources used ({sources.length})</span>
-                      <ChevronRight className={`h-3 w-3 transition-transform duration-200 ${sourcesOpen ? 'rotate-90 text-zinc-400' : 'text-zinc-600'}`} />
-                    </button>
-
-                    {sourcesOpen && (
-                      <div className="flex flex-col gap-1.5 mt-2.5 animate-slide-down">
-                        {sources.map((src, i) => (
-                          <div
-                            key={i}
-                            className="flex items-center justify-between p-2 rounded-lg bg-zinc-950/30 border border-zinc-900 text-xs text-zinc-400 hover:text-zinc-300 hover:bg-zinc-950/50 transition-colors"
-                          >
-                            <div className="flex items-center gap-2 truncate">
-                              <FileText className="h-3.5 w-3.5 text-zinc-500 shrink-0" />
-                              <span className="font-mono truncate">{src.source}</span>
-                              <span className="text-xs text-zinc-600">
-                                (Chunk {src.chunk_index})
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-2 shrink-0">
-                              <span className={`px-1.5 py-0.5 rounded text-xs font-mono font-semibold ${
-                                src.relevance_score > 0.8
-                                  ? 'bg-emerald-950/20 border border-emerald-900/50 text-emerald-400'
-                                  : src.relevance_score > 0.5
-                                  ? 'bg-amber-950/20 border border-amber-900/50 text-amber-400'
-                                  : 'bg-zinc-900 border border-zinc-800 text-zinc-500'
-                              }`}>
-                                {(src.relevance_score * 100).toFixed(0)}% confidence
-                              </span>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                )}
-              </>
-            )}
-          </div>
-          
-           <span className="text-xs text-zinc-500 mt-1.5 ml-1 font-medium uppercase tracking-wider">
-            My Brain LM
-          </span>
-        </div>
+         <span className="text-xs text-zinc-500 mt-1.5 ml-1 font-medium uppercase tracking-wider">
+          My Brain LM
+        </span>
       </div>
     </MessagePrimitive.Root>
   );

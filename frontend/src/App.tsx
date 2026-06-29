@@ -47,6 +47,8 @@ function MainApp() {
   const [statusError, setStatusError] = useState<string | null>(null);
   const [isViewingBrainStatus, setIsViewingBrainStatus] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
+  const [areasLoaded, setAreasLoaded] = useState(false);
 
   // --- Tema Claro / Oscuro ---
   const [theme, setTheme] = useState<'dark' | 'light'>(() => {
@@ -111,15 +113,21 @@ function MainApp() {
     try {
       const list = await getAreas();
       setAreas(list);
+      setAreasLoaded(true);
       if (list.length > 0) {
         if (autoSelectFirst && selectedAreaId === null) {
           navigate(`/areas/${list[0].id}`);
+        } else {
+          setIsInitialLoading(false);
         }
       } else {
         navigate('/');
+        setIsInitialLoading(false);
       }
     } catch (err) {
       console.error("Error loading areas:", err);
+      setAreasLoaded(true);
+      setIsInitialLoading(false);
     }
   }, [selectedAreaId, navigate]);
 
@@ -176,6 +184,13 @@ function MainApp() {
     refreshStatus();
     refreshAreas(true);
   }, []);
+
+  // Apagar loader inicial si ya navegamos a un área y las áreas ya cargaron
+  useEffect(() => {
+    if (isInitialLoading && areasLoaded && selectedAreaId !== null) {
+      setIsInitialLoading(false);
+    }
+  }, [selectedAreaId, areasLoaded, isInitialLoading]);
 
   // Al cambiar el Área activa
   useEffect(() => {
@@ -291,6 +306,37 @@ function MainApp() {
   const activeAreaName = useMemo(() => {
     return areas.find(a => a.id === selectedAreaId)?.name || '';
   }, [areas, selectedAreaId]);
+
+  if (isInitialLoading) {
+    return (
+      <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-brand-bg select-none transition-colors duration-300">
+        {/* Ambient background glow */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,var(--brand-shadow)_0%,transparent_65%)] pointer-events-none opacity-70 animate-pulse" />
+        
+        <div className="relative flex flex-col items-center gap-6 z-10">
+          {/* Logo container with floating/pulse effect */}
+          <div className="relative p-4 rounded-3xl bg-brand-primary/10 border border-brand-primary/20 shadow-[0_0_40px_var(--brand-shadow)] animate-pulse">
+            <BrainCircuit className="h-12 w-12 text-brand-primary" />
+            <div className="absolute -inset-0.5 bg-brand-primary/20 rounded-3xl blur opacity-30 animate-pulse" />
+          </div>
+          
+          <div className="flex flex-col items-center text-center gap-2">
+            <h1 className="text-3xl font-extrabold text-brand-text tracking-tight flex items-center gap-2">
+              My Brain <span className="text-brand-primary font-mono text-sm uppercase bg-brand-primary/10 px-2 py-0.5 rounded border border-brand-primary/30">LM</span>
+            </h1>
+            <p className="text-sm text-brand-secondary max-w-xs font-medium tracking-wide">
+              Loading your workspace...
+            </p>
+          </div>
+          
+          {/* Progress bar loader */}
+          <div className="w-48 h-1.5 bg-zinc-900/60 rounded-full overflow-hidden border border-brand-border relative">
+            <div className="h-full w-2/5 bg-gradient-to-r from-brand-primary/80 to-brand-primary rounded-full animate-loader absolute top-0 bottom-0" />
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full h-dvh flex overflow-hidden bg-brand-bg font-sans antialiased text-brand-text relative">
