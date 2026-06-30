@@ -157,9 +157,30 @@ class MessageResponse(BaseModel):
     sources_json: Optional[str]
     conversation_id: str
     created_at: datetime
+    input_tokens: int = 0
+    output_tokens: int = 0
+    cost_usd: float = 0.0
+    model_used: Optional[str] = None
 
     class Config:
         from_attributes = True
+
+
+class UsageInfo(BaseModel):
+    """Información detallada del uso de tokens y costo."""
+    input_tokens: int
+    output_tokens: int
+    cost_usd: float
+    model: str
+
+
+class ConversationUsageResponse(BaseModel):
+    """Resumen acumulado del uso de tokens y costo de una conversación."""
+    total_input_tokens: int
+    total_output_tokens: int
+    total_cost_usd: float
+    message_count: int
+    model_used: Optional[str] = None
 
 
 class URLIngestPayload(BaseModel):

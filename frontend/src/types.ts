@@ -41,6 +41,7 @@ export interface ChatMessage {
   role: 'user' | 'assistant';
   content: string;
   sources?: SourceInfo[];
+  usage?: UsageInfo;
 }
 
 export interface AreaResponse {
@@ -76,5 +77,43 @@ export interface MessageResponse {
   sources_json: string | null;
   conversation_id: string;
   created_at: string;
+  input_tokens: number;
+  output_tokens: number;
+  cost_usd: number;
+  model_used: string | null;
+}
+
+
+export interface UsageInfo {
+  input_tokens: number;
+  output_tokens: number;
+  cost_usd: number;
+  model: string;
+}
+
+export interface ModelInfo {
+  name: string;
+  context_length: number;
+  prompt_price: number;
+  completion_price: number;
+}
+
+export interface UsageSummary {
+  total_input_tokens: number;
+  total_output_tokens: number;
+  total_cost_usd: number;
+  period_costs: {
+    today: number;
+    this_week: number;
+    this_month: number;
+  };
+}
+
+export interface ConversationUsageResponse {
+  total_input_tokens: number;
+  total_output_tokens: number;
+  total_cost_usd: number;
+  message_count: number;
+  model_used: string | null;
 }
 

@@ -84,6 +84,10 @@ class MessageBase(SQLModel):
         index=True,
         description="ID de la conversación a la que pertenece (UUIDv4)"
     )
+    input_tokens: int = Field(default=0, description="Tokens de entrada consumidos")
+    output_tokens: int = Field(default=0, description="Tokens de salida generados")
+    cost_usd: float = Field(default=0.0, description="Costo en USD de esta interacción")
+    model_used: Optional[str] = Field(default=None, description="Modelo LLM utilizado")
 
 
 class Message(MessageBase, table=True):

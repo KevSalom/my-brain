@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   ThreadPrimitive,
   MessagePrimitive,
@@ -11,7 +11,8 @@ import remarkGfm from 'remark-gfm';
 import { ArrowUp, StopCircle, FileText, ChevronRight, Copy, Check, BrainCircuit } from 'lucide-react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import type { SourceInfo } from '../types';
+import type { SourceInfo, ModelInfo } from '../types';
+import { getModelInfo } from '../api';
 
 const CodeBlockWithCopy: React.FC<{
   language: string;
@@ -100,10 +101,71 @@ const CopyButton: React.FC<{ value: string; className?: string }> = ({ value, cl
   );
 };
 
+const ContextMeterHeader: React.FC = () => {
+  const [modelInfo, setModelInfo] = useState<ModelInfo | null>(null);
+  const messages = useAuiState((s) => s.thread.messages);
+
+  useEffect(() => {
+    getModelInfo()
+      .then(setModelInfo)
+      .catch((err) => console.error("Error fetching model info:", err));
+  }, []);
+
+  if (!modelInfo) return null;
+
+  // Encontrar el último mensaje del asistente con usage
+  let activeUsage = null;
+  for (let i = messages.length - 1; i >= 0; i--) {
+    const m = messages[i] as any;
+    const custom = (m.custom || m.metadata?.custom) as any;
+    if (custom?.usage) {
+      activeUsage = custom.usage;
+      break;
+    }
+  }
+
+  const inputTokens = activeUsage?.input_tokens || 0;
+  if (inputTokens === 0) return null;
+
+  const contextLength = modelInfo.context_length || 128000;
+  const percentage = Math.min(100, (inputTokens / contextLength) * 100);
+
+  // Determinar color de barra
+  let barColorClass = "bg-zinc-650";
+  let textColorClass = "text-zinc-300";
+  if (percentage >= 80) {
+    barColorClass = "bg-rose-500";
+    textColorClass = "text-rose-400";
+  } else if (percentage >= 50) {
+    barColorClass = "bg-amber-500";
+    textColorClass = "text-amber-400";
+  }
+
+  return (
+    <div className="w-full border-b border-brand-border bg-zinc-950/20 backdrop-blur-sm px-4 py-2 flex items-center justify-end text-xs shrink-0 select-none">
+      <div className="flex items-center gap-3">
+        <span className="font-mono text-[11px] text-zinc-500">
+          Context: <span className={`${textColorClass} font-semibold`}>{inputTokens.toLocaleString()}</span> / {contextLength >= 1000000 ? `${contextLength / 1000000}M` : `${contextLength / 1000}K`}
+        </span>
+        <div className="w-20 md:w-28 h-1.5 bg-zinc-900/60 rounded-full overflow-hidden border border-brand-border relative">
+          <div 
+            className={`h-full rounded-full transition-all duration-500 ${barColorClass}`}
+            style={{ width: `${percentage}%` }}
+          />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+
 export const ChatArea: React.FC = () => {
   return (
     <div className="flex-1 min-h-0 bg-brand-bg flex flex-col min-w-0 relative">
       <ThreadPrimitive.Root className="flex flex-col h-full w-full">
+        {/* Context Meter Header */}
+        <ContextMeterHeader />
+
         {/* Scrollable Viewport */}
         <ThreadPrimitive.Viewport
           autoScroll={true}
@@ -140,11 +202,12 @@ export const ChatArea: React.FC = () => {
                 return <UserMessage message={message} />;
               }
               
-              // Extract sources and status from custom message custom field (check both root and metadata.custom)
-              const custom = ((message as any).custom || (message as any).metadata?.custom) as { sources?: SourceInfo[], agentStatus?: string } | undefined;
+              // Extract sources, usage and status from custom message custom field (check both root and metadata.custom)
+              const custom = ((message as any).custom || (message as any).metadata?.custom) as { sources?: SourceInfo[], usage?: any, agentStatus?: string } | undefined;
               const sources = custom?.sources || [];
+              const usage = custom?.usage || null;
               const agentStatus = custom?.agentStatus || '';
-              return <AssistantMessage message={message} sources={sources} agentStatus={agentStatus} />;
+              return <AssistantMessage message={message} sources={sources} usage={usage} agentStatus={agentStatus} />;
             }}
           </ThreadPrimitive.Messages>
  
@@ -208,13 +271,15 @@ const UserMessage: React.FC<{ message: any }> = ({ message }) => {
 interface AssistantMessageProps {
   message: any;
   sources: SourceInfo[];
+  usage?: any;
   agentStatus?: string;
 }
 
-const AssistantMessage: React.FC<AssistantMessageProps> = ({ message, sources, agentStatus }) => {
+const AssistantMessage: React.FC<AssistantMessageProps> = ({ message, sources, usage, agentStatus }) => {
   const [sourcesOpen, setSourcesOpen] = useState(false);
   const isLast = useAuiState((s) => s.thread.messages.at(-1)?.id === message.id);
   const isRunning = useAuiState((s) => s.thread.isRunning);
+  const showActions = !isRunning || !isLast;
 
   // Determinar si el mensaje no tiene contenido de texto real (vacío o solo espacios)
   const isTextEmpty = !message.content || message.content.every((part: any) => {
@@ -276,23 +341,60 @@ const AssistantMessage: React.FC<AssistantMessageProps> = ({ message, sources, a
               </div>
 
               {/* Footer Actions Row */}
-              <div className={`flex items-center gap-3 mt-3 w-full ${sources.length > 0 ? 'pt-2.5 border-t border-zinc-800/40' : ''}`}>
-                <CopyButton value={textValue} />
-                
-                {sources.length > 0 && (
-                  <>
-                    <span className="h-3 w-px bg-zinc-800/80" />
-                    <button
-                      onClick={() => setSourcesOpen(!sourcesOpen)}
-                      className="flex items-center gap-1.5 text-xs text-zinc-500 hover:text-zinc-300 transition-colors font-medium focus:outline-none cursor-pointer"
-                    >
-                      <FileText className="h-3.5 w-3.5 text-zinc-500 shrink-0" />
-                      <span>Sources used ({sources.length})</span>
-                      <ChevronRight className={`h-3 w-3 transition-transform duration-200 ${sourcesOpen ? 'rotate-90 text-zinc-400' : 'text-zinc-600'}`} />
-                    </button>
-                  </>
-                )}
-              </div>
+              {showActions && (
+                <div className={`flex items-center gap-3 mt-3 w-full ${sources.length > 0 || usage ? 'pt-2.5 border-t border-zinc-800/40' : ''}`}>
+                  <CopyButton value={textValue} />
+                  
+                  {sources.length > 0 && (
+                    <>
+                      <span className="h-3 w-px bg-zinc-800/80" />
+                      <button
+                        onClick={() => setSourcesOpen(!sourcesOpen)}
+                        className="flex items-center gap-1.5 text-xs text-zinc-500 hover:text-zinc-300 transition-colors font-medium focus:outline-none cursor-pointer"
+                      >
+                        <FileText className="h-3.5 w-3.5 text-zinc-500 shrink-0" />
+                        <span>Sources used ({sources.length})</span>
+                        <ChevronRight className={`h-3 w-3 transition-transform duration-200 ${sourcesOpen ? 'rotate-90 text-zinc-400' : 'text-zinc-600'}`} />
+                      </button>
+                    </>
+                  )}
+
+                  {usage && (
+                    <>
+                      <span className="h-3 w-px bg-zinc-800/80" />
+                      <div className="group/tooltip relative flex items-center gap-1.5 text-xs text-zinc-500 hover:text-zinc-300 transition-colors cursor-help font-medium">
+                        <BrainCircuit className="h-3.5 w-3.5 text-zinc-500 shrink-0" />
+                        <span>
+                          {(usage.input_tokens + usage.output_tokens).toLocaleString()} tokens
+                          {usage.cost_usd > 0 && ` · $${usage.cost_usd.toFixed(4)}`}
+                        </span>
+                        
+                        {/* Tooltip with breakdown */}
+                        <div className="absolute bottom-full left-0 mb-2 hidden group-hover/tooltip:block z-30 bg-zinc-950 border border-zinc-800 p-2.5 rounded-lg shadow-xl font-mono text-[10px] text-zinc-400 space-y-1 w-48">
+                          <div className="text-zinc-300 border-b border-zinc-800 pb-1 mb-1 font-bold">Token Breakdown</div>
+                          <div className="flex justify-between">
+                            <span>Input (Prompt):</span>
+                            <span className="text-zinc-200">{usage.input_tokens.toLocaleString()}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>Output (Gen):</span>
+                            <span className="text-zinc-200">{usage.output_tokens.toLocaleString()}</span>
+                          </div>
+                          {usage.cost_usd > 0 && (
+                            <div className="flex justify-between border-t border-zinc-850 pt-1 mt-1 font-bold">
+                              <span>Cost (USD):</span>
+                              <span className="text-brand-primary">${usage.cost_usd.toFixed(6)}</span>
+                            </div>
+                          )}
+                          <div className="text-[9px] text-zinc-550 truncate border-t border-zinc-850 pt-1 mt-1">
+                            Model: {usage.model}
+                          </div>
+                        </div>
+                      </div>
+                    </>
+                  )}
+                </div>
+              )}
 
               {/* RAG Sources List */}
               {sources.length > 0 && sourcesOpen && (

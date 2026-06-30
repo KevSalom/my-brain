@@ -15,7 +15,7 @@ from sqlmodel import Session, select
 
 from api.database import get_session, engine
 from api.models import Conversation, Message, Area
-from api.schemas import ChatRequest, ConversationResponse, MessageResponse, ConversationUpdate
+from api.schemas import ChatRequest, ConversationResponse, MessageResponse, ConversationUpdate, ConversationUsageResponse
 from query import query_stream
 
 router = APIRouter(prefix="/api/chat", tags=["Chat"])
@@ -171,6 +171,10 @@ async def chat_stream(
                 final_answer = ""
                 sources = []
                 context_chunks = []
+                input_tokens = 0
+                output_tokens = 0
+                cost_usd = 0.0
+                model_used = ""
 
                 # 1. Generar título dinámico si es el primer mensaje y tiene el título predeterminado
                 conv_db = db_session.get(Conversation, conversation_id)
@@ -240,6 +244,10 @@ async def chat_stream(
                     if final_result is not None:
                         sources = final_result.sources
                         context_chunks = final_result.context_chunks
+                        input_tokens = final_result.input_tokens
+                        output_tokens = final_result.output_tokens
+                        cost_usd = final_result.cost_usd
+                        model_used = final_result.model_used
 
                         db_session.refresh(conv_db)
                         done_data = json.dumps(
@@ -248,6 +256,12 @@ async def chat_stream(
                                 "sources": sources,
                                 "context_chunks": context_chunks,
                                 "title": conv_db.title,
+                                "usage": {
+                                    "input_tokens": input_tokens,
+                                    "output_tokens": output_tokens,
+                                    "cost_usd": cost_usd,
+                                    "model": model_used
+                                }
                             },
                             ensure_ascii=False,
                         )
@@ -259,7 +273,11 @@ async def chat_stream(
                     role="assistant",
                     content=final_answer,
                     sources_json=sources_str,
-                    conversation_id=conversation_id
+                    conversation_id=conversation_id,
+                    input_tokens=input_tokens,
+                    output_tokens=output_tokens,
+                    cost_usd=cost_usd,
+                    model_used=model_used
                 )
                 db_session.add(assistant_msg)
                 db_session.commit()
@@ -284,4 +302,35 @@ async def chat_stream(
             "Content-Encoding": "identity",
             "Transfer-Encoding": "chunked",
         },
+    )
+
+
+@router.get("/conversations/{conversation_id}/usage", response_model=ConversationUsageResponse)
+def get_conversation_usage(conversation_id: str, session: Session = Depends(get_session)):
+    """Obtiene el consumo de tokens y costo total acumulado en una conversación."""
+    conv = session.get(Conversation, conversation_id)
+    if not conv:
+        raise HTTPException(status_code=404, detail="Conversación no encontrada.")
+
+    # Calcular totales sumando los mensajes
+    stmt = select(Message).where(Message.conversation_id == conversation_id)
+    messages = session.exec(stmt).all()
+
+    total_input = sum(msg.input_tokens for msg in messages)
+    total_output = sum(msg.output_tokens for msg in messages)
+    total_cost = sum(msg.cost_usd for msg in messages)
+    
+    # Encontrar el último modelo utilizado en la conversación
+    last_model = None
+    for msg in reversed(messages):
+        if msg.model_used:
+            last_model = msg.model_used
+            break
+
+    return ConversationUsageResponse(
+        total_input_tokens=total_input,
+        total_output_tokens=total_output,
+        total_cost_usd=total_cost,
+        message_count=len(messages),
+        model_used=last_model
     )

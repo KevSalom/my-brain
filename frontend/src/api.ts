@@ -5,7 +5,10 @@ import type {
   AreaResponse,
   DocumentResponse,
   ConversationResponse,
-  MessageResponse
+  MessageResponse,
+  ModelInfo,
+  UsageSummary,
+  ConversationUsageResponse
 } from './types';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
@@ -183,6 +186,30 @@ export async function getConversationMessages(convId: string): Promise<MessageRe
   const response = await fetch(`${API_BASE_URL}/api/chat/conversations/${convId}/messages`);
   if (!response.ok) {
     throw new Error(`Error al cargar mensajes: ${response.statusText}`);
+  }
+  return response.json();
+}
+
+export async function getModelInfo(): Promise<ModelInfo> {
+  const response = await fetch(`${API_BASE_URL}/api/model-info`);
+  if (!response.ok) {
+    throw new Error(`Error al obtener información del modelo: ${response.statusText}`);
+  }
+  return response.json();
+}
+
+export async function getUsageSummary(): Promise<UsageSummary> {
+  const response = await fetch(`${API_BASE_URL}/api/usage/summary`);
+  if (!response.ok) {
+    throw new Error(`Error al obtener resumen de uso: ${response.statusText}`);
+  }
+  return response.json();
+}
+
+export async function getConversationUsage(convId: string): Promise<ConversationUsageResponse> {
+  const response = await fetch(`${API_BASE_URL}/api/chat/conversations/${convId}/usage`);
+  if (!response.ok) {
+    throw new Error(`Error al obtener uso de conversación: ${response.statusText}`);
   }
   return response.json();
 }

@@ -27,6 +27,9 @@ class Settings:
 
     # --- Claves y modelos de OpenAI ---
     openai_api_key: str = field(default_factory=lambda: os.getenv("OPENAI_API_KEY", ""))
+    openai_base_url: str = field(
+        default_factory=lambda: os.getenv("OPENAI_BASE_URL", "")
+    )
     embedding_model: str = field(
         default_factory=lambda: os.getenv("EMBEDDING_MODEL", "text-embedding-3-small")
     )

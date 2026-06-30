@@ -6,12 +6,14 @@ GET /api/status — Retorna estadísticas de la colección y configuración acti
 
 from fastapi import APIRouter, HTTPException, Depends
 from sqlmodel import Session, select
+from datetime import datetime, timedelta
 
 from config import settings
 from query import get_collection_stats
 from api.database import get_session
 from api.schemas import StatusResponse
-from api.models import Area
+from api.models import Area, Message
+import pricing
 
 router = APIRouter(prefix="/api", tags=["Status"])
 
@@ -68,3 +70,48 @@ async def get_status(session: Session = Depends(get_session)):
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/model-info")
+def get_model_info_route():
+    """Retorna información y precios del modelo LLM configurado."""
+    model_id = settings.llm_model
+    info = pricing.get_model_info(model_id)
+    return {
+        "name": info["name"],
+        "context_length": info["context_length"],
+        "prompt_price": info["prompt_price"],
+        "completion_price": info["completion_price"]
+    }
+
+
+@router.get("/usage/summary")
+def get_usage_summary(session: Session = Depends(get_session)):
+    """Obtiene un resumen de tokens consumidos y costos acumulados."""
+    stmt = select(Message)
+    messages = session.exec(stmt).all()
+    
+    total_input = sum(msg.input_tokens for msg in messages)
+    total_output = sum(msg.output_tokens for msg in messages)
+    total_cost = sum(msg.cost_usd for msg in messages)
+    
+    # Calcular costos por período (hoy, esta semana, este mes)
+    now = datetime.utcnow()
+    today_start = datetime(now.year, now.month, now.day)
+    week_start = today_start - timedelta(days=now.weekday())
+    month_start = datetime(now.year, now.month, 1)
+    
+    cost_today = sum(msg.cost_usd for msg in messages if msg.created_at >= today_start)
+    cost_week = sum(msg.cost_usd for msg in messages if msg.created_at >= week_start)
+    cost_month = sum(msg.cost_usd for msg in messages if msg.created_at >= month_start)
+    
+    return {
+        "total_input_tokens": total_input,
+        "total_output_tokens": total_output,
+        "total_cost_usd": total_cost,
+        "period_costs": {
+            "today": cost_today,
+            "this_week": cost_week,
+            "this_month": cost_month
+        }
+    }

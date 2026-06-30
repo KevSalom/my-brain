@@ -33,11 +33,18 @@ class QueryResult:
     answer: str = ""
     sources: list[dict] = field(default_factory=list)
     context_chunks: list[str] = field(default_factory=list)
+    input_tokens: int = 0
+    output_tokens: int = 0
+    cost_usd: float = 0.0
+    model_used: str = ""
 
 
 def _get_openai_client() -> OpenAI:
     """Crea y retorna un cliente de OpenAI configurado."""
-    return OpenAI(api_key=settings.openai_api_key)
+    kwargs = {"api_key": settings.openai_api_key}
+    if settings.openai_base_url:
+        kwargs["base_url"] = settings.openai_base_url
+    return OpenAI(**kwargs)
 
 
 def _get_chroma_collection() -> chromadb.Collection:
@@ -173,11 +180,36 @@ def query(
     )
 
     answer = response.choices[0].message.content or ""
+    
+    input_tokens = 0
+    output_tokens = 0
+    cost_usd = 0.0
+    if response.usage:
+        usage = response.usage
+        input_tokens = getattr(usage, "prompt_tokens", 0) or 0
+        output_tokens = getattr(usage, "completion_tokens", 0) or 0
+        if hasattr(usage, "cost"):
+            cost_usd = float(usage.cost or 0.0)
+        else:
+            model_extra = getattr(usage, "model_extra", None)
+            if model_extra and "cost" in model_extra:
+                cost_usd = float(model_extra["cost"] or 0.0)
+            else:
+                try:
+                    from pricing import get_model_info
+                    info = get_model_info(settings.llm_model)
+                    cost_usd = (input_tokens * info["prompt_price"]) + (output_tokens * info["completion_price"])
+                except Exception:
+                    pass
 
     return QueryResult(
         answer=answer,
         sources=sources,
         context_chunks=context_chunks,
+        input_tokens=input_tokens,
+        output_tokens=output_tokens,
+        cost_usd=cost_usd,
+        model_used=settings.llm_model,
     )
 
 
@@ -245,16 +277,39 @@ def query_stream(
         messages=messages,
         temperature=0.3,
         stream=True,
+        stream_options={"include_usage": True},
     )
 
     # Acumular la respuesta completa mientras hacemos streaming
     full_answer_parts: list[str] = []
+    input_tokens = 0
+    output_tokens = 0
+    cost_usd = 0.0
 
     for chunk in stream:
-        delta = chunk.choices[0].delta
-        if delta.content:
-            full_answer_parts.append(delta.content)
-            yield delta.content, None, None
+        if chunk.choices:
+            delta = chunk.choices[0].delta
+            if delta.content:
+                full_answer_parts.append(delta.content)
+                yield delta.content, None, None
+        
+        if hasattr(chunk, "usage") and chunk.usage:
+            usage = chunk.usage
+            input_tokens = getattr(usage, "prompt_tokens", 0) or 0
+            output_tokens = getattr(usage, "completion_tokens", 0) or 0
+            if hasattr(usage, "cost"):
+                cost_usd = float(usage.cost or 0.0)
+            else:
+                model_extra = getattr(usage, "model_extra", None)
+                if model_extra and "cost" in model_extra:
+                    cost_usd = float(model_extra["cost"] or 0.0)
+                else:
+                    try:
+                        from pricing import get_model_info
+                        info = get_model_info(settings.llm_model)
+                        cost_usd = (input_tokens * info["prompt_price"]) + (output_tokens * info["completion_price"])
+                    except Exception:
+                        pass
 
     # Al finalizar, generar el resultado completo
     full_answer = "".join(full_answer_parts)
@@ -262,6 +317,10 @@ def query_stream(
         answer=full_answer,
         sources=sources,
         context_chunks=context_chunks,
+        input_tokens=input_tokens,
+        output_tokens=output_tokens,
+        cost_usd=cost_usd,
+        model_used=settings.llm_model,
     )
     yield "", result, None
 

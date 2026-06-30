@@ -307,13 +307,19 @@ function MainApp() {
   const initialMessages = useMemo<ThreadMessageLike[]>(() => {
     return messages.map((m): ThreadMessageLike => {
       const sources: SourceInfo[] = m.sources_json ? JSON.parse(m.sources_json) : [];
+      const usage = m.input_tokens > 0 ? {
+        input_tokens: m.input_tokens,
+        output_tokens: m.output_tokens,
+        cost_usd: m.cost_usd,
+        model: m.model_used || ''
+      } : undefined;
       return {
         id: m.id.toString(),
         role: m.role as 'user' | 'assistant',
         content: [{ type: 'text', text: m.content }],
-        ...(m.role === 'assistant' && sources.length > 0 ? { 
-          custom: { sources },
-          metadata: { custom: { sources } }
+        ...(m.role === 'assistant' ? { 
+          custom: { sources, usage },
+          metadata: { custom: { sources, usage } }
         } : {})
       };
     });

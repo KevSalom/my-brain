@@ -35,6 +35,13 @@ def create_db_and_tables() -> None:
     # Importar los modelos aquí para asegurar que se registren en la metadata
     from api import models
     SQLModel.metadata.create_all(engine)
+    
+    # Ejecutar la migración de forma segura para añadir nuevas columnas de uso
+    try:
+        from migrate_add_usage import migrate
+        migrate()
+    except Exception as e:
+        print(f"Error al ejecutar la migración al inicio: {e}")
 
 
 def get_session() -> Generator[Session, None, None]:

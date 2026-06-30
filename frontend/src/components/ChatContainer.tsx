@@ -130,11 +130,12 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({
                   };
                 } else if (data.done) {
                   sources = data.sources || [];
+                  const usage = data.usage || null;
                   yield {
                     content: [{ type: 'text' as const, text }],
-                    custom: { sources, agentStatus: null },
+                    custom: { sources, usage, agentStatus: null },
                     metadata: {
-                      custom: { sources, agentStatus: null }
+                      custom: { sources, usage, agentStatus: null }
                     }
                   };
                   if (data.title && onConversationTitleUpdatedRef.current && activeId) {
