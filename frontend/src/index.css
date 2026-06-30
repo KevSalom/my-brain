@@ -180,15 +180,30 @@
 }
 
 /* Global Reset overrides */
-body, html, #root {
+body, html {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  overscroll-behavior-y: auto;
+  background-color: var(--color-brand-bg);
+  color-scheme: inherit;
+  text-rendering: optimizeLegibility;
+  -ms-overflow-style: none;  /* IE/Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+body::-webkit-scrollbar, html::-webkit-scrollbar {
+  display: none; /* Chrome/Safari/Opera */
+}
+
+#root {
   margin: 0;
   padding: 0;
   width: 100%;
   height: 100%;
   overflow: hidden;
-  background-color: var(--color-brand-bg);
-  color-scheme: inherit;
-  text-rendering: optimizeLegibility;
 }
 
 /* Disable transitions temporarily (e.g. during theme toggle) */
