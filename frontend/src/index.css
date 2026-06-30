@@ -188,6 +188,7 @@ body, html, #root {
   overflow: hidden;
   background-color: var(--color-brand-bg);
   color-scheme: inherit;
+  text-rendering: optimizeLegibility;
 }
 
 /* Disable transitions temporarily (e.g. during theme toggle) */
@@ -239,9 +240,9 @@ body, html, #root {
   margin-bottom: 0.3rem;
 }
 
-.prose strong {
+strong, b, .prose strong, .prose-invert strong {
   font-weight: 650;
-  color: var(--prose-header);
+  color: inherit !important;
 }
 
 .prose h1, .prose h2, .prose h3, .prose h4 {
