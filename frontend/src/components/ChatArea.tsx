@@ -8,7 +8,7 @@ import {
 } from '@assistant-ui/react';
 import { MarkdownTextPrimitive } from '@assistant-ui/react-markdown';
 import remarkGfm from 'remark-gfm';
-import { ArrowUp, StopCircle, User, Sparkles, FileText, ChevronRight, Copy, Check, BrainCircuit } from 'lucide-react';
+import { ArrowUp, StopCircle, User, FileText, ChevronRight, Copy, Check, BrainCircuit } from 'lucide-react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import type { SourceInfo } from '../types';
@@ -202,16 +202,9 @@ const AssistantMessage: React.FC<AssistantMessageProps> = ({ message, sources, a
       <div className="flex flex-col items-start min-w-0 w-full">
         <div className="text-zinc-200 text-sm leading-relaxed w-full">
           {agentStatus ? (
-            <div className="py-1 flex flex-col gap-2.5">
-              <div className="flex items-center gap-2 text-zinc-400 font-medium select-none">
-                <BrainCircuit className="h-3.5 w-3.5 text-brand-primary animate-pulse" />
-                <span className="text-xs tracking-wide animate-pulse">{agentStatus}</span>
-              </div>
-              <div className="flex gap-1 pl-5">
-                <span className="w-1.5 h-1.5 rounded-full bg-brand-primary/45 animate-bounce" style={{ animationDelay: '0ms' }} />
-                <span className="w-1.5 h-1.5 rounded-full bg-brand-primary/65 animate-bounce" style={{ animationDelay: '150ms' }} />
-                <span className="w-1.5 h-1.5 rounded-full bg-brand-primary/85 animate-bounce" style={{ animationDelay: '300ms' }} />
-              </div>
+            <div className="py-1 flex items-center gap-2 text-zinc-400 font-medium select-none animate-pulse">
+              <BrainCircuit className="h-3.5 w-3.5 text-brand-primary" />
+              <span className="text-xs tracking-wide">{agentStatus}</span>
             </div>
           ) : (
             <>
@@ -251,7 +244,7 @@ const AssistantMessage: React.FC<AssistantMessageProps> = ({ message, sources, a
                     onClick={() => setSourcesOpen(!sourcesOpen)}
                     className="flex items-center gap-1.5 text-xs text-zinc-500 hover:text-zinc-300 transition-colors font-medium focus:outline-none"
                   >
-                    <Sparkles className="h-3 w-3 text-brand-primary" />
+                    <FileText className="h-3.5 w-3.5 text-zinc-500 shrink-0" />
                     <span>Sources used ({sources.length})</span>
                     <ChevronRight className={`h-3 w-3 transition-transform duration-200 ${sourcesOpen ? 'rotate-90 text-zinc-400' : 'text-zinc-600'}`} />
                   </button>
