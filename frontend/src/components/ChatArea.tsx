@@ -8,7 +8,7 @@ import {
 } from '@assistant-ui/react';
 import { MarkdownTextPrimitive } from '@assistant-ui/react-markdown';
 import remarkGfm from 'remark-gfm';
-import { ArrowUp, StopCircle, Bot, User, Sparkles, FileText, ChevronRight, Copy, Check } from 'lucide-react';
+import { ArrowUp, StopCircle, User, Sparkles, FileText, ChevronRight, Copy, Check, BrainCircuit } from 'lucide-react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import type { SourceInfo } from '../types';
@@ -83,39 +83,30 @@ export const ChatArea: React.FC = () => {
         >
           {/* Empty State / Welcome Screen */}
           <AuiIf condition={(s) => s.thread.isEmpty}>
-            <div className="h-[calc(100%-3rem)] flex flex-col items-center justify-center text-center max-w-lg mx-auto py-4 md:py-12 select-none animate-fade-in">
-              <div className="p-3.5 rounded-2xl bg-brand-primary/10 border border-brand-primary/20 shadow-[0_0_20px_var(--brand-shadow)] mb-5">
-                <Bot className="h-10 w-10 text-brand-primary animate-pulse" />
+            <div className="h-[calc(100%-3rem)] flex flex-col items-center justify-center text-center max-w-md mx-auto py-8 md:py-16 select-none animate-fade-in">
+              {/* Icon Container with ambient glow */}
+              <div className="relative p-4 rounded-3xl bg-brand-primary/5 border border-brand-border shadow-[0_0_30px_rgba(245,158,11,0.03)] mb-6 transition-all duration-350 hover:border-brand-primary/20 hover:shadow-[0_0_40px_rgba(245,158,11,0.06)] group">
+                <BrainCircuit className="h-9 w-9 text-brand-primary animate-pulse relative z-10" />
+                <div className="absolute inset-0 bg-brand-primary/10 rounded-3xl blur-md opacity-20 group-hover:opacity-40 transition-opacity duration-300" />
               </div>
-              <h2 className="text-2xl font-bold text-zinc-100 tracking-tight flex items-center gap-2">
-                My Brain <span className="text-brand-primary font-mono text-sm uppercase bg-brand-primary/10 px-2 py-0.5 rounded border border-brand-primary/30">LM</span>
-              </h2>
-              <p className="text-sm font-medium text-brand-primary/80 mt-1.5 italic tracking-wide">
-                "your docs, your local intelligence"
-              </p>
-              <p className="text-xs text-zinc-400 mt-3 max-w-sm leading-relaxed">
-                Ask me anything about the documents you have loaded in your brain. I will analyze the information locally.
-              </p>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-5 md:mt-8 w-full text-left">
-                <div className="bg-zinc-900/10 border border-brand-border p-4 rounded-xl hover:border-brand-primary/30 transition-all duration-300">
-                  <h4 className="text-xs font-semibold text-zinc-300 flex items-center gap-1.5">
-                    <Sparkles className="h-3.5 w-3.5 text-brand-primary" />
-                    Hybrid Search
-                  </h4>
-                  <p className="text-xs text-zinc-500 mt-1">
-                    I combine semantic similarity and keywords to give you exact answers.
-                  </p>
-                </div>
-                <div className="bg-zinc-900/10 border border-brand-border p-4 rounded-xl hover:border-brand-primary/30 transition-all duration-300">
-                  <h4 className="text-xs font-semibold text-zinc-300 flex items-center gap-1.5">
-                    <FileText className="h-3.5 w-3.5 text-brand-primary" />
-                    Clear References
-                  </h4>
-                  <p className="text-xs text-zinc-500 mt-1">
-                    Each response indicates the source files and relevance score from the vector store.
-                  </p>
-                </div>
+              {/* Status Header */}
+              <span className="text-[10px] font-semibold text-brand-primary uppercase tracking-[0.25em] mb-3 select-none opacity-80 animate-pulse">
+                Brain Active
+              </span>
+
+              {/* Main Message with typographic hierarchy and lighter tones */}
+              <h2 className="text-xl md:text-2xl font-light text-zinc-400 max-w-sm leading-relaxed tracking-tight px-4">
+                Ask me anything about the{" "}
+                <span className="text-zinc-100 font-medium border-b border-zinc-800 dark:border-zinc-800/80 pb-0.5">documents</span> you have
+                loaded in your{" "}
+                <span className="text-zinc-100 font-medium">brain area...</span>
+              </h2>
+
+              {/* Subtle status dot info */}
+              <div className="flex items-center gap-1.5 mt-8 px-3 py-1 rounded-full bg-zinc-900/40 dark:bg-zinc-950/40 border border-brand-border text-[10px] font-mono text-zinc-500 uppercase tracking-wider select-none">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+                <span>Ready to analyze locally</span>
               </div>
             </div>
           </AuiIf>
@@ -273,31 +264,43 @@ const AssistantMessage: React.FC<AssistantMessageProps> = ({ message, sources, a
 
                   {sourcesOpen && (
                     <div className="flex flex-col gap-1.5 mt-2.5 animate-slide-down">
-                      {sources.map((src, i) => (
-                        <div
-                          key={i}
-                          className="flex items-center justify-between p-2 rounded-lg bg-zinc-950/30 border border-zinc-900 text-xs text-zinc-400 hover:text-zinc-300 hover:bg-zinc-950/50 transition-colors"
-                        >
-                          <div className="flex items-center gap-2 truncate">
-                            <FileText className="h-3.5 w-3.5 text-zinc-500 shrink-0" />
-                            <span className="font-mono truncate">{src.source}</span>
-                            <span className="text-xs text-zinc-600">
-                              (Chunk {src.chunk_index})
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-2 shrink-0">
-                            <span className={`px-1.5 py-0.5 rounded text-xs font-mono font-semibold ${
-                              src.relevance_score > 0.8
-                                ? 'bg-emerald-950/20 border border-emerald-900/50 text-emerald-400'
-                                : src.relevance_score > 0.5
-                                ? 'bg-amber-950/20 border border-amber-900/50 text-amber-400'
-                                : 'bg-zinc-900 border border-zinc-800 text-zinc-500'
-                            }`}>
-                              {(src.relevance_score * 100).toFixed(0)}% confidence
-                            </span>
-                          </div>
-                        </div>
-                      ))}
+                      {(() => {
+                        const maxScore = sources[0]?.relevance_score || 0;
+                        return sources.map((src, i) => {
+                          const ratio = maxScore > 0 ? (src.relevance_score / maxScore) : 0;
+                          
+                          let label = "Contexto Adicional";
+                          let badgeClass = "bg-relevance-low-bg border border-relevance-low-border text-relevance-low-text";
+                          
+                          if (ratio >= 0.85) {
+                            label = "Relevancia Alta";
+                            badgeClass = "bg-relevance-high-bg border border-relevance-high-border text-relevance-high-text";
+                          } else if (ratio >= 0.5) {
+                            label = "Relevancia Media";
+                            badgeClass = "bg-relevance-medium-bg border border-relevance-medium-border text-relevance-medium-text";
+                          }
+                          
+                          return (
+                            <div
+                              key={i}
+                              className="flex items-center justify-between p-2 rounded-lg bg-zinc-950/30 border border-zinc-900 text-xs text-zinc-400 hover:text-zinc-300 hover:bg-zinc-950/50 transition-colors"
+                            >
+                              <div className="flex items-center gap-2 truncate">
+                                <FileText className="h-3.5 w-3.5 text-zinc-500 shrink-0" />
+                                <span className="font-mono truncate">{src.source}</span>
+                                <span className="text-xs text-zinc-600">
+                                  (Chunk {src.chunk_index})
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-2 shrink-0">
+                                <span className={`px-1.5 py-0.5 rounded text-xs font-mono font-semibold ${badgeClass}`}>
+                                  {label}
+                                </span>
+                              </div>
+                            </div>
+                          );
+                        });
+                      })()}
                     </div>
                   )}
                 </div>

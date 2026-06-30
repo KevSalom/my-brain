@@ -296,7 +296,10 @@ function MainApp() {
         id: m.id.toString(),
         role: m.role as 'user' | 'assistant',
         content: [{ type: 'text', text: m.content }],
-        ...(m.role === 'assistant' && sources.length > 0 ? { custom: { sources } } : {})
+        ...(m.role === 'assistant' && sources.length > 0 ? { 
+          custom: { sources },
+          metadata: { custom: { sources } }
+        } : {})
       };
     });
   }, [messages]);
