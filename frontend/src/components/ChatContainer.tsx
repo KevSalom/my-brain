@@ -147,7 +147,7 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({
                   throw new Error(data.error);
                 }
               } catch (e) {
-                console.error("Error al decodificar SSE JSON:", e);
+                console.error("Error decoding SSE JSON:", e);
               }
             }
           }

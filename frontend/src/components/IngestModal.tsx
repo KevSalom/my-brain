@@ -136,9 +136,9 @@ export const IngestModal: React.FC<IngestModalProps> = ({
       header={
         <div>
           <h3 className="text-sm font-bold text-zinc-200">
-            Ingestar Información al Área
+            Ingest Information to Area
           </h3>
-          <p className="text-xs text-zinc-400 mt-1">Agrega conocimiento para que tu agente pueda consultarlo.</p>
+          <p className="text-xs text-zinc-400 mt-1">Add knowledge so your agent can consult it.</p>
         </div>
       }
     >
@@ -154,7 +154,7 @@ export const IngestModal: React.FC<IngestModalProps> = ({
           }`}
         >
           <Upload className="h-3.5 w-3.5" />
-          Subir Archivo
+          Upload File
         </button>
         <button
           type="button"
@@ -166,7 +166,7 @@ export const IngestModal: React.FC<IngestModalProps> = ({
           }`}
         >
           <LinkIcon className="h-3.5 w-3.5" />
-          Enlace Web
+          Web Link
         </button>
         <button
           type="button"
@@ -178,7 +178,7 @@ export const IngestModal: React.FC<IngestModalProps> = ({
           }`}
         >
           <Edit3 className="h-3.5 w-3.5" />
-          Pegar Texto
+          Paste Text
         </button>
       </div>
 
@@ -187,7 +187,7 @@ export const IngestModal: React.FC<IngestModalProps> = ({
         {unifiedTab === 'upload' && (
           <div className="flex flex-col gap-4 animate-fade-in">
             <div className="text-xs text-zinc-300 leading-relaxed bg-zinc-900/30 border border-zinc-900 p-3 rounded-xl">
-              Sube un documento en formato <strong>PDF</strong>, <strong>TXT</strong> o <strong>Markdown</strong>. El archivo se procesará, dividirá en fragmentos y se indexará en la base de datos vectorial para consultas semánticas.
+              Upload a document in <strong>PDF</strong>, <strong>TXT</strong>, or <strong>Markdown</strong> format. The file will be processed, chunked, and indexed in the vector database for semantic queries.
             </div>
             <UploadZone 
               areaId={areaId} 
@@ -199,13 +199,13 @@ export const IngestModal: React.FC<IngestModalProps> = ({
         {unifiedTab === 'link' && (
           <div className="flex flex-col gap-4 animate-fade-in">
             <div className="text-xs text-zinc-300 leading-relaxed bg-zinc-900/30 border border-zinc-900/50 p-3 rounded-xl">
-              Ingresa una dirección URL para descargar su contenido. La página se convertirá automáticamente a formato Markdown limpio para su indexación.
+              Enter a URL to download its content. The page will be automatically converted to clean Markdown for indexing.
             </div>
             <form onSubmit={handleIngestUrl} className="flex flex-col gap-3">
               <div className="flex gap-2">
                 <input
                   type="url"
-                  placeholder="https://ejemplo.com/articulo"
+                  placeholder="https://example.com/article"
                   value={linkUrl}
                   onChange={(e) => setLinkUrl(e.target.value)}
                   required
@@ -221,7 +221,7 @@ export const IngestModal: React.FC<IngestModalProps> = ({
                   ) : (
                     <>
                       <Plus className="h-3.5 w-3.5" />
-                      Ingestar
+                      Ingest
                     </>
                   )}
                 </button>
@@ -244,11 +244,11 @@ export const IngestModal: React.FC<IngestModalProps> = ({
           <form onSubmit={handlePasteIngest} className="flex flex-col gap-4 animate-fade-in">
             <div className="flex flex-col gap-1.5">
               <label className="text-xs font-bold uppercase tracking-wider text-zinc-400">
-                Título del Documento
+                Document Title
               </label>
               <input
                 type="text"
-                placeholder="Ej. Notas de la Reunión Semanal"
+                placeholder="e.g., Weekly Meeting Notes"
                 value={pasteTitle}
                 onChange={(e) => setPasteTitle(e.target.value)}
                 required
@@ -259,14 +259,14 @@ export const IngestModal: React.FC<IngestModalProps> = ({
             <div className="flex flex-col gap-1.5">
               <div className="flex flex-col gap-0.5">
                 <label className="text-xs font-bold uppercase tracking-wider text-zinc-400">
-                  Contenido (Markdown soportado)
+                  Content (Markdown supported)
                 </label>
                 <span className="text-xs text-zinc-400 italic">
-                  Copia texto enriquecido de la web para conversión automática
+                  Copy rich text from the web for automatic conversion
                 </span>
               </div>
               <textarea
-                placeholder="Pega el texto aquí..."
+                placeholder="Paste text here..."
                 value={pasteContent}
                 onChange={(e) => setPasteContent(e.target.value)}
                 onPaste={handleTextareaPaste}
@@ -291,7 +291,7 @@ export const IngestModal: React.FC<IngestModalProps> = ({
                 onClick={onClose}
                 className="px-4 py-2 rounded-xl text-xs text-zinc-400 hover:bg-zinc-800 transition-colors cursor-pointer"
               >
-                Cancelar
+                Cancel
               </button>
               <button
                 type="submit"
@@ -301,10 +301,10 @@ export const IngestModal: React.FC<IngestModalProps> = ({
                 {pasteLoading ? (
                   <>
                     <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                    Ingestando...
+                    Ingesting...
                   </>
                 ) : (
-                  'Ingestar Texto'
+                  'Ingest Text'
                 )}
               </button>
             </div>

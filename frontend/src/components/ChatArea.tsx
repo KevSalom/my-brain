@@ -414,14 +414,14 @@ const AssistantMessage: React.FC<AssistantMessageProps> = ({ message, sources, u
                     return sources.map((src, i) => {
                       const ratio = maxScore > 0 ? (src.relevance_score / maxScore) : 0;
                       
-                      let label = "Contexto Adicional";
+                      let label = "Additional Context";
                       let badgeClass = "bg-relevance-low-bg border border-relevance-low-border text-relevance-low-text";
                       
                       if (ratio >= 0.85) {
-                        label = "Relevancia Alta";
+                        label = "High Relevance";
                         badgeClass = "bg-relevance-high-bg border border-relevance-high-border text-relevance-high-text";
                       } else if (ratio >= 0.5) {
-                        label = "Relevancia Media";
+                        label = "Medium Relevance";
                         badgeClass = "bg-relevance-medium-bg border border-relevance-medium-border text-relevance-medium-text";
                       }
                       

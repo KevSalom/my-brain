@@ -385,20 +385,20 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 className="w-full flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-brand-primary/10 border border-brand-primary/20 text-brand-primary hover:bg-brand-primary/18 transition-all font-semibold text-xs cursor-pointer shadow-[0_0_12px_rgba(245,158,11,0.04)]"
               >
                 <Plus className="h-4 w-4" />
-                Ingestar Documento
+                Ingest Document
               </button>
 
               {/* Chats List */}
               <div className="flex flex-col gap-2.5">
                 <div className="flex items-center justify-between">
                   <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">
-                    Conversaciones
+                    Conversations
                   </span>
                   <button
                     onClick={onCreateConversation}
                     className="flex items-center gap-1 text-[10px] text-brand-primary hover:text-brand-primary-hover font-bold transition-colors cursor-pointer"
                   >
-                    <Plus className="h-3 w-3" /> Nuevo Chat
+                    <Plus className="h-3 w-3" /> New Chat
                   </button>
                 </div>
                 {renderChatsList()}
@@ -407,7 +407,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               {/* Documents List */}
               <div className="flex flex-col gap-2.5 border-t border-zinc-900/60 pt-4">
                 <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">
-                  Documentos ({documents.length})
+                  Documents ({documents.length})
                 </span>
                 {renderDocumentsList()}
               </div>

@@ -20,7 +20,7 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000
 export async function getStatus(): Promise<StatusResponse> {
   const response = await fetch(`${API_BASE_URL}/api/status`);
   if (!response.ok) {
-    throw new Error(`Error al obtener el estado: ${response.statusText}`);
+    throw new Error(`Failed to get status: ${response.statusText}`);
   }
   return response.json();
 }
@@ -31,19 +31,19 @@ export async function ingestDirectory(): Promise<IngestDirectoryResponse> {
   });
   if (!response.ok) {
     const errData = await response.json().catch(() => ({}));
-    throw new Error(errData.detail || `Error al ingestar el directorio: ${response.statusText}`);
+    throw new Error(errData.detail || `Failed to ingest directory: ${response.statusText}`);
   }
   return response.json();
 }
 
 // =====================================================================
-// Areas (Áreas)
+// Areas (Knowledge Areas)
 // =====================================================================
 
 export async function getAreas(): Promise<AreaResponse[]> {
   const response = await fetch(`${API_BASE_URL}/api/areas`);
   if (!response.ok) {
-    throw new Error(`Error al listar áreas: ${response.statusText}`);
+    throw new Error(`Failed to list knowledge areas: ${response.statusText}`);
   }
   return response.json();
 }
@@ -56,7 +56,7 @@ export async function createArea(name: string, description?: string, color?: str
   });
   if (!response.ok) {
     const errData = await response.json().catch(() => ({}));
-    throw new Error(errData.detail || `Error al crear área: ${response.statusText}`);
+    throw new Error(errData.detail || `Failed to create knowledge area: ${response.statusText}`);
   }
   return response.json();
 }
@@ -67,18 +67,18 @@ export async function deleteArea(areaId: string): Promise<void> {
   });
   if (!response.ok) {
     const errData = await response.json().catch(() => ({}));
-    throw new Error(errData.detail || `Error al eliminar área: ${response.statusText}`);
+    throw new Error(errData.detail || `Failed to delete knowledge area: ${response.statusText}`);
   }
 }
 
 // =====================================================================
-// Documents (Documentos por Área)
+// Documents
 // =====================================================================
 
 export async function getAreaDocuments(areaId: string): Promise<DocumentResponse[]> {
   const response = await fetch(`${API_BASE_URL}/api/areas/${areaId}/documents`);
   if (!response.ok) {
-    throw new Error(`Error al cargar documentos del área: ${response.statusText}`);
+    throw new Error(`Failed to load area documents: ${response.statusText}`);
   }
   return response.json();
 }
@@ -93,7 +93,7 @@ export async function ingestFileToArea(areaId: string, file: File): Promise<Inge
   });
   if (!response.ok) {
     const errData = await response.json().catch(() => ({}));
-    throw new Error(errData.detail || `Error al subir el archivo: ${response.statusText}`);
+    throw new Error(errData.detail || `Failed to upload file: ${response.statusText}`);
   }
   return response.json();
 }
@@ -106,7 +106,7 @@ export async function ingestUrlToArea(areaId: string, url: string): Promise<Inge
   });
   if (!response.ok) {
     const errData = await response.json().catch(() => ({}));
-    throw new Error(errData.detail || `Error al ingestar el enlace: ${response.statusText}`);
+    throw new Error(errData.detail || `Failed to ingest link: ${response.statusText}`);
   }
   return response.json();
 }
@@ -119,7 +119,7 @@ export async function ingestTextToArea(areaId: string, title: string, content: s
   });
   if (!response.ok) {
     const errData = await response.json().catch(() => ({}));
-    throw new Error(errData.detail || `Error al ingestar el texto: ${response.statusText}`);
+    throw new Error(errData.detail || `Failed to ingest text: ${response.statusText}`);
   }
   return response.json();
 }
@@ -130,18 +130,18 @@ export async function deleteAreaDocument(areaId: string, docId: number): Promise
   });
   if (!response.ok) {
     const errData = await response.json().catch(() => ({}));
-    throw new Error(errData.detail || `Error al eliminar documento: ${response.statusText}`);
+    throw new Error(errData.detail || `Failed to delete document: ${response.statusText}`);
   }
 }
 
 // =====================================================================
-// Conversations (Conversaciones por Área)
+// Conversations
 // =====================================================================
 
 export async function getAreaConversations(areaId: string): Promise<ConversationResponse[]> {
   const response = await fetch(`${API_BASE_URL}/api/chat/areas/${areaId}/conversations`);
   if (!response.ok) {
-    throw new Error(`Error al listar conversaciones: ${response.statusText}`);
+    throw new Error(`Failed to list conversations: ${response.statusText}`);
   }
   return response.json();
 }
@@ -154,7 +154,7 @@ export async function createConversation(areaId: string, title?: string): Promis
   });
   if (!response.ok) {
     const errData = await response.json().catch(() => ({}));
-    throw new Error(errData.detail || `Error al crear conversación: ${response.statusText}`);
+    throw new Error(errData.detail || `Failed to create conversation: ${response.statusText}`);
   }
   return response.json();
 }
@@ -167,7 +167,7 @@ export async function updateConversationTitle(convId: string, title: string): Pr
   });
   if (!response.ok) {
     const errData = await response.json().catch(() => ({}));
-    throw new Error(errData.detail || `Error al actualizar conversación: ${response.statusText}`);
+    throw new Error(errData.detail || `Failed to update conversation: ${response.statusText}`);
   }
   return response.json();
 }
@@ -178,14 +178,15 @@ export async function deleteConversation(convId: string): Promise<void> {
   });
   if (!response.ok) {
     const errData = await response.json().catch(() => ({}));
-    throw new Error(errData.detail || `Error al eliminar conversación: ${response.statusText}`);
+    throw new Error(errData.detail || `Failed to delete conversation: ${response.statusText}`);
   }
 }
 
 export async function getConversationMessages(convId: string): Promise<MessageResponse[]> {
   const response = await fetch(`${API_BASE_URL}/api/chat/conversations/${convId}/messages`);
   if (!response.ok) {
-    throw new Error(`Error al cargar mensajes: ${response.statusText}`);
+    
+    throw new Error(`Failed to load messages: ${response.statusText}`);
   }
   return response.json();
 }
@@ -193,7 +194,7 @@ export async function getConversationMessages(convId: string): Promise<MessageRe
 export async function getModelInfo(): Promise<ModelInfo> {
   const response = await fetch(`${API_BASE_URL}/api/model-info`);
   if (!response.ok) {
-    throw new Error(`Error al obtener información del modelo: ${response.statusText}`);
+    throw new Error(`Failed to get model info: ${response.statusText}`);
   }
   return response.json();
 }
@@ -201,7 +202,7 @@ export async function getModelInfo(): Promise<ModelInfo> {
 export async function getUsageSummary(): Promise<UsageSummary> {
   const response = await fetch(`${API_BASE_URL}/api/usage/summary`);
   if (!response.ok) {
-    throw new Error(`Error al obtener resumen de uso: ${response.statusText}`);
+    throw new Error(`Failed to get usage summary: ${response.statusText}`);
   }
   return response.json();
 }
@@ -209,7 +210,7 @@ export async function getUsageSummary(): Promise<UsageSummary> {
 export async function getConversationUsage(convId: string): Promise<ConversationUsageResponse> {
   const response = await fetch(`${API_BASE_URL}/api/chat/conversations/${convId}/usage`);
   if (!response.ok) {
-    throw new Error(`Error al obtener uso de conversación: ${response.statusText}`);
+    throw new Error(`Failed to get conversation usage: ${response.statusText}`);
   }
   return response.json();
 }
