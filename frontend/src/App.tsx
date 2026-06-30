@@ -12,6 +12,7 @@ import { Sidebar } from './components/Sidebar';
 import { ChatContainer } from './components/ChatContainer';
 import { StatusPanel } from './components/StatusPanel';
 import { CreateAreaModal } from './components/CreateAreaModal';
+import { Modal } from './components/Modal';
 import { 
   getStatus, 
   getAreas, 
@@ -487,31 +488,18 @@ function MainApp() {
       />
 
       {/* Modal de Estado del Cerebro */}
-      {isViewingBrainStatus && (
-        <div className="fixed inset-0 z-50 bg-black/85 flex items-center justify-center p-4 animate-fade-in animate-duration-300">
-          <div className="relative bg-zinc-900/90 border border-brand-border rounded-2xl w-full max-w-lg p-6 shadow-2xl flex flex-col max-h-[90vh] overflow-hidden">
-            {/* Botón de cerrar */}
-            <button
-              onClick={() => setIsViewingBrainStatus(false)}
-              className="absolute top-4 right-4 text-zinc-500 hover:text-zinc-200 transition-colors p-1.5 rounded-lg hover:bg-zinc-800 cursor-pointer"
-              title="Close modal"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-            
-            <div className="overflow-y-auto pr-1 flex-1 scrollbar-thin">
-              <StatusPanel
-                status={status}
-                loading={loadingStatus}
-                error={statusError}
-                onRefresh={refreshStatus}
-              />
-            </div>
-          </div>
-        </div>
-      )}
+      <Modal
+        isOpen={isViewingBrainStatus}
+        onClose={() => setIsViewingBrainStatus(false)}
+        size="lg"
+      >
+        <StatusPanel
+          status={status}
+          loading={loadingStatus}
+          error={statusError}
+          onRefresh={refreshStatus}
+        />
+      </Modal>
     </div>
   );
 }
