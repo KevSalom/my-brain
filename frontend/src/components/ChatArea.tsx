@@ -111,7 +111,17 @@ const ContextMeterHeader: React.FC<{ conversationTitle?: string }> = ({ conversa
       .catch((err) => console.error("Error fetching model info:", err));
   }, []);
 
-  if (!modelInfo) return null;
+  if (!modelInfo) {
+    return (
+      <div className="w-full border-b border-brand-border bg-zinc-950/20 backdrop-blur-sm px-4 py-2 flex items-center justify-between text-xs shrink-0 select-none h-[33px]">
+        <div className="flex items-center gap-1.5 font-medium text-zinc-400">
+          <span className="truncate max-w-[180px] md:max-w-[300px]">
+            {conversationTitle || "New Conversation"}
+          </span>
+        </div>
+      </div>
+    );
+  }
 
   // Encontrar el último mensaje del asistente con usage
   let activeUsage = null;
@@ -140,7 +150,7 @@ const ContextMeterHeader: React.FC<{ conversationTitle?: string }> = ({ conversa
   }
 
   return (
-    <div className="w-full border-b border-brand-border bg-zinc-950/20 backdrop-blur-sm px-4 py-2 flex items-center justify-between text-xs shrink-0 select-none">
+    <div className="w-full border-b border-brand-border bg-zinc-950/20 backdrop-blur-sm px-4 py-2 flex items-center justify-between text-xs shrink-0 select-none h-[33px]">
       <div className="flex items-center gap-1.5 font-medium text-zinc-400">
         <span className="truncate max-w-[180px] md:max-w-[300px]">
           {conversationTitle || "New Conversation"}
