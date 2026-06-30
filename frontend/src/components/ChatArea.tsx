@@ -8,7 +8,7 @@ import {
 } from '@assistant-ui/react';
 import { MarkdownTextPrimitive } from '@assistant-ui/react-markdown';
 import remarkGfm from 'remark-gfm';
-import { ArrowUp, StopCircle, User, FileText, ChevronRight, Copy, Check, BrainCircuit } from 'lucide-react';
+import { ArrowUp, StopCircle, FileText, ChevronRight, Copy, Check, BrainCircuit } from 'lucide-react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import type { SourceInfo } from '../types';
@@ -72,6 +72,34 @@ const CodeBlockWithCopy: React.FC<{
   );
 };
 
+const CopyButton: React.FC<{ value: string; className?: string }> = ({ value, className = '' }) => {
+  const [isCopied, setIsCopied] = useState(false);
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(value);
+      setIsCopied(true);
+      setTimeout(() => setIsCopied(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy text: ', err);
+    }
+  };
+
+  return (
+    <button
+      onClick={handleCopy}
+      className={`transition-colors duration-200 p-1 text-zinc-500 hover:text-zinc-300 cursor-pointer ${className}`}
+      title="Copy to clipboard"
+    >
+      {isCopied ? (
+        <Check className="h-3.5 w-3.5" />
+      ) : (
+        <Copy className="h-3.5 w-3.5" />
+      )}
+    </button>
+  );
+};
+
 export const ChatArea: React.FC = () => {
   return (
     <div className="flex-1 min-h-0 bg-brand-bg flex flex-col min-w-0 relative">
@@ -109,7 +137,7 @@ export const ChatArea: React.FC = () => {
           <ThreadPrimitive.Messages>
             {({ message }) => {
               if (message.role === 'user') {
-                return <UserMessage />;
+                return <UserMessage message={message} />;
               }
               
               // Extract sources and status from custom message custom field (check both root and metadata.custom)
@@ -153,21 +181,24 @@ export const ChatArea: React.FC = () => {
 
 
 // User Message component
-const UserMessage: React.FC = () => {
+const UserMessage: React.FC<{ message: any }> = ({ message }) => {
+  const textValue = message.content
+    ? message.content
+        .filter((c: any) => c.type === 'text')
+        .map((c: any) => (c.type === 'text' ? c.text : ''))
+        .join('\n')
+    : '';
+
   return (
-    <MessagePrimitive.Root className="flex justify-end w-full max-w-3xl mx-auto animate-fade-in">
-      <div className="flex gap-3 max-w-[85%]">
-        <div className="flex flex-col items-end">
-          <div className="rounded-2xl rounded-tr-none bg-brand-primary/10 border border-brand-primary/20 text-zinc-100 px-4 py-3 text-sm shadow-md leading-relaxed">
-            <MessagePrimitive.Content />
-          </div>
-          <span className="text-xs text-zinc-500 mt-1.5 mr-1 font-medium uppercase tracking-wider">
-            You
-          </span>
+    <MessagePrimitive.Root className="flex justify-end w-full max-w-3xl mx-auto animate-fade-in group">
+      <div className="flex flex-col items-end max-w-[85%]">
+        {/* Message bubble */}
+        <div className="rounded-2xl rounded-tr-none bg-brand-primary/10 border border-brand-primary/20 text-zinc-100 px-4 py-3 text-sm shadow-md leading-relaxed hover:border-brand-primary/30 transition-all duration-300">
+          <MessagePrimitive.Content />
         </div>
-        <div className="h-7 w-7 rounded-lg bg-brand-primary/20 border border-brand-primary/30 flex items-center justify-center shrink-0 shadow-sm mt-1">
-          <User className="h-4 w-4 text-brand-primary" />
-        </div>
+        
+        {/* Copy Button (below and to the right) */}
+        <CopyButton value={textValue} className="mt-1.5" />
       </div>
     </MessagePrimitive.Root>
   );
@@ -197,8 +228,15 @@ const AssistantMessage: React.FC<AssistantMessageProps> = ({ message, sources, a
     }
   }
 
+  const textValue = message.content
+    ? message.content
+        .filter((c: any) => c.type === 'text')
+        .map((c: any) => (c.type === 'text' ? c.text : ''))
+        .join('\n')
+    : '';
+
   return (
-    <MessagePrimitive.Root className="flex justify-start w-full max-w-3xl mx-auto animate-fade-in">
+    <MessagePrimitive.Root className="flex justify-start w-full max-w-3xl mx-auto animate-fade-in group">
       <div className="flex flex-col items-start min-w-0 w-full">
         <div className="text-zinc-200 text-sm leading-relaxed w-full">
           {agentStatus ? (
@@ -237,59 +275,65 @@ const AssistantMessage: React.FC<AssistantMessageProps> = ({ message, sources, a
                 </MessagePrimitive.Parts>
               </div>
 
-              {/* RAG Sources Rendering */}
-              {sources.length > 0 && (
-                <div className="mt-4 pt-3.5 border-t border-zinc-800/50">
-                  <button
-                    onClick={() => setSourcesOpen(!sourcesOpen)}
-                    className="flex items-center gap-1.5 text-xs text-zinc-500 hover:text-zinc-300 transition-colors font-medium focus:outline-none"
-                  >
-                    <FileText className="h-3.5 w-3.5 text-zinc-500 shrink-0" />
-                    <span>Sources used ({sources.length})</span>
-                    <ChevronRight className={`h-3 w-3 transition-transform duration-200 ${sourcesOpen ? 'rotate-90 text-zinc-400' : 'text-zinc-600'}`} />
-                  </button>
+              {/* Footer Actions Row */}
+              <div className={`flex items-center gap-3 mt-3 w-full ${sources.length > 0 ? 'pt-2.5 border-t border-zinc-800/40' : ''}`}>
+                <CopyButton value={textValue} />
+                
+                {sources.length > 0 && (
+                  <>
+                    <span className="h-3 w-px bg-zinc-800/80" />
+                    <button
+                      onClick={() => setSourcesOpen(!sourcesOpen)}
+                      className="flex items-center gap-1.5 text-xs text-zinc-500 hover:text-zinc-300 transition-colors font-medium focus:outline-none cursor-pointer"
+                    >
+                      <FileText className="h-3.5 w-3.5 text-zinc-500 shrink-0" />
+                      <span>Sources used ({sources.length})</span>
+                      <ChevronRight className={`h-3 w-3 transition-transform duration-200 ${sourcesOpen ? 'rotate-90 text-zinc-400' : 'text-zinc-600'}`} />
+                    </button>
+                  </>
+                )}
+              </div>
 
-                  {sourcesOpen && (
-                    <div className="flex flex-col gap-1.5 mt-2.5 animate-slide-down">
-                      {(() => {
-                        const maxScore = sources[0]?.relevance_score || 0;
-                        return sources.map((src, i) => {
-                          const ratio = maxScore > 0 ? (src.relevance_score / maxScore) : 0;
-                          
-                          let label = "Contexto Adicional";
-                          let badgeClass = "bg-relevance-low-bg border border-relevance-low-border text-relevance-low-text";
-                          
-                          if (ratio >= 0.85) {
-                            label = "Relevancia Alta";
-                            badgeClass = "bg-relevance-high-bg border border-relevance-high-border text-relevance-high-text";
-                          } else if (ratio >= 0.5) {
-                            label = "Relevancia Media";
-                            badgeClass = "bg-relevance-medium-bg border border-relevance-medium-border text-relevance-medium-text";
-                          }
-                          
-                          return (
-                            <div
-                              key={i}
-                              className="flex items-center justify-between p-2 rounded-lg bg-zinc-950/30 border border-zinc-900 text-xs text-zinc-400 hover:text-zinc-300 hover:bg-zinc-950/50 transition-colors"
-                            >
-                              <div className="flex items-center gap-2 truncate">
-                                <FileText className="h-3.5 w-3.5 text-zinc-500 shrink-0" />
-                                <span className="font-mono truncate">{src.source}</span>
-                                <span className="text-xs text-zinc-600">
-                                  (Chunk {src.chunk_index})
-                                </span>
-                              </div>
-                              <div className="flex items-center gap-2 shrink-0">
-                                <span className={`px-1.5 py-0.5 rounded text-xs font-mono font-semibold ${badgeClass}`}>
-                                  {label}
-                                </span>
-                              </div>
-                            </div>
-                          );
-                        });
-                      })()}
-                    </div>
-                  )}
+              {/* RAG Sources List */}
+              {sources.length > 0 && sourcesOpen && (
+                <div className="flex flex-col gap-1.5 mt-2.5 animate-slide-down w-full">
+                  {(() => {
+                    const maxScore = sources[0]?.relevance_score || 0;
+                    return sources.map((src, i) => {
+                      const ratio = maxScore > 0 ? (src.relevance_score / maxScore) : 0;
+                      
+                      let label = "Contexto Adicional";
+                      let badgeClass = "bg-relevance-low-bg border border-relevance-low-border text-relevance-low-text";
+                      
+                      if (ratio >= 0.85) {
+                        label = "Relevancia Alta";
+                        badgeClass = "bg-relevance-high-bg border border-relevance-high-border text-relevance-high-text";
+                      } else if (ratio >= 0.5) {
+                        label = "Relevancia Media";
+                        badgeClass = "bg-relevance-medium-bg border border-relevance-medium-border text-relevance-medium-text";
+                      }
+                      
+                      return (
+                        <div
+                          key={i}
+                          className="flex items-center justify-between p-2 rounded-lg bg-zinc-950/30 border border-zinc-900 text-xs text-zinc-400 hover:text-zinc-300 hover:bg-zinc-950/50 transition-colors"
+                        >
+                          <div className="flex items-center gap-2 truncate">
+                            <FileText className="h-3.5 w-3.5 text-zinc-500 shrink-0" />
+                            <span className="font-mono truncate">{src.source}</span>
+                            <span className="text-xs text-zinc-600">
+                              (Chunk {src.chunk_index})
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2 shrink-0">
+                            <span className={`px-1.5 py-0.5 rounded text-xs font-mono font-semibold ${badgeClass}`}>
+                              {label}
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    });
+                  })()}
                 </div>
               )}
             </>
