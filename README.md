@@ -8,7 +8,7 @@
 
 My Brain LM is a developer-focused, open-source alternative to tools like **Google's NotebookLM**, designed to query technical documentation, analyze research articles, study academic papers, make architectural decisions, or simply have an AI assistant that "knows" your local documents.
 
-Unlike Google's NotebookLM, you are **not locked into Gemini models** or any single provider. The application is built using the standard OpenAI client interface but recommends routing through **OpenRouter**, giving you the complete freedom to use any state-of-the-art model available (such as **DeepSeek-V4**). It is a private, custom-tailored workspace designed for deep studying, research, and learning.
+Unlike Google's NotebookLM, you are **not locked into Gemini models** or any single provider. The application is built using the standard OpenAI client interface but recommends routing through **OpenRouter**, giving you the complete freedom to use any state-of-the-art model available (such as **DeepSeek-V4**). It is a private-first, custom-tailored workspace designed for deep studying, research, and learning (your source files, relational histories, and ChromaDB vector databases remain 100% on your local machine, though inference prompts can be sent to external APIs or run fully offline using local engines like Ollama).
 
 ### Key Features
 
