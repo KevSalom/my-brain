@@ -51,7 +51,7 @@ export const Modal: React.FC<ModalProps> = ({
       className="fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-4 animate-fade-in font-sans"
     >
       <div
-        className={`relative bg-zinc-900/95 border border-brand-border rounded-2xl w-full ${sizeClasses[size]} p-6 shadow-2xl flex flex-col max-h-[90vh] overflow-hidden animate-in fade-in zoom-in-95 duration-200`}
+        className={`relative bg-zinc-900/95 border border-brand-border rounded-2xl w-full ${sizeClasses[size]} p-4 sm:p-6 shadow-2xl flex flex-col max-h-[90vh] overflow-hidden animate-in fade-in zoom-in-95 duration-200`}
       >
         {/* Header Layout */}
         {header ? (

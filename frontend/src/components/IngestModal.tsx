@@ -143,11 +143,11 @@ export const IngestModal: React.FC<IngestModalProps> = ({
       }
     >
       {/* Tabs for Ingestion Modes */}
-      <div className="flex bg-zinc-950/60 p-1 border-b border-zinc-900 gap-1 shrink-0 rounded-xl overflow-hidden mb-5">
+      <div className="flex flex-col sm:flex-row bg-zinc-950/60 p-1 border border-zinc-900/60 gap-1 shrink-0 rounded-xl mb-5">
         <button
           type="button"
           onClick={() => setUnifiedTab('upload')}
-          className={`flex-1 py-2 rounded-lg text-xs font-semibold flex items-center justify-center gap-2 transition-all outline-none focus:outline-none cursor-pointer border ${
+          className={`flex-1 py-2.5 sm:py-2 rounded-lg text-xs font-semibold flex items-center justify-center gap-2 transition-all outline-none focus:outline-none cursor-pointer border ${
             unifiedTab === 'upload'
               ? 'bg-zinc-900 border-zinc-800 text-zinc-100 shadow-sm'
               : 'border-transparent text-zinc-500 hover:text-zinc-300'
@@ -159,7 +159,7 @@ export const IngestModal: React.FC<IngestModalProps> = ({
         <button
           type="button"
           onClick={() => setUnifiedTab('link')}
-          className={`flex-1 py-2 rounded-lg text-xs font-semibold flex items-center justify-center gap-2 transition-all outline-none focus:outline-none cursor-pointer border ${
+          className={`flex-1 py-2.5 sm:py-2 rounded-lg text-xs font-semibold flex items-center justify-center gap-2 transition-all outline-none focus:outline-none cursor-pointer border ${
             unifiedTab === 'link'
               ? 'bg-zinc-900 border-zinc-800 text-zinc-100 shadow-sm'
               : 'border-transparent text-zinc-500 hover:text-zinc-300'
@@ -171,7 +171,7 @@ export const IngestModal: React.FC<IngestModalProps> = ({
         <button
           type="button"
           onClick={() => setUnifiedTab('paste')}
-          className={`flex-1 py-2 rounded-lg text-xs font-semibold flex items-center justify-center gap-2 transition-all outline-none focus:outline-none cursor-pointer border ${
+          className={`flex-1 py-2.5 sm:py-2 rounded-lg text-xs font-semibold flex items-center justify-center gap-2 transition-all outline-none focus:outline-none cursor-pointer border ${
             unifiedTab === 'paste'
               ? 'bg-zinc-900 border-zinc-800 text-zinc-100 shadow-sm'
               : 'border-transparent text-zinc-500 hover:text-zinc-300'
@@ -202,7 +202,7 @@ export const IngestModal: React.FC<IngestModalProps> = ({
               Enter a URL to download its content. The page will be automatically converted to clean Markdown for indexing.
             </div>
             <form onSubmit={handleIngestUrl} className="flex flex-col gap-3">
-              <div className="flex gap-2">
+              <div className="flex flex-col sm:flex-row gap-2">
                 <input
                   type="url"
                   placeholder="https://example.com/article"
@@ -214,7 +214,7 @@ export const IngestModal: React.FC<IngestModalProps> = ({
                 <button
                   type="submit"
                   disabled={linkLoading || !linkUrl.trim()}
-                  className="px-5 py-2.5 rounded-xl bg-brand-primary text-xs font-semibold text-white hover:bg-brand-primary-hover disabled:opacity-40 disabled:hover:bg-brand-primary flex items-center gap-1.5 transition-all cursor-pointer shrink-0"
+                  className="px-5 py-2.5 rounded-xl bg-brand-primary text-xs font-semibold text-white hover:bg-brand-primary-hover disabled:opacity-40 disabled:hover:bg-brand-primary flex items-center justify-center gap-1.5 transition-all cursor-pointer shrink-0 w-full sm:w-auto"
                 >
                   {linkLoading ? (
                     <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -285,18 +285,18 @@ export const IngestModal: React.FC<IngestModalProps> = ({
               </div>
             )}
 
-            <div className="flex justify-end gap-2.5 mt-2">
+            <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 sm:gap-2.5 mt-2">
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 rounded-xl text-xs text-zinc-400 hover:bg-zinc-800 transition-colors cursor-pointer"
+                className="w-full sm:w-auto px-4 py-2.5 sm:py-2 rounded-xl text-xs text-zinc-400 hover:bg-zinc-800 transition-colors cursor-pointer text-center"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={pasteLoading || !pasteTitle.trim() || !pasteContent.trim()}
-                className="px-5 py-2 rounded-xl bg-brand-primary text-xs font-semibold text-white hover:bg-brand-primary-hover disabled:opacity-40 disabled:hover:bg-brand-primary flex items-center gap-1.5 transition-all cursor-pointer"
+                className="w-full sm:w-auto px-5 py-2.5 sm:py-2 rounded-xl bg-brand-primary text-xs font-semibold text-white hover:bg-brand-primary-hover disabled:opacity-40 disabled:hover:bg-brand-primary flex items-center justify-center gap-1.5 transition-all cursor-pointer"
               >
                 {pasteLoading ? (
                   <>

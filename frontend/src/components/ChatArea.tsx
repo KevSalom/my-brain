@@ -113,9 +113,9 @@ const ContextMeterHeader: React.FC<{ conversationTitle?: string }> = ({ conversa
 
   if (!modelInfo) {
     return (
-      <div className="w-full border-b border-brand-border bg-zinc-950/20 backdrop-blur-sm px-4 py-2 flex items-center justify-between text-xs shrink-0 select-none h-[33px]">
+      <div className="w-full border-b border-brand-border bg-zinc-950/20 backdrop-blur-sm px-4 py-1.5 flex items-center justify-between text-xs shrink-0 select-none h-9">
         <div className="flex items-center gap-1.5 font-medium text-zinc-400">
-          <span className="truncate max-w-[180px] md:max-w-[300px]">
+          <span className="truncate max-w-[110px] sm:max-w-[220px] md:max-w-[350px]">
             {conversationTitle || "New Conversation"}
           </span>
         </div>
@@ -150,19 +150,19 @@ const ContextMeterHeader: React.FC<{ conversationTitle?: string }> = ({ conversa
   }
 
   return (
-    <div className="w-full border-b border-brand-border bg-zinc-950/20 backdrop-blur-sm px-4 py-2 flex items-center justify-between text-xs shrink-0 select-none h-[33px]">
+    <div className="w-full border-b border-brand-border bg-zinc-950/20 backdrop-blur-sm px-4 py-1.5 flex items-center justify-between text-xs shrink-0 select-none h-9">
       <div className="flex items-center gap-1.5 font-medium text-zinc-400">
-        <span className="truncate max-w-[180px] md:max-w-[300px]">
+        <span className="truncate max-w-[110px] sm:max-w-[220px] md:max-w-[350px]">
           {conversationTitle || "New Conversation"}
         </span>
       </div>
       
       {inputTokens > 0 && (
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
           <span className="font-mono text-[11px] text-zinc-500">
-            Context: <span className={`${textColorClass} font-semibold`}>{inputTokens.toLocaleString()}</span> / {contextLength >= 1000000 ? `${contextLength / 1000000}M` : `${contextLength / 1000}K`}
+            <span className="hidden sm:inline">Context: </span><span className={`${textColorClass} font-semibold`}>{inputTokens.toLocaleString()}</span> / {contextLength >= 1000000 ? `${contextLength / 1000000}M` : `${contextLength / 1000}K`}
           </span>
-          <div className="w-20 md:w-28 h-1.5 bg-zinc-900/60 rounded-full overflow-hidden border border-brand-border relative">
+          <div className="w-12 sm:w-20 md:w-28 h-1.5 bg-zinc-900/60 rounded-full overflow-hidden border border-brand-border relative">
             <div 
               className={`h-full rounded-full transition-all duration-500 ${barColorClass}`}
               style={{ width: `${percentage}%` }}
@@ -362,15 +362,15 @@ const AssistantMessage: React.FC<AssistantMessageProps> = ({ message, sources, u
 
               {/* Footer Actions Row */}
               {showActions && (
-                <div className={`flex items-center gap-3 mt-3 w-full ${sources.length > 0 || usage ? 'pt-2.5 border-t border-zinc-800/40' : ''}`}>
+                <div className={`flex flex-wrap items-center gap-y-2 gap-x-3 mt-3 w-full ${sources.length > 0 || usage ? 'pt-2.5 border-t border-zinc-800/40' : ''}`}>
                   <CopyButton value={textValue} />
                   
                   {sources.length > 0 && (
                     <>
-                      <span className="h-3 w-px bg-zinc-800/80" />
+                      <span className="hidden sm:inline-block h-3 w-px bg-zinc-800/80" />
                       <button
                         onClick={() => setSourcesOpen(!sourcesOpen)}
-                        className="flex items-center gap-1.5 text-xs text-zinc-500 hover:text-zinc-300 transition-colors font-medium focus:outline-none cursor-pointer"
+                        className="flex items-center gap-1.5 text-xs text-zinc-500 hover:text-zinc-300 transition-colors font-medium focus:outline-none cursor-pointer whitespace-nowrap"
                       >
                         <FileText className="h-3.5 w-3.5 text-zinc-500 shrink-0" />
                         <span>Sources used ({sources.length})</span>
@@ -381,8 +381,8 @@ const AssistantMessage: React.FC<AssistantMessageProps> = ({ message, sources, u
 
                   {usage && (
                     <>
-                      <span className="h-3 w-px bg-zinc-800/80" />
-                      <div className="group/tooltip relative flex items-center gap-1.5 text-xs text-zinc-500 hover:text-zinc-300 transition-colors cursor-help font-medium">
+                      <span className="hidden sm:inline-block h-3 w-px bg-zinc-800/80" />
+                      <div className="group/tooltip relative flex items-center gap-1.5 text-xs text-zinc-500 hover:text-zinc-300 transition-colors cursor-help font-medium whitespace-nowrap">
                         <BrainCircuit className="h-3.5 w-3.5 text-zinc-500 shrink-0" />
                         <span>
                           {(usage.input_tokens + usage.output_tokens).toLocaleString()} tokens
@@ -438,17 +438,17 @@ const AssistantMessage: React.FC<AssistantMessageProps> = ({ message, sources, u
                       return (
                         <div
                           key={i}
-                          className="flex items-center justify-between p-2 rounded-lg bg-zinc-950/30 border border-zinc-900 text-xs text-zinc-400 hover:text-zinc-300 hover:bg-zinc-950/50 transition-colors"
+                          className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-2.5 sm:p-2 gap-1.5 sm:gap-2 rounded-lg bg-zinc-950/30 border border-zinc-900 text-xs text-zinc-400 hover:text-zinc-300 hover:bg-zinc-950/50 transition-colors"
                         >
-                          <div className="flex items-center gap-2 truncate">
+                          <div className="flex items-center gap-2 min-w-0 w-full">
                             <FileText className="h-3.5 w-3.5 text-zinc-500 shrink-0" />
-                            <span className="font-mono truncate">{src.source}</span>
-                            <span className="text-xs text-zinc-600">
+                            <span className="font-mono truncate select-all">{src.source}</span>
+                            <span className="text-xs text-zinc-650 shrink-0">
                               (Chunk {src.chunk_index})
                             </span>
                           </div>
-                          <div className="flex items-center gap-2 shrink-0">
-                            <span className={`px-1.5 py-0.5 rounded text-xs font-mono font-semibold ${badgeClass}`}>
+                          <div className="flex items-center gap-2 shrink-0 pl-[22px] sm:pl-0">
+                            <span className={`px-1.5 py-0.5 rounded text-[10px] sm:text-xs font-mono font-semibold ${badgeClass}`}>
                               {label}
                             </span>
                           </div>
