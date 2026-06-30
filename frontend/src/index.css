@@ -184,7 +184,16 @@ body, html, #root {
   overflow: hidden;
   background-color: var(--color-brand-bg);
   color-scheme: inherit;
-  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Disable transitions temporarily (e.g. during theme toggle) */
+.disable-transitions,
+.disable-transitions * {
+  -webkit-transition: none !important;
+  -moz-transition: none !important;
+  -ms-transition: none !important;
+  -o-transition: none !important;
+  transition: none !important;
 }
 
 /* Glassmorphism custom borders */

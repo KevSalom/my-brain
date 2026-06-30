@@ -5,6 +5,15 @@
     <link rel="icon" type="image/svg+xml" href="/my-brain-lm-logo.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>My Brain LM — your docs, your local intelligence</title>
+    <script>
+      (function() {
+        var theme = localStorage.getItem('theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', theme);
+        document.documentElement.classList.add(theme);
+        var bgColor = theme === 'light' ? '#fafafa' : '#0b0b0e';
+        document.documentElement.style.backgroundColor = bgColor;
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

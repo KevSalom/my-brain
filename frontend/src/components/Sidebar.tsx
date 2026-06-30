@@ -203,20 +203,21 @@ export const Sidebar: React.FC<SidebarProps> = ({
             const initial = area.name.substring(0, 2).toUpperCase();
             const isSelected = area.id === selectedAreaId;
             const isHovered = hoveredAreaId === area.id;
+            const isDark = theme === 'dark';
             const areaColor = area.color || '#f59e0b';
             
-            let bg = `${areaColor}15`;
-            let border = `${areaColor}30`;
-            let text = '#a1a1aa'; // text-zinc-400
+            let bg = isDark ? `${areaColor}15` : `${areaColor}10`;
+            let border = isDark ? `${areaColor}30` : `${areaColor}40`;
+            let text = isDark ? '#a1a1aa' : '#52525b'; // zinc-400 vs zinc-600
             
             if (isSelected) {
               bg = areaColor;
               border = areaColor;
               text = '#ffffff';
             } else if (isHovered) {
-              bg = `${areaColor}35`;
-              border = `${areaColor}70`;
-              text = '#f4f4f5'; // text-zinc-100
+              bg = isDark ? `${areaColor}35` : `${areaColor}20`;
+              border = isDark ? `${areaColor}70` : `${areaColor}60`;
+              text = isDark ? '#f4f4f5' : '#09090b'; // zinc-100 vs zinc-950
             }
             
             return (
@@ -232,7 +233,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   color: text,
                   boxShadow: isSelected ? `0 0 14px ${areaColor}50` : isHovered ? `0 0 8px ${areaColor}25` : 'none'
                 }}
-                className={`group relative w-11 h-11 rounded-full border-2 flex items-center justify-center font-bold text-xs transition-all duration-300 hover:rounded-2xl cursor-pointer`}
+                className={`group relative w-11 h-11 rounded-full border-2 flex items-center justify-center font-bold text-xs transition-all duration-150 cursor-pointer`}
               >
                 <span className="relative z-10 leading-none">{initial}</span>
               </button>
@@ -242,7 +243,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <button
             onClick={onCreateAreaClick}
             title="Create New Area"
-            className="w-11 h-11 rounded-full bg-zinc-900/40 border border-zinc-800/80 flex items-center justify-center text-zinc-400 hover:text-zinc-100 hover:bg-zinc-850 hover:border-zinc-700 hover:rounded-2xl transition-all duration-300 cursor-pointer"
+            className="w-11 h-11 rounded-full bg-zinc-900/40 border border-zinc-800/80 flex items-center justify-center text-zinc-400 hover:text-zinc-100 hover:bg-zinc-850 hover:border-zinc-700 transition-all duration-150 cursor-pointer"
           >
             <Plus className="h-4 w-4" />
           </button>
@@ -253,7 +254,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <button
             onClick={onThemeToggle}
             title={theme === 'dark' ? "Switch to Light Mode" : "Switch to Dark Mode"}
-            className="w-11 h-11 rounded-full bg-zinc-900/40 border border-brand-border flex items-center justify-center text-zinc-500 hover:text-brand-primary hover:bg-brand-primary/10 hover:border-brand-primary/25 hover:rounded-2xl transition-all duration-300 cursor-pointer"
+            className="w-11 h-11 rounded-full bg-zinc-900/40 border border-brand-border flex items-center justify-center text-zinc-500 hover:text-brand-primary hover:bg-brand-primary/10 hover:border-brand-primary/25 transition-all duration-150 cursor-pointer"
           >
             {theme === 'dark' ? (
               <Sun className="h-4 w-4 text-zinc-400" />
@@ -265,7 +266,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <button
             onClick={onBrainStatusClick}
             title="Brain Status (Stats)"
-            className="w-11 h-11 rounded-full bg-zinc-900/40 border border-brand-border flex items-center justify-center text-zinc-500 hover:text-brand-primary hover:bg-brand-primary/10 hover:border-brand-primary/25 hover:rounded-2xl transition-all duration-300 cursor-pointer"
+            className="w-11 h-11 rounded-full bg-zinc-900/40 border border-brand-border flex items-center justify-center text-zinc-500 hover:text-brand-primary hover:bg-brand-primary/10 hover:border-brand-primary/25 transition-all duration-150 cursor-pointer"
           >
             <BrainCircuit className="h-4 w-4 text-zinc-400" />
           </button>

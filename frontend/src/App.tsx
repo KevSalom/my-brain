@@ -66,6 +66,10 @@ function MainApp() {
   // Aplicar tema en el elemento html raíz
   useEffect(() => {
     const root = window.document.documentElement;
+    
+    // Deshabilitar transiciones temporalmente para evitar retrasos visuales
+    root.classList.add('disable-transitions');
+    
     if (theme === 'light') {
       root.classList.remove('dark');
       root.classList.add('light');
@@ -75,6 +79,16 @@ function MainApp() {
       root.classList.add('dark');
       root.setAttribute('data-theme', 'dark');
     }
+    
+    // Forzar repaint para aplicar los cambios de color de forma inmediata
+    window.getComputedStyle(root).opacity;
+    
+    // Volver a habilitar las transiciones
+    const timer = setTimeout(() => {
+      root.classList.remove('disable-transitions');
+    }, 0);
+    
+    return () => clearTimeout(timer);
   }, [theme]);
 
   // --- Estados de Áreas ---
