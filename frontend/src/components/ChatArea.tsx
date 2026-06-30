@@ -270,6 +270,7 @@ export const ChatArea: React.FC<ChatAreaProps> = ({ conversationTitle }) => {
         <ThreadPrimitive.ViewportFooter className="px-4 pb-[calc(1.5rem+env(safe-area-inset-bottom))] md:px-8 bg-gradient-to-t from-brand-bg via-brand-bg/90 to-transparent pt-4">
           <ComposerPrimitive.Root className="max-w-3xl mx-auto flex items-end gap-3 bg-zinc-950/40 backdrop-blur border border-brand-border focus-within:border-brand-primary rounded-2xl p-2.5 transition-all shadow-lg">
             <ComposerPrimitive.Input
+              autoFocus
               placeholder="Ask a question about your documents..."
               className="flex-1 min-h-[44px] max-h-36 resize-none bg-transparent px-3 py-2 text-sm text-zinc-100 focus:outline-none placeholder-zinc-500 scrollbar-none"
               rows={1}

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Plus } from 'lucide-react';
 import { Modal } from './Modal';
 import { Input } from './Input';
@@ -18,6 +18,17 @@ export const CreateAreaModal: React.FC<CreateAreaModalProps> = React.memo(({
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [color, setColor] = useState('#3B82F6');
+
+  const nameInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (isOpen) {
+      const timer = setTimeout(() => {
+        nameInputRef.current?.focus();
+      }, 50);
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen]);
 
   const handleSubmit = () => {
     if (!name.trim()) return;
@@ -53,6 +64,7 @@ export const CreateAreaModal: React.FC<CreateAreaModalProps> = React.memo(({
             Name
           </label>
           <Input
+            ref={nameInputRef}
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}

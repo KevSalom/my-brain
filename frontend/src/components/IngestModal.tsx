@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { UploadZone } from './UploadZone';
 import { 
   Upload, 
@@ -27,6 +27,29 @@ export const IngestModal: React.FC<IngestModalProps> = ({
   onUploadSuccess,
 }) => {
   const [unifiedTab, setUnifiedTab] = useState<'upload' | 'link' | 'paste'>('upload');
+
+  const linkInputRef = useRef<HTMLInputElement>(null);
+  const pasteInputRef = useRef<HTMLInputElement>(null);
+
+  // Reset tab to upload when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      setUnifiedTab('upload');
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (isOpen) {
+      const timer = setTimeout(() => {
+        if (unifiedTab === 'link') {
+          linkInputRef.current?.focus();
+        } else if (unifiedTab === 'paste') {
+          pasteInputRef.current?.focus();
+        }
+      }, 50);
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen, unifiedTab]);
 
   // States for URL Ingest
   const [linkUrl, setLinkUrl] = useState('');
@@ -206,6 +229,7 @@ export const IngestModal: React.FC<IngestModalProps> = ({
             <form onSubmit={handleIngestUrl} className="flex flex-col gap-3">
               <div className="flex flex-col sm:flex-row gap-2">
                 <Input
+                  ref={linkInputRef}
                   type="url"
                   placeholder="https://example.com/article"
                   value={linkUrl}
@@ -249,6 +273,7 @@ export const IngestModal: React.FC<IngestModalProps> = ({
                 Document Title
               </label>
               <Input
+                ref={pasteInputRef}
                 type="text"
                 placeholder="e.g., Weekly Meeting Notes"
                 value={pasteTitle}
