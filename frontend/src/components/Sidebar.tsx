@@ -1,11 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { UploadZone } from './UploadZone';
 import type { AreaResponse, DocumentResponse, ConversationResponse } from '../types';
 import { 
   BrainCircuit, 
-  MessageSquare, 
   Trash2, 
   Plus, 
   FileText, 
@@ -15,7 +14,8 @@ import {
   Link,
   Loader2,
   Sun,
-  Moon
+  Moon,
+  MoreVertical
 } from 'lucide-react';
 import { ingestUrlToArea, ingestTextToArea } from '../api';
 import { convertHtmlToMarkdown } from '../utils/htmlToMarkdown';
@@ -72,6 +72,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
   const [editingConvId, setEditingConvId] = useState<string | null>(null);
   const [editTitleValue, setEditTitleValue] = useState<string>('');
+  const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
 
   const handleSaveRename = (id: string) => {
     const trimmed = editTitleValue.trim();
@@ -80,6 +81,24 @@ export const Sidebar: React.FC<SidebarProps> = ({
     }
     setEditingConvId(null);
   };
+
+  // Cierra el menú desplegable al hacer clic fuera del mismo
+  useEffect(() => {
+    if (activeMenuId === null) return;
+
+    const handleOutsideClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (target.closest('.chat-options-trigger') || target.closest('.chat-options-dropdown')) {
+        return;
+      }
+      setActiveMenuId(null);
+    };
+
+    document.addEventListener('click', handleOutsideClick, { capture: true });
+    return () => {
+      document.removeEventListener('click', handleOutsideClick, { capture: true });
+    };
+  }, [activeMenuId]);
 
   const [linkUrl, setLinkUrl] = useState('');
   const [linkLoading, setLinkLoading] = useState(false);
@@ -313,7 +332,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <div className="flex flex-col gap-2.5">
                 <div className="flex items-center justify-between">
                   <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">
-                    Chat Threads
+                    Chats
                   </span>
                   <button
                     onClick={onCreateConversation}
@@ -327,8 +346,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   <div className="flex flex-col gap-1">
                     {selectedConversationId === null && (
                       <div className="flex items-center justify-between p-2 rounded-xl bg-zinc-800/40 border-brand-border border text-zinc-100 font-medium">
-                        <div className="flex items-center gap-2 min-w-0 flex-1 text-left text-xs text-ellipsis overflow-hidden select-none">
-                          <MessageSquare className="h-3.5 w-3.5 shrink-0 text-brand-primary animate-pulse" />
+                        <div className="flex items-center min-w-0 flex-1 text-left text-xs text-ellipsis overflow-hidden select-none">
                           <span className="truncate italic text-zinc-300">New Conversation...</span>
                         </div>
                       </div>
@@ -339,9 +357,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
                         return (
                           <div
                             key={conv.id}
-                            className="flex items-center gap-2 p-1.5 rounded-xl border border-brand-border bg-zinc-800/40 w-full"
+                            className="flex items-center p-1.5 rounded-xl border border-brand-border bg-zinc-800/40 w-full"
                           >
-                            <MessageSquare className="h-3.5 w-3.5 shrink-0 text-brand-primary ml-1" />
                             <input
                               type="text"
                               value={editTitleValue}
@@ -363,7 +380,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       return (
                         <div
                           key={conv.id}
-                          className={`group flex items-center justify-between p-2 rounded-xl transition-all duration-200 border ${
+                          className={`group flex items-center justify-between pl-2.5 pr-1 py-1.5 rounded-xl transition-all duration-200 border relative ${
                             isActive
                               ? 'bg-zinc-800/40 border-brand-border text-zinc-100 font-medium'
                               : 'border-transparent text-zinc-400 hover:bg-zinc-900/30 hover:text-zinc-200'
@@ -371,37 +388,55 @@ export const Sidebar: React.FC<SidebarProps> = ({
                         >
                           <button
                             onClick={() => navigate(`/areas/${selectedAreaId}/chats/${conv.id}`)}
-                            className="flex items-center gap-2 min-w-0 flex-1 text-left text-xs text-ellipsis overflow-hidden cursor-pointer"
+                            className="flex items-center min-w-0 flex-1 text-left text-xs text-ellipsis overflow-hidden cursor-pointer"
                           >
-                            <MessageSquare className={`h-3.5 w-3.5 shrink-0 ${isActive ? 'text-brand-primary' : 'text-zinc-500 group-hover:text-zinc-400'}`} />
                             <span className="truncate">{conv.title}</span>
                           </button>
                           
-                          <div className="opacity-0 group-hover:opacity-100 flex items-center shrink-0 ml-1.5">
+                          {/* Reusable vertical dots menu */}
+                          <div className="flex items-center shrink-0 ml-1.5 relative">
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
-                                setEditingConvId(conv.id);
-                                setEditTitleValue(conv.title);
+                                setActiveMenuId(activeMenuId === conv.id ? null : conv.id);
                               }}
-                              title="Rename Chat"
-                              className="p-1 rounded hover:text-zinc-200 hover:bg-zinc-800 transition-all duration-200 cursor-pointer"
+                              title="Chat Options"
+                              className="chat-options-trigger p-1 rounded text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800/50 transition-all duration-150 cursor-pointer opacity-100 md:opacity-0 md:group-hover:opacity-100 focus:opacity-100"
                             >
-                              <Edit3 className="h-3 w-3" />
+                              <MoreVertical className="h-3.5 w-3.5" />
                             </button>
-                            <button
-                              onClick={async (e) => {
-                                e.stopPropagation();
-                                const confirmed = await showConfirm(`Delete conversation "${conv.title}"?`, "Delete Chat Thread");
-                                if (confirmed) {
-                                  onDeleteConversation(conv.id);
-                                }
-                              }}
-                              title="Delete Chat"
-                              className="p-1 rounded hover:text-rose-400 hover:bg-rose-950/25 transition-all duration-200 cursor-pointer ml-1"
-                            >
-                              <Trash2 className="h-3 w-3" />
-                            </button>
+
+                            {activeMenuId === conv.id && (
+                              /* Dropdown menu container */
+                              <div className="chat-options-dropdown absolute right-0 top-7 w-32 rounded-xl border border-brand-border bg-zinc-950 p-1 z-40 shadow-2xl animate-fade-in-fast text-xs font-sans">
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setActiveMenuId(null);
+                                    setEditingConvId(conv.id);
+                                    setEditTitleValue(conv.title);
+                                  }}
+                                  className="flex items-center gap-2 w-full p-2 text-zinc-300 hover:text-zinc-100 hover:bg-zinc-900 rounded-lg text-left cursor-pointer transition-colors"
+                                >
+                                  <Edit3 className="h-3 w-3 text-zinc-400" />
+                                  <span>Rename</span>
+                                </button>
+                                <button
+                                  onClick={async (e) => {
+                                    e.stopPropagation();
+                                    setActiveMenuId(null);
+                                    const confirmed = await showConfirm(`Delete conversation "${conv.title}"?`, "Delete Chat Thread");
+                                    if (confirmed) {
+                                      onDeleteConversation(conv.id);
+                                    }
+                                  }}
+                                  className="flex items-center gap-2 w-full p-2 text-rose-400 hover:text-rose-300 hover:bg-rose-950/20 rounded-lg text-left cursor-pointer transition-colors mt-0.5"
+                                >
+                                  <Trash2 className="h-3 w-3" />
+                                  <span>Delete</span>
+                                </button>
+                              </div>
+                            )}
                           </div>
                         </div>
                       );
@@ -501,7 +536,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                               onDeleteDocument(doc.id);
                             }
                           }}
-                          className="opacity-0 group-hover:opacity-100 p-1 rounded text-zinc-500 hover:text-rose-400 hover:bg-rose-950/20 transition-all duration-200 cursor-pointer ml-1"
+                          className="hidden group-hover:block p-1 rounded text-zinc-500 hover:text-rose-400 hover:bg-rose-950/20 transition-all duration-150 cursor-pointer ml-1"
                         >
                           <Trash2 className="h-3 w-3" />
                         </button>
