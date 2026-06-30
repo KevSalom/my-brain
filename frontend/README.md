@@ -1,57 +1,44 @@
 # 🧠 My Brain LM — Frontend SPA
 
-Esta carpeta contiene la interfaz web (Single Page Application) para interactuar con **My Brain LM** utilizando React, TypeScript y Vite.
+This directory contains the premium web interface (Single Page Application) for interacting with **My Brain LM**, built using React, TypeScript, Vite, and Tailwind CSS.
 
 ---
 
-## 🗺️ Estado del Proyecto y Fases del Frontend
+## 🗺️ Project Features
 
-A continuación se detalla la lista de fases de desarrollo implementadas y pendientes en el cliente frontend:
+Here is the list of key features implemented in this frontend client:
 
-- [x] **Fase 2: MVP Frontend — COMPLETADA ✅**
-  - [x] Interfaz de chat interactiva con streaming SSE
-  - [x] Carga de documentos local con Drag & Drop
-  - [x] Integración de referencias de fuentes con score de relevancia RAG
-  - [x] Dashboard oscuro premium con diseño responsivo
-
-- [x] **Fase 3: Multi-Áreas (Multi-Cerebro) — COMPLETADA ✅**
-  - [x] Soporte para múltiples áreas temáticas independientes (namespaces de ChromaDB)
-  - [x] Creación de áreas con nombre, descripción y selección de colores personalizados
-  - [x] Historial de conversaciones persistente por área
-  - [x] Gestión de estado en URL con `react-router-dom` para navegación persistente (F5, Atrás/Adelante)
-  - [x] Modal premium flotante "Brain Status" para estadísticas RAG globales, aislado para máximo rendimiento
-  - [x] Identificadores UUIDv4 string profesionales en bases de datos y llamadas de API
-  - [x] Burbujas de área dinámicas con relleno de color, hover suave y efecto de resplandor
-
-- [ ] **Fase 4: Features Avanzadas — PENDIENTE 🔜**
-  - [ ] Web scraping para generación de documentos desde URLs
-  - [ ] Visualización avanzada de artefactos de código y previews HTML interactivos
-  - [ ] Historial de versiones y carga asistida por IA
+* **Knowledge Areas (Multi-Brain)**: Separate and organize documents and conversations into independent thematic areas (namespaces backed by ChromaDB).
+* **Interactive Chat**: High-performance streaming interface utilizing Server-Sent Events (SSE) via `@assistant-ui/react`.
+* **Context & Cost Tracking**: Dynamic context window meter in the header and precise real-time cost estimation per message queried from OpenRouter metadata.
+* **Document Ingestion**: Drag & drop zones supporting PDF, TXT, and Markdown files, alongside custom web links (URLs) and raw text input.
+* **Semantic RAG References**: Clickable, categorized relevance badges (High, Medium, Additional Context) for retrieved chunks.
+* **Premium Dark Mode**: Highly responsive dashboard styling featuring smooth transition effects and custom color-coded area bubbles.
 
 ---
 
-## 🚀 Cómo Iniciar el Frontend
+## 🚀 Getting Started
 
-### Pre-requisitos
-* Tener instalado [Node.js](https://nodejs.org/) (versión 18+)
-* Tener instalado el gestor de paquetes [pnpm](https://pnpm.io/)
+### Prerequisites
+* [Node.js](https://nodejs.org/) (version 18+)
+* [pnpm](https://pnpm.io/) package manager
 
-### Configuración e Instalación
+### Installation & Run
 ```bash
-# 1. Instalar dependencias
+# 1. Install dependencies
 pnpm install
 
-# 2. Iniciar el servidor de desarrollo de Vite
+# 2. Start the Vite development server
 pnpm run dev
 ```
 
-El servidor web estará disponible en `http://localhost:5173`. Asegúrate de tener el backend corriendo en `http://localhost:8000`.
+The web interface will be available at `http://localhost:5173`. Make sure you have the backend running at `http://localhost:8000`.
 
 ---
 
-## 🛠️ Tecnologías y Dependencias
-* **Core:** React 19, Vite, TypeScript.
-* **Manejo de Rutas (State):** React Router DOM.
-* **Componentes RAG Headless:** `@assistant-ui/react` y `@assistant-ui/react-markdown`.
-* **Iconografía:** `lucide-react`.
-* **Estilos:** Tailwind CSS v4.
+## 🛠️ Stack & Dependencies
+* **Core**: React 19, Vite, TypeScript.
+* **Routing & State**: React Router DOM.
+* **RAG UI Primitive**: `@assistant-ui/react` & `@assistant-ui/react-markdown`.
+* **Styling**: Tailwind CSS v4.
+* **Icons**: `lucide-react`.

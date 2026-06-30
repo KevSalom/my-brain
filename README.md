@@ -1,228 +1,111 @@
 # 🧠 My Brain LM
 
-**your docs, your local intelligence** — Una aplicación multi-tema que te permite consultar y tomar decisiones basándote en tus propios documentos, utilizando RAG (Retrieval Augmented Generation).
-
-> Carga documentos en "secciones de cerebro", chatea con un LLM que prioriza la información de esos documentos, y obtén respuestas precisas y contextualizadas.
+**your docs, your local intelligence** — A multi-area knowledge base application that allows you to query and make decisions based on your own documents using RAG (Retrieval Augmented Generation).
 
 ---
 
-## 📋 Descripción
+## 📋 Description
 
-My Brain LM es una herramienta diseñada **principalmente para desarrolladores** que necesitan consultar documentación técnica, tomar decisiones arquitectónicas o simplemente tener un asistente que "conozca" sus documentos.
+My Brain LM is a developer-focused, open-source alternative to tools like **Google's NotebookLM**, designed to query technical documentation, analyze research articles, study academic papers, make architectural decisions, or simply have an AI assistant that "knows" your local documents.
 
-### ¿Qué hace My Brain LM?
+Unlike Google's NotebookLM, you are **not locked into Gemini models** or any single provider. The application is built using the standard OpenAI client interface but recommends routing through **OpenRouter**, giving you the complete freedom to use any state-of-the-art model available (such as **DeepSeek-V4**). It is a private, custom-tailored workspace designed for deep studying, research, and learning.
 
-- 🗂️ **Carga documentos** en "secciones de cerebro" o proyectos independientes
-- 💬 **Chat con LLM** que prioriza y referencia la información de tus documentos cargados
-- 📄 **Soporte multi-formato**: PDF, TXT y MD
-- 🌐 **Web scraping** para auto-generar documentos desde documentación pública
-- 🎨 **Artefactos de código** y previews HTML directamente en el chat
-- ⚡ **Respuestas con streaming** para una experiencia fluida
+### Key Features
 
----
-
-## 🗺️ Roadmap del Proyecto
-
-### 🟢 Fase 0: Proof of Concept (PoC) — CLI + RAG Básico — COMPLETADA ✅
-
-> El objetivo es validar el flujo completo de RAG con la menor complejidad posible.
-
-- [x] Script Python con CLI interactivo
-- [x] Cargar documentos TXT y PDF
-- [x] Chunking + Embeddings con OpenAI (`text-embedding-3-small`)
-- [x] Almacenamiento vectorial en ChromaDB (local)
-- [x] Chat interactivo por terminal con contexto de documentos
-- [x] Comando de status para verificar el estado de la base de datos
-
-**Stack:** Python + OpenAI API + ChromaDB
+*   🗂️ **Knowledge Areas (Multi-Brain)**: Organize documents and chats into separate, isolated thematic areas (namespaces in ChromaDB).
+*   💬 **Interactive Chat**: High-performance streaming interface utilizing Server-Sent Events (SSE) via `@assistant-ui/react`.
+*   🌐 **Model Freedom (via OpenRouter)**: Compatible with the standard OpenAI API specification but recommends OpenRouter out-of-the-box, letting you swap models on the fly (DeepSeek, Claude, GPT, etc.) without code changes.
+*   📊 **Context & Cost Tracking**: Live context window occupancy meter and real-time cost estimation per conversation turn (using OpenRouter metrics).
+*   📥 **Multi-Format Ingestion**: Supports Drag & Drop uploads for PDF, TXT, and Markdown files, alongside custom web link (URL) downloading and raw text pasting.
+*   🔍 **Hybrid Search**: RAG query engine utilizing semantic embedding search combined with keyword retrieval (BM25) for accurate context matching. The retrieval weights can be customized via the backend configuration settings (defaults to a 70% semantic / 30% BM25 weight balance) to experiment and find the optimal retrieval blend.
 
 ---
 
-### 🔵 Fase 1: MVP Backend (API REST) — COMPLETADA ✅
-
-> Migrar la lógica del PoC a una API robusta y extensible con FastAPI.
-
-- [x] Migrar de CLI a **FastAPI**
-- [x] API endpoints: upload de documentos, chat, gestión de colecciones
-- [x] **Streaming de respuestas** con Server-Sent Events (SSE)
-- [x] Soporte para archivos **Markdown (.md)**
-- [x] Mejor estrategia de chunking (overlap, tamaño adaptativo con smart chunking)
-- [x] Validación y manejo de errores robusto
-
----
-
-### 🟣 Fase 2: MVP Frontend — COMPLETADA ✅
-
-> Crear una interfaz web moderna para interactuar con My Brain LM.
-
-- [x] **React + Vite + TypeScript**
-- [x] Chat UI con streaming en tiempo real
-- [x] Upload de documentos con drag & drop
-- [x] Conectar con backend API (REST)
-- [x] Indicadores de fuentes/referencias en las respuestas
-
----
-
-### 🟣 Fase 3: Multi-Cerebro — COMPLETADA ✅
-
-> Permitir múltiples "cerebros" independientes para distintos proyectos o temas.
-
-- [x] CRUD de secciones/cerebros (Áreas)
-- [x] **Namespaces en ChromaDB** por sección
-- [x] UI para gestionar cerebros y sus documentos
-- [x] Historial de conversaciones persistente
-- [x] Cambio rápido entre cerebros
-
----
-
-### 🟠 Fase 4: Features Avanzadas
-
-> Funcionalidades que elevan My Brain LM a una herramienta profesional.
-
-- [ ] **Web scraping** → generación automática de documentos desde URLs
-- [ ] Artefactos de código en chat (syntax highlighting)
-- [ ] **Preview HTML sandboxed** dentro del chat
-- [ ] Migración a **LangChain** para document loaders avanzados
-- [ ] Explorar **LangGraph** para flujos conversacionales complejos
-- [x] Búsqueda híbrida (semántica + keyword)
-
----
-
-### 🔴 Fase 5: Producción
-
-> Preparar My Brain LM para uso en producción con múltiples usuarios.
-
-- [ ] **Autenticación de usuarios** (JWT / OAuth)
-- [ ] PostgreSQL para metadata y gestión de usuarios
-- [ ] **Pinecone o Chroma Cloud** para vectores en la nube
-- [ ] Deployment con **Docker + cloud** (AWS/GCP/Railway)
-- [ ] Optimización de performance y caché
-- [ ] Rate limiting y monitoreo
-
----
-
-## 🛠️ Tech Stack
-
-| Capa | Fase 0 (PoC) | Fase 1-2 (MVP) | Fase 3+ (Avanzado) |
-|---|---|---|---|
-| **Frontend** | CLI | React + Vite | React + Vite |
-| **Backend** | Script Python | FastAPI | FastAPI |
-| **AI / LLM** | OpenAI API directa | LangChain | LangGraph |
-| **Embeddings** | `text-embedding-3-small` | `text-embedding-3-small` | `text-embedding-3-small` |
-| **Vector DB** | ChromaDB (local) | ChromaDB (local) | Pinecone / Chroma Cloud |
-| **DB Relacional** | — | SQLite | PostgreSQL |
-
----
-
-## 🚀 Inicio Rápido (CLI y API REST)
-
-### Pre-requisitos
-
-- Python 3.10+
-- Una API key de [OpenAI](https://platform.openai.com/api-keys)
-
-### Instalación
-
-```bash
-# 1. Clonar el repositorio
-git clone https://github.com/tu-usuario/my-brain.git
-cd my-brain
-
-# 2. Ir al directorio del backend
-cd backend
-
-# 3. Crear entorno virtual
-python -m venv .venv
-
-# 4. Activar entorno virtual
-# Windows:
-.venv\Scripts\activate
-# macOS/Linux:
-# source .venv/bin/activate
-
-# 5. Instalar dependencias
-pip install -r requirements.txt
-
-# 6. Configurar variables de entorno
-copy .env.example .env
-# Editar .env y agregar tu OPENAI_API_KEY y la configuración de API
-```
-
-### Uso
-
-#### Ejecución del Servidor API (Recomendado)
-
-```bash
-# 🧠 Iniciar el servidor API REST (FastAPI)
-python run_api.py
-```
-El servidor se iniciará en `http://127.0.0.1:8000` con documentación interactiva Swagger disponible en `http://127.0.0.1:8000/docs`.
-
-#### Ejecución del CLI Original
-
-```bash
-# 📥 Ingestar documentos (cargar al vector store)
-python main.py ingest ./documents
-
-# 💬 Iniciar chat interactivo
-python main.py chat
-
-# 📊 Ver estado de la base de datos
-python main.py status
-```
-
-### Ejemplo de Chat
-
-```
-🧠 My Brain LM Chat (escribe 'salir' para terminar)
-──────────────────────────────────────────────
-
-Tú: ¿Cuáles son las mejores prácticas para autenticación en APIs REST?
-
-My Brain LM: Según tus documentos cargados, las mejores prácticas incluyen...
-```
-
----
-
-## 📁 Estructura del Proyecto
+## 🛠️ Project Structure
 
 ```
 my-brain/
 ├── backend/
-│   ├── api/                # 🧠 Paquete de la API REST (FastAPI)
-│   │   ├── routes/         # 🛣️ Rutas de la API (status, ingest, chat)
-│   │   ├── app.py          # ⚙️ Configuración global de FastAPI y CORS
-│   │   ├── schemas.py      # 📋 Modelos de Pydantic (request/response)
-│   │   └── dependencies.py # 🛠️ Dependencias compartidas
-│   ├── documents/          # 📄 Documentos para ingestar
-│   ├── chroma_db/          # 🗄️ Base de datos vectorial (auto-generado)
-│   ├── config.py           # ⚙️ Configuración y variables de entorno
-│   ├── ingest.py           # 📥 Pipeline de ingesta de documentos
-│   ├── query.py            # 🔍 Motor de consultas RAG
-│   ├── main.py             # 🚀 CLI entry point
-│   ├── run_api.py          # ⚡ Script de arranque de la API REST
-│   ├── requirements.txt    # 📦 Dependencias Python
-│   ├── .env.example        # 📋 Template de variables de entorno
-│   └── .env                # 🔐 Variables de entorno (no versionado)
-├── frontend/               # 🖥️ (Fase 2+)
-├── README.md               # 📖 Este archivo
-└── MyBrain.txt             # 📝 Especificación original del proyecto
+│   ├── api/                # REST API Package (FastAPI)
+│   │   ├── routes/         # Endpoints (status, ingest, chat, areas)
+│   │   ├── app.py          # FastAPI application configuration
+│   │   ├── models.py       # SQLModel database schemas
+│   │   ├── schemas.py      # Pydantic validation schemas
+│   │   └── database.py     # SQLite connection & database setup
+│   ├── config.py           # Settings and environment loaders
+│   ├── ingest.py           # Document chunking & embedding pipeline
+│   ├── pricing.py          # OpenRouter pricing & context length metadata cache
+│   ├── query.py            # RAG query engine & LLM stream executor
+│   ├── migrate_add_usage.py# SQLite usage columns migration script
+│   ├── run_api.py          # Uvicorn launcher
+│   └── requirements.txt    # Python dependencies
+├── frontend/               # React SPA Web Client
+└── README.md               # General documentation (this file)
 ```
 
 ---
 
-## 🤝 Contribuir
+## 🚀 Getting Started
 
-Este proyecto está en fase de **Proof of Concept**. Si tienes ideas o sugerencias, abre un issue o envía un PR.
+### 1. Backend Setup
+
+#### Prerequisites
+*   Python 3.10+
+*   An API Key from [OpenRouter](https://openrouter.ai/) (or OpenAI)
+
+#### Installation & Run
+```bash
+# 1. Navigate to backend directory
+cd backend
+
+# 2. Create virtual environment
+python -m venv .venv
+
+# 3. Activate virtual environment
+# On Windows:
+.venv\Scripts\activate
+# On macOS/Linux:
+# source .venv/bin/activate
+
+# 4. Install dependencies
+pip install -r requirements.txt
+
+# 5. Setup environment variables
+copy .env.example .env
+# Edit .env and set your OPENAI_API_KEY and VITE_API_BASE_URL config
+
+# 6. Start the API server
+python run_api.py
+```
+The server will run on `http://127.0.0.1:8000`. You can inspect the Swagger documentation at `http://127.0.0.1:8000/docs`.
+
+### 2. Frontend Setup
+
+#### Prerequisites
+*   Node.js (version 18+)
+*   pnpm package manager
+
+#### Installation & Run
+```bash
+# 1. Navigate to frontend directory
+cd frontend
+
+# 2. Install dependencies
+pnpm install
+
+# 3. Start development server
+pnpm run dev
+```
+The client will run on `http://localhost:5173`.
 
 ---
 
-## 📄 Licencia
+## 🤝 Contributing
 
-Este proyecto está bajo la licencia **MIT**. Consulta el archivo [LICENSE](LICENSE) para más detalles.
+Contributions are welcome! If you have any suggestions or bug reports, please open an issue or submit a pull request.
 
 ---
 
-<p align="center">
-  Hecho con ❤️ y mucho ☕ por un dev que quería su propio cerebro local de documentos
-</p>
+## 📄 License
+
+This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) file for details.
