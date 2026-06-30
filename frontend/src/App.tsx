@@ -479,7 +479,7 @@ function MainApp() {
               "your docs, your local intelligence"
             </p>
             <p className="text-xs text-zinc-550 mt-3 max-w-sm leading-relaxed">
-              Create your first knowledge area in the left panel (e.g., "Code", "Studies", "Finance") to start organizing and ingesting documents.
+              Create your first knowledge area (e.g., "Code", "Studies", "Finance") to start organizing and ingesting documents.
             </p>
             <button
               onClick={() => setIsCreatingArea(true)}
