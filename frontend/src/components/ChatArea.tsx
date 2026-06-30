@@ -11,14 +11,33 @@ import remarkGfm from 'remark-gfm';
 import { ArrowUp, StopCircle, FileText, ChevronRight, Copy, Check, BrainCircuit } from 'lucide-react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import { oneLight } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import type { SourceInfo, ModelInfo } from '../types';
 import { getModelInfo } from '../api';
+
+const useCurrentTheme = () => {
+  const [isDark, setIsDark] = useState(() => {
+    return document.documentElement.getAttribute('data-theme') !== 'light';
+  });
+
+  useEffect(() => {
+    const root = document.documentElement;
+    const observer = new MutationObserver(() => {
+      setIsDark(root.getAttribute('data-theme') !== 'light');
+    });
+    observer.observe(root, { attributes: true, attributeFilter: ['data-theme'] });
+    return () => observer.disconnect();
+  }, []);
+
+  return isDark;
+};
 
 const CodeBlockWithCopy: React.FC<{
   language: string;
   value: string;
 }> = ({ language, value }) => {
   const [isCopied, setIsCopied] = useState(false);
+  const isDark = useCurrentTheme();
 
   const handleCopy = async () => {
     try {
@@ -31,13 +50,25 @@ const CodeBlockWithCopy: React.FC<{
   };
 
   return (
-    <div className="relative group rounded-xl my-3 border border-zinc-800 bg-[#09090b] overflow-hidden">
+    <div className={`relative group rounded-xl my-3 overflow-hidden border ${
+      isDark
+        ? 'border-zinc-800 bg-[#09090b]'
+        : 'border-[#e4e4e7] bg-[#fafafa] shadow-sm'
+    }`}>
       {/* Header bar */}
-      <div className="flex items-center justify-between px-4 py-2 border-b border-zinc-850 bg-zinc-950/40 text-xs text-zinc-500 font-mono select-none">
+      <div className={`flex items-center justify-between px-4 py-2 border-b text-xs font-mono select-none ${
+        isDark
+          ? 'border-zinc-850 bg-zinc-950/40 text-zinc-500'
+          : 'border-[#e4e4e7] bg-[#f4f4f5] text-[#52525b]'
+      }`}>
         <span className="uppercase">{language}</span>
         <button
           onClick={handleCopy}
-          className="flex items-center gap-1.5 px-2 py-1 rounded bg-zinc-900 border border-zinc-800 hover:bg-zinc-850 text-zinc-400 hover:text-zinc-200 transition-all cursor-pointer font-sans"
+          className={`flex items-center gap-1.5 px-2 py-1 rounded border transition-all cursor-pointer font-sans ${
+            isDark
+              ? 'bg-zinc-900 border-zinc-800 hover:bg-zinc-850 text-zinc-400 hover:text-zinc-200'
+              : 'bg-[#ffffff] border-[#e4e4e7] hover:bg-[#f4f4f5] text-[#52525b] hover:text-[#27272a]'
+          }`}
         >
           {isCopied ? (
             <>
@@ -55,7 +86,7 @@ const CodeBlockWithCopy: React.FC<{
 
       {/* Code contents */}
       <SyntaxHighlighter
-        style={vscDarkPlus as any}
+        style={(isDark ? vscDarkPlus : oneLight) as any}
         language={language}
         PreTag="div"
         customStyle={{
