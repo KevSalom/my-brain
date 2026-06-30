@@ -320,3 +320,26 @@ strong, b, .prose strong, .prose-invert strong {
   color: #f87171 !important; /* rose-400 */
 }
 
+/* Custom autofill styles to keep inputs looking premium and styled */
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--color-zinc-200, #e4e4e7) !important;
+  -webkit-box-shadow: 0 0 0px 1000px #09090b inset !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+.light input:-webkit-autofill,
+.light input:-webkit-autofill:hover, 
+.light input:-webkit-autofill:focus,
+.light textarea:-webkit-autofill,
+.light textarea:-webkit-autofill:hover,
+.light textarea:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--color-zinc-800, #27272a) !important;
+  -webkit-box-shadow: 0 0 0px 1000px #f4f4f5 inset !important;
+}
+
+

@@ -89,7 +89,7 @@ export const Modal: React.FC<ModalProps> = ({
         )}
 
         {/* Content Container */}
-        <div className="flex-1 overflow-y-auto pr-1 scrollbar-thin">
+        <div className="flex-1 overflow-y-auto px-1.5 scrollbar-thin">
           {children}
         </div>
       </div>

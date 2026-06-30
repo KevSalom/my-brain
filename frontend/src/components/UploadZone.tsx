@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { Upload, CheckCircle2, Loader2 } from 'lucide-react';
 import { ingestFileToArea } from '../api';
+import { Input } from './Input';
 
 interface UploadZoneProps {
   areaId: string | null;
@@ -112,7 +113,7 @@ export const UploadZone: React.FC<UploadZoneProps> = ({ areaId, onUploadSuccess 
             : 'border-zinc-700 hover:border-zinc-500 bg-zinc-900/30'
         }`}
       >
-        <input
+        <Input
           type="file"
           ref={fileInputRef}
           onChange={handleFileInput}

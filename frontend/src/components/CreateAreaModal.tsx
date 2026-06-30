@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Plus } from 'lucide-react';
 import { Modal } from './Modal';
+import { Input } from './Input';
+import { Textarea } from './Textarea';
 
 interface CreateAreaModalProps {
   isOpen: boolean;
@@ -50,11 +52,10 @@ export const CreateAreaModal: React.FC<CreateAreaModalProps> = React.memo(({
           <label className="text-xs text-zinc-450 font-bold uppercase tracking-wider block mb-1">
             Name
           </label>
-          <input
+          <Input
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="w-full bg-zinc-950/60 border border-zinc-800/80 focus:border-brand-primary focus:ring-1 focus:ring-brand-primary rounded-xl px-3 py-2 text-xs text-zinc-200 focus:outline-none"
             placeholder="e.g., Artificial Intelligence, Finance, Health..."
           />
         </div>
@@ -63,11 +64,11 @@ export const CreateAreaModal: React.FC<CreateAreaModalProps> = React.memo(({
           <label className="text-xs text-zinc-450 font-bold uppercase tracking-wider block mb-1">
             Description (Optional)
           </label>
-          <textarea
+          <Textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             rows={2}
-            className="w-full bg-zinc-950/60 border border-zinc-800/80 focus:border-brand-primary focus:ring-1 focus:ring-brand-primary rounded-xl px-3 py-2 text-xs text-zinc-200 focus:outline-none resize-none"
+            className="resize-none"
             placeholder="e.g., Papers, tutorials and notes about AI..."
           />
         </div>

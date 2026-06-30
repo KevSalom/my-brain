@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { IngestModal } from './IngestModal';
 import type { AreaResponse, DocumentResponse, ConversationResponse } from '../types';
+import { Input } from './Input';
 import { 
   BrainCircuit, 
   Trash2, 
@@ -133,7 +134,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 key={conv.id}
                 className="flex items-center p-1.5 rounded-xl border border-brand-border bg-zinc-800/40 w-full"
               >
-                <input
+                <Input
                   type="text"
                   value={editTitleValue}
                   onChange={(e) => setEditTitleValue(e.target.value)}
@@ -146,7 +147,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   }}
                   onBlur={() => handleSaveRename(conv.id)}
                   autoFocus
-                  className="flex-1 bg-transparent text-xs text-zinc-100 outline-none border-none p-0 focus:ring-0"
+                  className="flex-1 bg-transparent border-none focus:border-none focus:ring-0 focus:shadow-none p-0 text-xs text-zinc-100 outline-none"
                 />
               </div>
             );

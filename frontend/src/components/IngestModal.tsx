@@ -10,6 +10,8 @@ import {
 import { ingestUrlToArea, ingestTextToArea } from '../api';
 import { convertHtmlToMarkdown } from '../utils/htmlToMarkdown';
 import { Modal } from './Modal';
+import { Input } from './Input';
+import { Textarea } from './Textarea';
 
 interface IngestModalProps {
   isOpen: boolean;
@@ -203,13 +205,13 @@ export const IngestModal: React.FC<IngestModalProps> = ({
             </div>
             <form onSubmit={handleIngestUrl} className="flex flex-col gap-3">
               <div className="flex flex-col sm:flex-row gap-2">
-                <input
+                <Input
                   type="url"
                   placeholder="https://example.com/article"
                   value={linkUrl}
                   onChange={(e) => setLinkUrl(e.target.value)}
                   required
-                  className="flex-1 bg-zinc-900/40 border border-zinc-800 text-xs rounded-xl px-3 py-2.5 text-zinc-200 placeholder-zinc-650 focus:outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary/20 transition-all"
+                  className="flex-1"
                 />
                 <button
                   type="submit"
@@ -246,13 +248,12 @@ export const IngestModal: React.FC<IngestModalProps> = ({
               <label className="text-xs font-bold uppercase tracking-wider text-zinc-400">
                 Document Title
               </label>
-              <input
+              <Input
                 type="text"
                 placeholder="e.g., Weekly Meeting Notes"
                 value={pasteTitle}
                 onChange={(e) => setPasteTitle(e.target.value)}
                 required
-                className="w-full bg-zinc-900/40 border border-zinc-800 text-xs rounded-xl px-3 py-2.5 text-zinc-250 placeholder-zinc-600 focus:outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary/20 transition-all"
               />
             </div>
 
@@ -265,13 +266,13 @@ export const IngestModal: React.FC<IngestModalProps> = ({
                   Copy rich text from the web for automatic conversion
                 </span>
               </div>
-              <textarea
+              <Textarea
                 placeholder="Paste text here..."
                 value={pasteContent}
                 onChange={(e) => setPasteContent(e.target.value)}
                 onPaste={handleTextareaPaste}
                 required
-                className="w-full bg-zinc-900/40 border border-zinc-800 text-xs rounded-xl px-3 py-2.5 text-zinc-200 placeholder-zinc-655 focus:outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary/20 transition-all font-mono resize-none h-40"
+                className="font-mono resize-none h-40"
               />
             </div>
 
