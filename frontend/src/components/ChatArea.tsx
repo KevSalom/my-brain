@@ -102,12 +102,6 @@ export const ChatArea: React.FC = () => {
                 loaded in your{" "}
                 <span className="text-zinc-100 font-medium">brain area...</span>
               </h2>
-
-              {/* Subtle status dot info */}
-              <div className="flex items-center gap-1.5 mt-8 px-3 py-1 rounded-full bg-zinc-900/40 dark:bg-zinc-950/40 border border-brand-border text-[10px] font-mono text-zinc-500 uppercase tracking-wider select-none">
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
-                <span>Ready to analyze locally</span>
-              </div>
             </div>
           </AuiIf>
  
@@ -210,7 +204,7 @@ const AssistantMessage: React.FC<AssistantMessageProps> = ({ message, sources, a
           {agentStatus ? (
             <div className="py-1 flex flex-col gap-2.5">
               <div className="flex items-center gap-2 text-zinc-400 font-medium select-none">
-                <Sparkles className="h-3.5 w-3.5 text-brand-primary animate-pulse" />
+                <BrainCircuit className="h-3.5 w-3.5 text-brand-primary animate-pulse" />
                 <span className="text-xs tracking-wide animate-pulse">{agentStatus}</span>
               </div>
               <div className="flex gap-1 pl-5">
