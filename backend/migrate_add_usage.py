@@ -13,22 +13,25 @@ def migrate():
     ]
     
     with Session(engine) as session:
+        # Obtener columnas existentes en la tabla message
+        try:
+            result = session.execute(text("PRAGMA table_info(message)")).fetchall()
+            existing_columns = {row[1] for row in result}
+        except Exception as e:
+            existing_columns = set()
+            
         for col_name, col_type in columns_to_add:
+            if col_name in existing_columns:
+                continue  # Omitir silenciosamente si ya existe
+                
             try:
-                # Comprobar si la columna ya existe en la tabla message
-                # SQLite no tiene un método directo IF NOT EXISTS para ADD COLUMN,
-                # por lo que capturamos la excepción si ya existe.
                 stmt = f"ALTER TABLE message ADD COLUMN {col_name} {col_type}"
                 session.execute(text(stmt))
                 session.commit()
                 print(f"Columna '{col_name}' agregada con éxito.")
             except Exception as e:
-                # Si la columna ya existe, SQLite lanzará un error del tipo "duplicate column name"
                 session.rollback()
-                if "duplicate column name" in str(e).lower() or "already exists" in str(e).lower():
-                    print(f"Columna '{col_name}' ya existe, omitiendo.")
-                else:
-                    print(f"Error al agregar columna '{col_name}': {e}")
+                print(f"Error al agregar columna '{col_name}': {e}")
 
 if __name__ == "__main__":
     migrate()

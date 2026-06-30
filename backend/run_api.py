@@ -14,8 +14,12 @@ from config import settings
 
 def main():
     """Arranca el servidor uvicorn con la configuración de settings."""
-    print(f"\n🧠 My Brain LM API iniciando en http://{settings.api_host}:{settings.api_port}")
-    print(f"📖 Documentación en http://{settings.api_host}:{settings.api_port}/docs\n")
+    try:
+        print(f"\n🧠 My Brain LM API iniciando en http://{settings.api_host}:{settings.api_port}")
+        print(f"📖 Documentación en http://{settings.api_host}:{settings.api_port}/docs\n")
+    except UnicodeEncodeError:
+        print(f"\n[Brain] My Brain LM API iniciando en http://{settings.api_host}:{settings.api_port}")
+        print(f"[Docs] Documentación en http://{settings.api_host}:{settings.api_port}/docs\n")
     
     import os
     reload_env = os.getenv("API_RELOAD", "true").lower()
