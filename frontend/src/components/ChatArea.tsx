@@ -101,7 +101,7 @@ const CopyButton: React.FC<{ value: string; className?: string }> = ({ value, cl
   );
 };
 
-const ContextMeterHeader: React.FC = () => {
+const ContextMeterHeader: React.FC<{ conversationTitle?: string }> = ({ conversationTitle }) => {
   const [modelInfo, setModelInfo] = useState<ModelInfo | null>(null);
   const messages = useAuiState((s) => s.thread.messages);
 
@@ -125,8 +125,6 @@ const ContextMeterHeader: React.FC = () => {
   }
 
   const inputTokens = activeUsage?.input_tokens || 0;
-  if (inputTokens === 0) return null;
-
   const contextLength = modelInfo.context_length || 128000;
   const percentage = Math.min(100, (inputTokens / contextLength) * 100);
 
@@ -142,29 +140,41 @@ const ContextMeterHeader: React.FC = () => {
   }
 
   return (
-    <div className="w-full border-b border-brand-border bg-zinc-950/20 backdrop-blur-sm px-4 py-2 flex items-center justify-end text-xs shrink-0 select-none">
-      <div className="flex items-center gap-3">
-        <span className="font-mono text-[11px] text-zinc-500">
-          Context: <span className={`${textColorClass} font-semibold`}>{inputTokens.toLocaleString()}</span> / {contextLength >= 1000000 ? `${contextLength / 1000000}M` : `${contextLength / 1000}K`}
+    <div className="w-full border-b border-brand-border bg-zinc-950/20 backdrop-blur-sm px-4 py-2 flex items-center justify-between text-xs shrink-0 select-none">
+      <div className="flex items-center gap-1.5 font-medium text-zinc-400">
+        <span className="truncate max-w-[180px] md:max-w-[300px]">
+          {conversationTitle || "New Conversation"}
         </span>
-        <div className="w-20 md:w-28 h-1.5 bg-zinc-900/60 rounded-full overflow-hidden border border-brand-border relative">
-          <div 
-            className={`h-full rounded-full transition-all duration-500 ${barColorClass}`}
-            style={{ width: `${percentage}%` }}
-          />
-        </div>
       </div>
+      
+      {inputTokens > 0 && (
+        <div className="flex items-center gap-3">
+          <span className="font-mono text-[11px] text-zinc-500">
+            Context: <span className={`${textColorClass} font-semibold`}>{inputTokens.toLocaleString()}</span> / {contextLength >= 1000000 ? `${contextLength / 1000000}M` : `${contextLength / 1000}K`}
+          </span>
+          <div className="w-20 md:w-28 h-1.5 bg-zinc-900/60 rounded-full overflow-hidden border border-brand-border relative">
+            <div 
+              className={`h-full rounded-full transition-all duration-500 ${barColorClass}`}
+              style={{ width: `${percentage}%` }}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };
 
 
-export const ChatArea: React.FC = () => {
+interface ChatAreaProps {
+  conversationTitle?: string;
+}
+
+export const ChatArea: React.FC<ChatAreaProps> = ({ conversationTitle }) => {
   return (
     <div className="flex-1 min-h-0 bg-brand-bg flex flex-col min-w-0 relative">
       <ThreadPrimitive.Root className="flex flex-col h-full w-full">
         {/* Context Meter Header */}
-        <ContextMeterHeader />
+        <ContextMeterHeader conversationTitle={conversationTitle} />
 
         {/* Scrollable Viewport */}
         <ThreadPrimitive.Viewport

@@ -125,7 +125,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             </div>
           </div>
         )}
-        {conversations.map(conv => {
+        {[...conversations].reverse().map(conv => {
           const isActive = conv.id === selectedConversationId;
           if (editingConvId === conv.id) {
             return (

@@ -13,6 +13,7 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000
 interface ChatContainerProps {
   chatId: string | null;
   areaId?: string;
+  conversationTitle?: string;
   initialMessages: ThreadMessageLike[];
   onConversationCreated?: (newConvId: string) => void;
   onConversationTitleUpdated?: (convId: string, newTitle: string) => void;
@@ -21,6 +22,7 @@ interface ChatContainerProps {
 export const ChatContainer: React.FC<ChatContainerProps> = ({ 
   chatId, 
   areaId,
+  conversationTitle,
   initialMessages,
   onConversationCreated,
   onConversationTitleUpdated
@@ -182,7 +184,7 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({
 
   return (
     <AssistantRuntimeProvider runtime={runtime}>
-      <ChatArea />
+      <ChatArea conversationTitle={conversationTitle} />
     </AssistantRuntimeProvider>
   );
 };

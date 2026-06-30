@@ -331,6 +331,10 @@ function MainApp() {
     return areas.find(a => a.id === selectedAreaId)?.name || '';
   }, [areas, selectedAreaId]);
 
+  const activeConversationTitle = useMemo(() => {
+    return conversations.find(c => c.id === selectedConversationId)?.title || '';
+  }, [conversations, selectedConversationId]);
+
   if (isInitialLoading) {
     return (
       <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-brand-bg select-none transition-colors duration-300">
@@ -438,6 +442,7 @@ function MainApp() {
             <ChatContainer 
               chatId={selectedConversationId} 
               areaId={selectedAreaId}
+              conversationTitle={activeConversationTitle}
               initialMessages={selectedConversationId ? initialMessages : []} 
               onConversationCreated={async (newConvId) => {
                 // 1. Guardar que saltaremos el fetch automático al cambiar de URL
