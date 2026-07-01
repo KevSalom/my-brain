@@ -8,7 +8,7 @@
 
 My Brain LM is a developer-focused, open-source alternative to tools like **Google's NotebookLM**, designed to query technical documentation, analyze research articles, study academic papers, make architectural decisions, or simply have an AI assistant that "knows" your local documents.
 
-Unlike Google's NotebookLM, you are **not locked into Gemini models** or any single provider. The application is built using the standard OpenAI client interface but recommends routing through **OpenRouter**, giving you the complete freedom to use any state-of-the-art model available (such as **DeepSeek-V4**). It is a private-first, custom-tailored workspace designed for deep studying, research, and learning (your source files, relational histories, and ChromaDB vector databases remain 100% on your local machine, though inference prompts can be sent to external APIs or run fully offline using local engines like Ollama).
+Unlike Google's NotebookLM, you are **not locked into Gemini models** or any single provider. The application is built using the standard OpenAI client interface but recommends routing through **OpenRouter**, giving you the complete freedom to use any state-of-the-art model available (such as **DeepSeek-V3/Coder**, **Claude 3.5 Sonnet**, **Llama 3**, or **GPT-4o**). It is a storage-local, custom-tailored workspace designed for deep studying, research, and learning. See [Privacy & Data](#-privacy--data) for details on how your data is handled.
 
 ### Key Features
 
@@ -19,7 +19,18 @@ Unlike Google's NotebookLM, you are **not locked into Gemini models** or any sin
 *   📥 **Multi-Format Ingestion**: Supports Drag & Drop uploads for PDF, TXT, and Markdown files, alongside custom web link (URL) downloading and raw text pasting.
 *   🔍 **Hybrid Search**: RAG query engine utilizing semantic embedding search combined with keyword retrieval (BM25) for accurate context matching. The retrieval weights can be customized via the backend configuration settings (defaults to a 70% semantic / 30% BM25 weight balance) to experiment and find the optimal retrieval blend.
 
----
+### 🔒 Privacy & Data
+
+Your **source files, chat histories (SQLite), and vector databases (ChromaDB) are always stored 100% locally** on your machine. No cloud database ever has your original documents.
+
+However, your **level of inference privacy depends entirely on the provider you choose**:
+
+| Provider | Storage | Inference Prompts | Privacy Level |
+|---|---|---|---|
+| **Local model** (Ollama, LM Studio) | 🟢 Local | 🟢 Local — nothing leaves your machine | **Full offline privacy** |
+| **Trusted API** (OpenRouter, OpenAI, Anthropic) | 🟢 Local | 🟡 Sent to provider servers for processing | **Storage-private** — review your provider's data retention policy |
+
+> **Important:** When using any external API, the text chunks retrieved from your documents and your questions are sent to the provider's servers for inference. Most reputable providers (OpenRouter, OpenAI, Anthropic) do **not** train on API data and have strict short-term retention policies, but your prompts do temporarily leave your machine. If you need **100% air-gapped privacy**, point the backend to a local model engine like [Ollama](https://ollama.com).
 
 ## 🛠️ Project Structure
 
